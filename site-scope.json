@@ -1,0 +1,8 @@
+{
+  "$comment": "Pilot scope (plan phase 2). Pages published from each pinned site input; every other in-project link becomes a temporary redirect to the page's current home until it migrates.",
+  "remix": {
+    "pages": [
+      "components/button"
+    ]
+  }
+}

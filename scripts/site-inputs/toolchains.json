@@ -1,0 +1,11 @@
+{
+  "mix-previews": {
+    "flutter": "3.44.0",
+    "note": "btwld/website .fvmrc floats on stable with a mincompat flavor of 3.44.0. Its committed pubspec.lock only resolves with --enforce-lockfile on 3.44.0 (3.47.9 re-resolves the SDK-pinned meta, matcher, test_api and vector_math), so the producer pins 3.44.0."
+  },
+  "remix-docs": {
+    "flutter": "3.44.0",
+    "python": "3.9",
+    "note": "Matches btwld/remix .fvmrc and .github/workflows/docs.yml."
+  }
+}
