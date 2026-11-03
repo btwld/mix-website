@@ -14,8 +14,9 @@ Headless button component. Handles click interactions, keyboard navigation, and 
 - **Custom designs**: When standard button styles don't match your design system
 
 <Info>
-  You can find this example in our [GitHub repository](https://github.com/btwld/naked_ui/blob/main/packages/example/lib/api/naked_button.0.dart).
+  You can find this example in our [GitHub repository](https://github.com/btwld/remix/blob/main/apps/naked_ui_example/lib/api/naked_button.0.dart).
 </Info>
+
 ## Basic implementation
 
 <CodeGroup title="Basic implementation" defaultLanguage="dart">
@@ -170,6 +171,7 @@ const NakedButton({
   this.focusOnPress = false,
   this.tooltip,
   this.semanticLabel,
+  this.semanticHint,
   this.excludeSemantics = false,
 })
 ```
@@ -213,7 +215,7 @@ Optional focus node to control focus behavior.
 Whether to automatically focus this button when first built. Defaults to false.
 
 #### builder → `ValueWidgetBuilder<NakedButtonState>?`
-Optional builder that receives the current [NakedButtonState] (and optional `child`) to drive visuals. Use this instead of callbacks for stateless widgets.
+Optional builder that receives the current `NakedButtonState` (and optional `child`) to drive visuals. Use this instead of callbacks for stateless widgets.
 
 #### focusOnPress → `bool`
 Whether to request focus when the button is pressed. Defaults to false.
@@ -223,3 +225,6 @@ Optional tooltip semantics for assistive technologies.
 
 #### semanticLabel → `String?`
 Optional semantic label for screen readers.
+
+#### semanticHint → `String?`
+Additional context announced with the button's accessible name. It sits on the same Semantics node as the button role, label, enabled state and tap/long-press actions; do not wrap the button in another Semantics node to add a hint.
