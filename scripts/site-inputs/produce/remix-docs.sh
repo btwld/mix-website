@@ -45,6 +45,14 @@ cp "$src/LICENSE" "$stage/LICENSE"
 
 grep -q '<base href="/remix/catalog/">' "$stage/catalog/index.html" || fail "catalog index.html does not use /remix/catalog/"
 
+# Reproducibility: Flutter writes a random build ID and a random service
+# worker version on every build. The ID is tool metadata; the version only
+# cache-busts the self-unregistering worker, so derive it from the commit.
+rm -f "$stage/catalog/.last_build_id"
+sw_version="$((16#${commit:0:8}))"
+grep -qE 'serviceWorkerVersion: "[0-9]+"' "$stage/catalog/flutter_bootstrap.js" || fail "flutter_bootstrap.js has no serviceWorkerVersion to normalize"
+sed -E -i "s/serviceWorkerVersion: \"[0-9]+\"/serviceWorkerVersion: \"$sw_version\"/" "$stage/catalog/flutter_bootstrap.js"
+
 node - "$stage" "$commit" "$flutter_json" <<'NODE'
 const fs = require('node:fs');
 const path = require('node:path');
@@ -65,6 +73,7 @@ const metadata = {
   source: { repository: 'btwld/remix', commit, path: 'docs', license: 'BSD-3-Clause' },
   toolchain: { flutter: flutter.frameworkVersion, flutterRevision: flutter.frameworkRevision, dart: flutter.dartSdkVersion, engineRevision: flutter.engineRevision },
   producer: { script: 'scripts/site-inputs/produce/remix-docs.sh', commit: process.env.PRODUCER_COMMIT ?? null },
+  normalized: ['catalog/.last_build_id removed', 'catalog/flutter_bootstrap.js serviceWorkerVersion = decimal of the first 8 hex digits of the source commit'],
   payload: { content: 'content/', assets: 'assets/', catalog: 'catalog/', catalogBaseHref: '/remix/catalog/', pages: pages.sort() },
 };
 fs.writeFileSync(path.join(stage, 'site-input.json'), JSON.stringify(metadata, null, 2) + '\n');

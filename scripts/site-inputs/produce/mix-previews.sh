@@ -42,13 +42,21 @@ cp -R "$pkg/build/web" "$stage/bundle"
 # The bundle is embedded, never installed as an app; a worker file inside a
 # versioned directory would only invite a stray registration.
 rm -f "$stage/bundle/flutter_service_worker.js"
+commit_date="$(git -C "$src" show -s --format=%cI "$commit")"
 
-node - "$stage" "$commit" "$flutter_json" "$here" <<'NODE'
+node - "$stage" "$commit" "$flutter_json" "$commit_date" <<'NODE'
 const fs = require('node:fs');
 const path = require('node:path');
-const [stage, commit, flutterJson, here] = process.argv.slice(2);
+const [stage, commit, flutterJson, commitDate] = process.argv.slice(2);
 const flutter = JSON.parse(flutterJson);
-const manifest = JSON.parse(fs.readFileSync(path.join(stage, 'bundle/previews-manifest.json'), 'utf8'));
+// Reproducibility: the Flutter output is byte-stable for a given commit and
+// SDK; only the manifest's build timestamp is not. Use the commit date.
+const manifestPath = path.join(stage, 'bundle/previews-manifest.json');
+const manifestText = fs.readFileSync(manifestPath, 'utf8');
+const normalizedText = manifestText.replace(/("generatedAt"\s*:\s*)"[^"]*"/, `$1${JSON.stringify(commitDate)}`);
+if (normalizedText === manifestText && !manifestText.includes(commitDate)) throw new Error('previews-manifest.json has no generatedAt to normalize');
+fs.writeFileSync(manifestPath, normalizedText);
+const manifest = JSON.parse(normalizedText);
 const config = JSON.parse(fs.readFileSync(path.join(stage, 'bundle/flutter-build-config.json'), 'utf8'));
 for (const entry of manifest.entries) {
   if (!fs.existsSync(path.join(stage, 'bundle/sources', entry.sourcePath))) {
@@ -61,6 +69,7 @@ const metadata = {
   source: { repository: 'btwld/website', commit, path: 'packages/mix_docs_preview', license: null },
   toolchain: { flutter: flutter.frameworkVersion, flutterRevision: flutter.frameworkRevision, dart: flutter.dartSdkVersion, engineRevision: config.engineRevision },
   producer: { script: 'scripts/site-inputs/produce/mix-previews.sh', commit: process.env.PRODUCER_COMMIT ?? null },
+  normalized: ['bundle/previews-manifest.json generatedAt = source commit date'],
   payload: { bundle: 'bundle/', manifest: 'bundle/previews-manifest.json', sources: 'bundle/sources/', previewIds: manifest.entries.map(entry => entry.previewId) },
 };
 fs.writeFileSync(path.join(stage, 'site-input.json'), JSON.stringify(metadata, null, 2) + '\n');
