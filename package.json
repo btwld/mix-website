@@ -1,0 +1,37 @@
+{
+  "name": "@btwld/mix-website",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.5.3",
+  "engines": { "node": ">=24.14.0 <25", "pnpm": "11.5.3" },
+  "scripts": {
+    "site-inputs": "node scripts/site-inputs/sync.mjs",
+    "dev": "node scripts/site-inputs/sync.mjs && next dev",
+    "build": "node scripts/site-inputs/sync.mjs && next build",
+    "start": "next start",
+    "typecheck": "node scripts/site-inputs/sync.mjs && next typegen && tsc --noEmit",
+    "test": "node --test tests/unit/*.test.mjs",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@base-ui/react": "1.7.0",
+    "@concepta/docs-theme": "0.0.1",
+    "fumadocs-core": "16.15.8",
+    "fumadocs-mdx": "15.4.0",
+    "fumadocs-ui": "npm:@fumadocs/base-ui@16.15.8",
+    "next": "16.4.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "zod": "4.6.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/mdx": "2.0.14",
+    "@types/node": "26.3.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "postcss": "8.5.26",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3"
+  }
+}

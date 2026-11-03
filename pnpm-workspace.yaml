@@ -1,0 +1,12 @@
+packages: []
+strictPeerDependencies: true
+engineStrict: true
+allowBuilds:
+  esbuild: true
+minimumReleaseAgeStrict: true
+# Carried from btwld/remix apps/docs: reviewed first versions of the theme
+# stack that are younger than pnpm's default release-age window.
+minimumReleaseAgeExclude:
+  - '@fumadocs/base-ui@16.15.8'
+  - 'fumadocs-core@16.15.8'
+  - '@concepta/docs-theme@0.0.1'

@@ -1,0 +1,14 @@
+node_modules/
+.next/
+.source/
+.generated/
+.site-inputs/
+next-env.d.ts
+*.tsbuildinfo
+# Staged from pinned site inputs by scripts/site-inputs/sync.mjs
+public/previews/
+public/remix/
+# Playwright
+test-results/
+playwright-report/
+.apphosting/
