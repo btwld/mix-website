@@ -14,7 +14,8 @@
     "start": "next start",
     "typecheck": "node scripts/site-inputs/sync.mjs && next typegen && tsc --noEmit",
     "test": "node --test tests/unit/*.test.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:lock-update": "node tests/lock-update/returning-browser.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",
