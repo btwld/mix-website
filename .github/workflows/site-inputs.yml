@@ -1,0 +1,94 @@
+# Build one site input from an exact source commit and publish it as an
+# immutable, commit-addressed release asset of this repository. Run it,
+# confirm the published digest, then open a PR that pins the asset with
+# scripts/site-inputs/pin.mjs. Publish before the lock update merges.
+name: Publish site input
+
+on:
+  workflow_dispatch:
+    inputs:
+      input:
+        description: Site input to build
+        required: true
+        type: choice
+        options: [mix-previews, remix-docs]
+      commit:
+        description: Full 40-character source commit SHA
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: site-input-${{ inputs.input }}-${{ inputs.commit }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      INPUT: ${{ inputs.input }}
+      COMMIT: ${{ inputs.commit }}
+      GH_TOKEN: ${{ github.token }}
+      PRODUCER_COMMIT: ${{ github.sha }}
+    steps:
+      - name: Validate request
+        run: |
+          [[ "$COMMIT" =~ ^[0-9a-f]{40}$ ]] || { echo "commit must be a full SHA"; exit 1; }
+          case "$INPUT" in
+            mix-previews) echo "SOURCE_REPO=btwld/website" >> "$GITHUB_ENV" ;;
+            remix-docs) echo "SOURCE_REPO=btwld/remix" >> "$GITHUB_ENV" ;;
+          esac
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: ${{ env.SOURCE_REPO }}
+          ref: ${{ inputs.commit }}
+          path: source
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .node-version
+      - name: Read pinned toolchain
+        run: echo "FLUTTER_VERSION=$(node -p "require('./scripts/site-inputs/toolchains.json')[process.env.INPUT].flutter")" >> "$GITHUB_ENV"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Refuse to replace a published input
+        run: |
+          short="${COMMIT:0:12}"
+          tag="site-input-$INPUT-$short"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "$tag already exists; published inputs are immutable."; exit 1
+          fi
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+          echo "ASSET=$INPUT-$short.tar.gz" >> "$GITHUB_ENV"
+      - name: Build
+        run: |
+          bash "scripts/site-inputs/produce/$INPUT.sh" source "$COMMIT" out
+          echo "SHA256=$(sha256sum "out/$ASSET" | cut -d' ' -f1)" >> "$GITHUB_ENV"
+      - name: Publish release asset
+        run: |
+          gh release create "$TAG" "out/$ASSET" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Site input $INPUT @ ${COMMIT:0:12}" --latest=false \
+            --notes "Built from $SOURCE_REPO@$COMMIT with Flutter $FLUTTER_VERSION by $GITHUB_REPOSITORY@$GITHUB_SHA. sha256 $SHA256"
+      - name: Verify the published bytes
+        run: |
+          url="https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/$ASSET"
+          curl -fsSL "$url" -o published.tar.gz
+          actual="$(sha256sum published.tar.gz | cut -d' ' -f1)"
+          [ "$SHA256" = "$actual" ] || { echo "published asset differs ($actual != $SHA256)"; exit 1; }
+          {
+            echo "### $INPUT @ ${COMMIT:0:12}"
+            echo "Pin it in a website PR:"
+            echo '```'
+            echo "gh release download $TAG --repo $GITHUB_REPOSITORY --dir /tmp/site-input"
+            echo "node scripts/site-inputs/pin.mjs /tmp/site-input/$ASSET"
+            echo '```'
+            echo "sha256: \`$actual\`"
+          } >> "$GITHUB_STEP_SUMMARY"

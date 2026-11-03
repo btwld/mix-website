@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .node-version
+      - run: npm install --global pnpm@11.5.3
+      - run: pnpm install --frozen-lockfile
+      - name: Unit tests (site-input pipeline)
+        run: pnpm test
+      # Archives are addressed by digest, so the cache can never serve a
+      # different input than sources.lock.json pins.
+      - uses: actions/cache@v4
+        with:
+          path: .site-inputs/cache
+          key: site-inputs-${{ hashFiles('sources.lock.json') }}
+      - name: Type check (fetches and verifies pinned site inputs)
+        run: pnpm typecheck
+      - name: Build
+        run: pnpm build
+      - name: Install browsers
+        run: pnpm exec playwright install --with-deps chromium webkit
+      - name: Browser checks (Chromium and WebKit)
+        run: pnpm test:e2e
+      - name: Returning browser after a lock update
+        run: pnpm test:lock-update chromium
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-failures
+          path: |
+            test-results
+            playwright-report
+          retention-days: 14

@@ -7,7 +7,7 @@
 // Set PW_WS_ENDPOINT to drive a remote `playwright run-server` (for example
 // WebKit in the official container); one context then shares the HTTP cache.
 // Needs the locked archives in the cache. Rebuilds the site twice on port
-// 3200 and restores sources.lock.json afterwards.
+// 3200, then restores sources.lock.json and rebuilds from it.
 import { spawn, execFileSync } from 'node:child_process';
 import { copyFile, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -130,8 +130,8 @@ try {
 } finally {
   if (server) stop(server);
   await writeFile(p.lock, lockBackup);
-  // Leave the workspace staged from the committed lock again.
-  execFileSync('node', ['scripts/site-inputs/sync.mjs'], { cwd: root, env, stdio: 'ignore' });
+  // Leave the workspace built from the committed lock again.
+  build();
   await rm(profile, { recursive: true, force: true });
 }
 
