@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import type { FlutterMultiViewApp, FlutterEngineInitializer } from "./flutter-types";
 import { FLUTTER_TIMEOUTS, withTimeout } from "./flutter/timeouts";
+import { MIX_PREVIEWS_BASE } from "./bundle";
 
 // Re-export for consumers
 export type { FlutterMultiViewApp };
@@ -199,7 +200,7 @@ async function ensureFlutterEngine(basePath: string): Promise<FlutterMultiViewAp
  */
 export function FlutterMultiView({
   previewId,
-  basePath = "/previews",
+  basePath = MIX_PREVIEWS_BASE,
   height = 400,
   bordered = true,
   className = "",

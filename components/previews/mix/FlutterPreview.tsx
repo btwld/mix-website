@@ -8,6 +8,7 @@ import {
   type PreviewManifestEntry,
   findPreviewManifestEntry,
 } from "./flutter/preview-manifest";
+import { MIX_PREVIEWS_BASE, MIX_SOURCES_BASE } from "./bundle";
 
 type PreviewMode = "preview" | "code" | "both";
 type ManifestState = "loading" | "ready" | "error";
@@ -36,8 +37,8 @@ export function FlutterPreview({
   defaultMode = "preview",
   height = 360,
   codeMaxHeight = 420,
-  basePath = "/previews",
-  sourceBasePath = "/previews/sources",
+  basePath = MIX_PREVIEWS_BASE,
+  sourceBasePath = MIX_SOURCES_BASE,
   bordered = true,
   fallbackToFullFile = true,
 }: FlutterPreviewProps) {

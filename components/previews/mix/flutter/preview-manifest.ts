@@ -18,21 +18,13 @@ const MANIFEST_FILE = "previews-manifest.json";
 const manifestCache = new Map<string, Promise<PreviewManifest>>();
 
 function buildManifestUrl(basePath: string): string {
-  const normalizedBasePath = basePath.replace(/\/$/, "");
-  // Cache strategy:
-  // - Canonical manifest URL: {basePath}/previews-manifest.json
-  // - Optional build id query suffix to prevent stale CDN/browser caches
-  // - fetch(..., { cache: "no-store" }) to always refresh on hard deploy edges
-  const buildId =
-    process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA ??
-    process.env.NEXT_PUBLIC_BUILD_ID ??
-    "";
-  const suffix = buildId ? `?v=${encodeURIComponent(buildId)}` : "";
-  return `${normalizedBasePath}/${MANIFEST_FILE}${suffix}`;
+  // The bundle directory is content-addressed, so the manifest URL changes
+  // with every locked build and needs no cache-busting query.
+  return `${basePath.replace(/\/$/, "")}/${MANIFEST_FILE}`;
 }
 
 export async function loadPreviewManifest(
-  basePath: string = "/previews"
+  basePath: string
 ): Promise<PreviewManifest> {
   const cacheKey = basePath.replace(/\/$/, "");
 
@@ -49,14 +41,14 @@ export async function loadPreviewManifest(
 
 export async function findPreviewManifestEntry(
   previewId: string,
-  basePath: string = "/previews"
+  basePath: string
 ): Promise<PreviewManifestEntry | null> {
   const manifest = await loadPreviewManifest(basePath);
   return manifest.entries.find((entry) => entry.previewId === previewId) ?? null;
 }
 
 async function fetchPreviewManifest(basePath: string): Promise<PreviewManifest> {
-  const response = await fetch(buildManifestUrl(basePath), { cache: "no-store" });
+  const response = await fetch(buildManifestUrl(basePath));
 
   if (!response.ok) {
     throw new Error(`Failed to load previews manifest (${response.status})`);

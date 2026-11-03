@@ -250,7 +250,8 @@ export async function collectPendingRedirects(projects) {
           const slug = docsSlugFor(target, url);
           if (slug === null) continue;
           const pages = projects.find(item => item.projectId === target)?.published ?? new Set();
-          if (!pages.has(slug)) {
+          // The docs root always renders (its index page or a page list).
+          if (slug && !pages.has(slug)) {
             redirects.set(`${PROJECTS[target].docsBase}${slug ? `/${slug}` : ''}`, legacyDocsUrl(target, slug));
           }
         }

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Highlighter } from "shiki";
+import { MIX_SOURCES_BASE } from "./bundle";
 
 type SnippetStatus = "loading" | "ready" | "error";
 
@@ -50,7 +51,7 @@ export function FlutterSnippet({
   sourcePath,
   region,
   title,
-  basePath = "/previews/sources",
+  basePath = MIX_SOURCES_BASE,
   maxHeight = 440,
   fallbackToFullFile = true,
   showMeta = true,

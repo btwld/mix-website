@@ -208,8 +208,8 @@ test('docs snapshots publish only scoped pages and their navigation', async () =
   assert.equal(existsSync(path.join(out, 'components/dialog.mdx')), false);
 
   const { redirects, assets } = await collectPendingRedirects([{ projectId: 'remix', contentDir: out, published }]);
+  // The docs root (linked as `/`) always renders, so it never redirects away.
   assert.deepEqual(redirects, [
-    { source: '/remix/docs', destination: 'https://btwld.github.io/remix/' },
     { source: '/remix/docs/components/dialog', destination: 'https://btwld.github.io/remix/components/dialog/' },
   ]);
   assert.deepEqual(assets, ['/remix/assets/x.png']);
