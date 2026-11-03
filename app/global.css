@@ -3,7 +3,8 @@
 @import '@concepta/docs-theme/theme.css';
 
 /* Project identity. The theme resolves --color-fd-primary at the root, so
-   each project scope sets it directly (contrast-checked in light and dark). */
+   each project scope sets it directly. Each clears WCAG AA (4.5:1) on the
+   background, muted, secondary and accent surfaces in light and dark. */
 .project-mix { --color-fd-primary: #6d28d9; }
 .dark .project-mix, .dark.project-mix { --color-fd-primary: #c4b5fd; }
 /* Remix values carried from btwld/remix apps/docs/app/global.css. */
@@ -84,3 +85,7 @@
 .remix-preview-status button { min-height: 2.75rem; padding: 0.5rem 1rem; border-radius: 0.375rem; background: var(--color-fd-primary); color: var(--color-fd-primary-foreground); font-weight: 600; }
 .remix-preview-caption { padding: 0.75rem 1rem; border-top: 1px solid var(--color-fd-border); color: var(--color-fd-muted-foreground); font-size: 0.875rem; line-height: 1.5; }
 .remix-preview-caption a { text-decoration: underline; text-underline-offset: 0.2em; }
+
+/* Search results always carry a project label above their text, so move
+   Fumadocs' heading marker (positioned for unlabelled rows) below it. */
+[data-result-url] > svg { top: calc(0.625rem + 1rem); }
