@@ -1,0 +1,14 @@
+{
+  "repository": "btwld/website",
+  "commit": "509c4a9ddb698b86f26a51291fa6540087461614",
+  "pages": {
+    "guides/animations": {
+      "path": "src/content/documentation/mix/guides/animations.mdx",
+      "sha256": "7e711b57fa95989a5e26efc39a614cba16561cdb4760ea5a1123a1c352593b7a"
+    },
+    "widgets/box": {
+      "path": "src/content/documentation/mix/widgets/box.mdx",
+      "sha256": "3e73ffc6669a72e6d7d814fc73eaf506e463acea16fa0ab2a9c3504153a2534c"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "repository": "btwld/naked_ui",
+  "commit": "90f8560cb121e8b9a07dfe6284575502e4437672",
+  "pages": {
+    "widget/button": {
+      "path": "docs/widget/button.mdx",
+      "sha256": "cb338bd2f3a168393ac972539eda52b0086a1fc3150dbb44117061fa63f078fa"
+    }
+  }
+}
