@@ -1,0 +1,23 @@
+# Firebase App Hosting backend settings. Not provisioned: the Firebase
+# project, Blaze billing and backend still need approval (plan phase 1).
+#
+# App Hosting runs the package.json build script through its Next.js
+# adapter, so the site-input prebuild runs inside the managed build too.
+# Do not set scripts.buildCommand here: overriding it opts out of the adapter.
+runConfig:
+  cpu: 1
+  memoryMiB: 512
+  concurrency: 80
+  minInstances: 0
+  maxInstances: 4
+
+env:
+  - variable: NEXT_PUBLIC_SITE_URL
+    value: https://fluttermix.com
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_TELEMETRY_DISABLED
+    value: "1"
+    availability: [BUILD, RUNTIME]
+  # SITE_INDEXING is deliberately absent, so every backend (including the
+  # pilot's temporary URL) is noindex. Only the production backend sets
+  # SITE_INDEXING=index, at cutover (plan phase 4).

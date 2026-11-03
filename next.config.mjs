@@ -2,8 +2,6 @@ import { readFileSync } from 'node:fs';
 import { createMDX } from 'fumadocs-mdx/next';
 import { PROJECTS } from './lib/projects.mjs';
 
-// Written by scripts/site-inputs/sync.mjs, which every dev/build runs first.
-const pendingRedirects = JSON.parse(readFileSync(new URL('./.generated/pending-redirects.json', import.meta.url), 'utf8'));
 const indexing = process.env.SITE_INDEXING === 'index';
 const catalog = PROJECTS.remix.catalogPath;
 
@@ -33,6 +31,9 @@ const config = {
   },
   async redirects() {
     // Temporary until each page migrates: links resolve to its current home.
+    // Read here, not at module load: Firebase's Next.js adapter loads this
+    // config before it runs the build script that writes the file.
+    const pendingRedirects = JSON.parse(readFileSync(new URL('./.generated/pending-redirects.json', import.meta.url), 'utf8'));
     return pendingRedirects.map(({ source, destination }) => ({ source: `${source}/`, destination, permanent: false }));
   },
 };
