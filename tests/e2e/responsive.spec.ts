@@ -12,18 +12,29 @@ for (const route of representative) expect(inventory.siteRoutes).toContain(route
 for (const width of [1440, 390]) test.describe(`reader navigation at ${width}px`, () => {
   test.use({ viewport: { width, height: 1000 }, isMobile: width < 600, hasTouch: width < 600 });
 
-  test('real corpus routes render without page errors, missing assets or page overflow', async ({ page }) => {
+  test('real corpus routes render without page errors, missing assets or page overflow', async ({ context }) => {
     test.setTimeout(240_000);
-    const errors: string[] = [];
-    page.on('pageerror', error => errors.push(String(error)));
-    page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
-    page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
     for (const route of representative) {
-      expect((await page.goto(route))?.status(), route).toBe(200);
-      await expect(page.locator('h1')).toBeVisible();
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), route).toBe(true);
+      // Audit each direct load independently. WebKit reports cancelled imports
+      // and prefetches as page errors when a later goto tears down the document.
+      // Settle the active page and assert every error before closing it; do not
+      // discard matching console messages from a document that is still in use.
+      const page = await context.newPage();
+      const errors: string[] = [];
+      page.on('pageerror', error => errors.push(String(error)));
+      page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+      page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
+      page.on('requestfailed', request => errors.push(`${request.failure()?.errorText} ${request.url()}`));
+      try {
+        expect((await page.goto(route))?.status(), route).toBe(200);
+        await expect(page.locator('h1')).toBeVisible();
+        await page.waitForLoadState('networkidle');
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), route).toBe(true);
+        expect(errors, route).toEqual([]);
+      } finally {
+        await page.close();
+      }
     }
-    expect(errors).toEqual([]);
   });
 
   test('project entry points, sidebar order, project switcher and search work', async ({ page }) => {
@@ -51,7 +62,14 @@ for (const width of [1440, 390]) test.describe(`reader navigation at ${width}px`
     await expect(page.locator('#shownakedalertdialog')).toBeAttached();
   });
 
-  if (width < 600) test('wide comparison tables scroll locally to their final column', async ({ page }) => {
+});
+
+test.describe('table scrolling at 390px', () => {
+  // Playwright rejects mouse.wheel in mobile WebKit. Use its supported wheel
+  // input at the same narrow, touch-capable viewport; actual mobile navigation
+  // remains covered above. This still exercises browser scrolling, not scrollLeft.
+  test.use({ viewport: { width: 390, height: 1000 }, hasTouch: true, isMobile: false });
+  test('wide comparison tables scroll locally to their final column', async ({ page }) => {
     await page.goto('/mix/docs/guides/animations/');
     await page.locator('table').first().evaluate(table => {
       let container = table.parentElement;
