@@ -204,7 +204,10 @@ export async function stageDocsSnapshot(projectId, snapshotDir, scopePages, outD
   const contentDir = path.join(snapshotDir, 'content');
   await rm(outDir, { recursive: true, force: true });
   const published = new Set();
-  for (const page of scopePages) {
+  const selected = scopePages.includes('*')
+    ? (await walk(contentDir, name => name.endsWith('.mdx'))).map(file => file.replace(/\.mdx$/, ''))
+    : scopePages;
+  for (const page of selected) {
     const candidates = [`${page}.mdx`, `${page}/index.mdx`];
     const found = candidates.find(candidate => existsSync(path.join(contentDir, candidate)));
     if (!found) throw new Error(`${projectId}: scoped page "${page}" is not in the pinned snapshot`);
