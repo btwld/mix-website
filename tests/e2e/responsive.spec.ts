@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { expect, test } from '@playwright/test';
+import { expect, test, type Request } from '@playwright/test';
 
 const inventory = JSON.parse(readFileSync('docs/migration/pages.json', 'utf8'));
 const representative = [
@@ -21,10 +21,20 @@ for (const width of [1440, 390]) test.describe(`reader navigation at ${width}px`
       // discard matching console messages from a document that is still in use.
       const page = await context.newPage();
       const errors: string[] = [];
+      const successfulHeadProbes = new WeakSet<Request>();
       page.on('pageerror', error => errors.push(String(error)));
       page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
-      page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
-      page.on('requestfailed', request => errors.push(`${request.failure()?.errorText} ${request.url()}`));
+      page.on('response', response => {
+        if (response.request().method() === 'HEAD' && response.ok()) successfulHeadProbes.add(response.request());
+        if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`);
+      });
+      page.on('requestfailed', request => {
+        // Chromium reports some successful static HEAD probes as aborted.
+        // Require that observed success; failed probes and every failed GET
+        // (including scripts, images and data) still fail this audit.
+        if (request.failure()?.errorText === 'net::ERR_ABORTED' && successfulHeadProbes.has(request)) return;
+        errors.push(`${request.failure()?.errorText} ${request.url()}`);
+      });
       try {
         expect((await page.goto(route))?.status(), route).toBe(200);
         await expect(page.locator('h1')).toBeVisible();
@@ -62,6 +72,29 @@ for (const width of [1440, 390]) test.describe(`reader navigation at ${width}px`
     await expect(page.locator('#shownakedalertdialog')).toBeAttached();
   });
 
+});
+
+test('Remix tutorial ZIP downloads its published bytes without route prefetch', async ({ page }) => {
+  const asset = '/remix/assets/remix-cli-tutorial/sample-projects.zip';
+  const assetRequests: string[] = [];
+  page.on('request', request => {
+    if (new URL(request.url()).pathname.startsWith(asset)) assetRequests.push(request.url());
+  });
+  await page.goto('/remix/docs/tutorials/settings-screen/');
+  const link = page.getByRole('link', { name: 'sample download', exact: true });
+  await expect(link).toHaveAttribute('href', asset);
+  await link.scrollIntoViewIfNeeded();
+  await link.hover();
+  await page.waitForLoadState('networkidle');
+  expect(assetRequests, 'assets must not be prefetched as Next routes').toEqual([]);
+  const pendingDownload = page.waitForEvent('download');
+  await link.click();
+  const download = await pendingDownload;
+  expect(await download.failure()).toBeNull();
+  expect(download.suggestedFilename()).toBe('sample-projects.zip');
+  expect(readFileSync((await download.path())!).equals(readFileSync(`public${asset}`))).toBe(true);
+  expect(assetRequests.map(url => new URL(url).pathname)).toEqual([asset]);
+  await expect(page).toHaveURL('/remix/docs/tutorials/settings-screen/');
 });
 
 test.describe('table scrolling at 390px', () => {

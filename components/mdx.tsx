@@ -9,6 +9,14 @@ import { FlutterPreview as MixFlutterPreview } from './previews/mix/FlutterPrevi
 import { CatalogSearch } from './previews/remix/catalog-search';
 import { FlutterPreview as RemixFlutterPreview } from './previews/remix/flutter-preview';
 
+const DefaultLink = getConceptaMDXComponents().a;
+export function ContentLink(props: ComponentProps<'a'>) {
+  // Published tutorial files are assets, not application routes. A normal
+  // anchor avoids Next's static route prefetch and preserves browser downloads.
+  if (props.href?.startsWith('/remix/assets/')) return <a {...props} />;
+  return <DefaultLink {...props} />;
+}
+
 // Existing content uses these names. Fumadocs still owns the code blocks,
 // highlighting, copy controls, and callout presentation.
 function CodeGroup({ title, children }: { title?: string; defaultLanguage?: string; children: ReactNode }) {
@@ -40,6 +48,7 @@ const PREVIEW_ADAPTERS = {
 
 export function getMDXComponents(project: ProjectId, overrides?: MDXComponents) {
   return getConceptaMDXComponents({
+    a: ContentLink,
     CodeGroup,
     Steps,
     Callout,

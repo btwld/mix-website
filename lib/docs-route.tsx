@@ -6,7 +6,7 @@ import { slug as headingSlug } from 'github-slugger';
 import { flattenTree } from 'fumadocs-core/page-tree';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getMDXComponents } from '@/components/mdx';
+import { ContentLink, getMDXComponents } from '@/components/mdx';
 import { PROJECTS, type ProjectId } from './projects.mjs';
 import { projectConfig, pageMetadata } from './site';
 import { sources } from './source';
@@ -55,7 +55,7 @@ export function createDocsRoute(project: ProjectId) {
         <DocsTitle id={headingSlug(page.data.title)}>{page.data.title}</DocsTitle>
         <DocsDescription>{page.data.description}</DocsDescription>
       </header>
-      <DocsBody><MDX components={getMDXComponents(project, { a: createRelativeLink(source, page) })} /></DocsBody>
+      <DocsBody><MDX components={getMDXComponents(project, { a: createRelativeLink(source, page, ContentLink) })} /></DocsBody>
       <a href={createSourceUrl(config, page.path)} className="concepta-docs-source-link">View page source on GitHub</a>
     </DocsPage>;
   }
