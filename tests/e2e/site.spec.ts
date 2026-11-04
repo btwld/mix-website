@@ -141,7 +141,17 @@ test.describe('Mix previews', () => {
     await page.evaluate(() => { (window as unknown as { __noReload: boolean }).__noReload = true; });
     // Sidebar folders start collapsed; open Guides, then follow the link.
     await page.getByRole('button', { name: 'Guides', exact: true }).click();
-    await page.getByRole('link', { name: 'Animations', exact: true }).first().click();
+    const animationsLink = page.getByRole('link', { name: 'Animations', exact: true }).first();
+    // Base UI animates the ancestor panel. The link can pass the browser's
+    // two-frame stability check while that panel is still moving under the
+    // pointer; wait for the actual expansion before testing client navigation.
+    await expect.poll(() => animationsLink.evaluate(link => {
+      for (let element: Element | null = link; element; element = element.parentElement) {
+        if (element.getAnimations().some(animation => animation.playState === 'running' || animation.pending)) return false;
+      }
+      return true;
+    }), { message: 'sidebar expansion has settled before clicking its link' }).toBe(true);
+    await animationsLink.click();
     await expect(page).toHaveURL(/\/mix\/docs\/guides\/animations\/$/);
     for (const id of ANIMATIONS) await expectReady(page, id);
     expect(await page.evaluate(() => (window as unknown as { __noReload?: boolean }).__noReload)).toBe(true);
