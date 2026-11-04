@@ -3,19 +3,45 @@
   "inputs": {
     "mix-previews": {
       "source": {
-        "repository": "btwld/website",
-        "commit": "509c4a9ddb698b86f26a51291fa6540087461614"
+        "repository": "btwld/mix-website",
+        "commit": "07f167db8124ce0870ad5736b54512506c0f0df2"
       },
       "artifact": {
-        "url": "https://github.com/btwld/mix-website/releases/download/site-input-mix-previews-509c4a9ddb69/mix-previews-509c4a9ddb69.tar.gz",
-        "sha256": "11eb39e3ac4caed0c2ca2e5aca82b2a353132055ac4a8eafd2bb2e83cbc35ac8",
-        "size": 1922926
+        "url": "https://github.com/btwld/mix-website/releases/download/site-input-mix-previews-07f167db8124/mix-previews-07f167db8124.tar.gz",
+        "sha256": "c633d7848a3d3479eb55ee1d5554aaca56913cf2b2b70486ca363e650edb1875",
+        "size": 1922921
       },
       "toolchain": {
         "flutter": "3.44.0",
         "flutterRevision": "559ffa3f75e7402d65a8def9c28389a9b2e6fe42",
         "dart": "3.12.0",
         "engineRevision": "4c525dac5ebe5971c5708ef73558ed8edcf4a362"
+      },
+      "producer": {
+        "repository": "btwld/mix-website",
+        "script": "scripts/site-inputs/produce/mix-previews.sh",
+        "commit": "07f167db8124ce0870ad5736b54512506c0f0df2"
+      }
+    },
+    "naked-ui-docs": {
+      "source": {
+        "repository": "btwld/remix",
+        "commit": "99c6da876de43f54d039bdb097fe5c7b74dce709"
+      },
+      "artifact": {
+        "url": "https://github.com/btwld/mix-website/releases/download/site-input-naked-ui-docs-99c6da876de4/naked-ui-docs-99c6da876de4.tar.gz",
+        "sha256": "5f48d696d21c6ba265039d56a3f1d730ba248a4c211cff7a31cbe6818f158af1",
+        "size": 40353
+      },
+      "toolchain": {
+        "flutter": "3.44.0",
+        "flutterRevision": "559ffa3f75e7402d65a8def9c28389a9b2e6fe42",
+        "dart": "3.12.0"
+      },
+      "producer": {
+        "repository": "btwld/mix-website",
+        "script": "scripts/site-inputs/produce/naked-ui-docs.sh",
+        "commit": "4230ceeed0c0526dbc72769c35cf020b0e803015"
       }
     },
     "remix-docs": {
@@ -25,14 +51,19 @@
       },
       "artifact": {
         "url": "https://github.com/btwld/mix-website/releases/download/site-input-remix-docs-ba450dc72223/remix-docs-ba450dc72223.tar.gz",
-        "sha256": "ee68ba899f1114e81fc54cca7ed2c2de9c5b5cefa07bb825400d24e6bb30cae7",
-        "size": 18500602
+        "sha256": "0e93f8f70911f818820e050ea370bbace8ace3cef5293760c5b6570a119e9622",
+        "size": 18500647
       },
       "toolchain": {
         "flutter": "3.44.0",
         "flutterRevision": "559ffa3f75e7402d65a8def9c28389a9b2e6fe42",
         "dart": "3.12.0",
         "engineRevision": "4c525dac5ebe5971c5708ef73558ed8edcf4a362"
+      },
+      "producer": {
+        "repository": "btwld/mix-website",
+        "script": "scripts/site-inputs/produce/remix-docs.sh",
+        "commit": "4230ceeed0c0526dbc72769c35cf020b0e803015"
       }
     }
   }

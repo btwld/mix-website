@@ -7,7 +7,12 @@ import { PROJECTS } from '@/lib/projects.mjs';
 // (btwld.github.io/remix/#/?path=...). Forward them to the catalog.
 export function LegacyCatalogRedirect() {
   useEffect(() => {
-    if (location.hash.startsWith('#/?')) location.replace(PROJECTS.remix.catalogPath + location.search + location.hash);
+    if (location.hash.startsWith('#/?')) {
+      const query = new URLSearchParams(location.hash.slice(3));
+      const legacy = query.get('path');
+      if (legacy === 'components/button') query.set('path', 'components/remixbutton/button-component');
+      location.replace(PROJECTS.remix.catalogPath + location.search + (legacy === 'components/button' ? '#/?' + query.toString().replaceAll('%2F', '/') : location.hash));
+    }
   }, []);
   return null;
 }

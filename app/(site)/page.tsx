@@ -1,6 +1,9 @@
 import { ProjectCard } from '@/components/project-card';
-import { SITE_DESCRIPTION } from '@/lib/site';
+import type { Metadata } from 'next';
+import { SITE_DESCRIPTION, canonicalMetadata } from '@/lib/site';
 import { PROJECT_IDS } from '@/lib/projects.mjs';
+
+export const metadata: Metadata = { ...canonicalMetadata('/') };
 
 export default function Home() {
   return <main className="site-home">

@@ -29,14 +29,15 @@ export function validateSiteInputMetadata(metadata) {
 export function validateLock(lock) {
   if (lock?.version !== 1) fail('sources.lock.json: unsupported version');
   if (!lock.inputs || typeof lock.inputs !== 'object') fail('sources.lock.json: missing inputs');
-  for (const name of ['mix-previews', 'remix-docs']) {
+  for (const name of INPUT_NAMES) {
     if (!(name in lock.inputs)) fail(`sources.lock.json: missing input ${name}`);
   }
   for (const [name, input] of Object.entries(lock.inputs)) {
     const where = `sources.lock.json inputs.${name}`;
     if (!INPUT_NAMES.includes(name)) fail(`${where}: unknown input`);
     checkSource(input.source, where);
-    if (input.producer) {
+    if (!input.producer) fail(`${where}: missing producer provenance`);
+    {
       if (input.producer.repository !== 'btwld/mix-website' || !COMMIT.test(input.producer.commit ?? '')) fail(`${where}: producer must name a full mix-website commit`);
       if (input.producer.script !== `scripts/site-inputs/produce/${name}.sh`) fail(`${where}: unexpected producer script`);
     }

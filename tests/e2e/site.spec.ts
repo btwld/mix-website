@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 // The staged build under test; the server must have been built from the same lock.
@@ -35,8 +35,16 @@ async function changesAfter(host: Locator, action: () => Promise<void>) {
   await host.scrollIntoViewIfNeeded();
   await host.page().mouse.move(1, 1);
   const before = await settled(host);
+  const changed = (async () => {
+    const deadline = Date.now() + 3_000;
+    while (Date.now() < deadline) {
+      if (!(await host.screenshot()).equals(before)) return true;
+      await host.page().waitForTimeout(40);
+    }
+    return false;
+  })();
   await action();
-  await expect.poll(async () => !(await host.screenshot()).equals(before), { timeout: 5_000 }).toBe(true);
+  expect(await changed, 'preview changes during the interaction').toBe(true);
 }
 
 test.describe('direct loads', () => {
@@ -163,6 +171,7 @@ test.describe('Mix previews', () => {
       const response = await request.get(`${previewsBase}/${file}`);
       expect(response.status(), file).toBe(200);
       expect(response.headers()['content-type'], file).toContain(type);
+      expect(response.headers()['x-robots-tag'], file).toBe('noindex, nofollow');
       expect(response.headers()['cache-control'], file).toBe('public, max-age=31536000, immutable');
     }
   });
@@ -187,6 +196,8 @@ test.describe('Remix', () => {
   test('the catalog loads directly at its own base href', async ({ page }) => {
     const response = await page.goto('/remix/catalog/');
     expect(response?.status()).toBe(200);
+    expect(response?.headers()['x-robots-tag']).toBe('noindex, nofollow');
+    expect(response?.headers()['cache-control']).toBe('public, max-age=0, must-revalidate');
     expect(await page.evaluate(() => document.baseURI)).toMatch(/\/remix\/catalog\/$/);
     await expect(page.locator('flutter-view, flt-glass-pane').first()).toBeAttached({ timeout: 90_000 });
     await page.waitForTimeout(3_000);
@@ -201,16 +212,29 @@ test.describe('Remix', () => {
   test('old catalog hash links forward to the catalog', async ({ page }) => {
     await page.goto('/remix/#/?path=components/remixbutton/catalog');
     await expect(page).toHaveURL(/\/remix\/catalog\/#\/\?path=components\/remixbutton\/catalog$/);
+    await page.goto('/remix/?ref=legacy#/?path=components/button&mode=light');
+    await expect(page).toHaveURL(/\/remix\/catalog\/\?ref=legacy#\/\?path=components\/remixbutton\/button-component&mode=light$/);
   });
 
-  test('links to unmigrated pages go to their current home', async ({ request }) => {
-    for (const [from, to] of [
-      ['/remix/docs/components/dialog/', 'https://btwld.github.io/remix/components/dialog/'],
-      ['/mix/docs/guides/styling/', 'https://concepta.dev/documentation/mix/guides/styling'],
-    ]) {
-      const response = await request.get(from, { maxRedirects: 0 });
-      expect(response.status(), from).toBe(307);
-      expect(response.headers().location, from).toBe(to);
+  test('the former pilot fallbacks are real local docs', async ({ request }) => {
+    for (const route of ['/remix/docs/components/dialog/', '/mix/docs/guides/styling/', '/naked-ui/docs/widget/slider/']) {
+      const response = await request.get(route, { maxRedirects: 0 });
+      expect(response.status(), route).toBe(200);
+      expect(await response.text()).toContain('<h1');
+    }
+  });
+
+  test('legacy namespace redirects retain query strings', async ({ request }) => {
+    const response = await request.get('/documentation/mix/widgets/box/?utm_source=legacy', { maxRedirects: 0 });
+    expect(response.status()).toBe(308);
+    expect(response.headers().location).toBe('/mix/docs/widgets/box/?utm_source=legacy');
+  });
+
+  test('nonproduction pages omit production canonical metadata', async ({ page }) => {
+    for (const route of ['/', '/mix/', '/mix/docs/', '/mix/docs/widgets/', '/naked-ui/docs/', '/remix/docs/components/dialog/']) {
+      await page.goto(route);
+      await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
+      await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
     }
   });
 });
@@ -240,7 +264,12 @@ test.describe('search', () => {
     const input = await openSearch(page);
     for (const query of ['button', 'keyframe', 'semantics']) {
       await input.fill(query);
-      await expect(page.getByRole('dialog').locator('[data-result-url]').first()).toBeVisible();
+      // Search is debounced; visible results can still belong to the previous query.
+      const expected = query === 'button' ? ['/remix/docs/components/button', '/naked-ui/docs/widget/button']
+        : query === 'keyframe' ? ['/mix/docs/guides/animations'] : ['/naked-ui/docs/'];
+      for (const prefix of expected) {
+        await expect.poll(async () => (await results(page)).some(result => result.url.startsWith(prefix))).toBe(true);
+      }
       const found = await results(page);
       for (const { url, label } of found) {
         const project = Object.entries(LABELS).find(([prefix]) => url.startsWith(prefix));
@@ -261,9 +290,33 @@ test.describe('search', () => {
     const dialog = page.getByRole('dialog');
     await expect.poll(async () => (await results(page)).some(result => result.url.startsWith('/remix/'))).toBe(true);
     await dialog.getByRole('button', { name: 'Naked UI', exact: true }).click();
-    await expect.poll(async () => (await results(page)).every(result => result.url.startsWith('/naked-ui/docs/'))).toBe(true);
+    await expect.poll(async () => (await results(page)).every(result => /^\/naked-ui\/docs(?:[\/#]|$)/.test(result.url))).toBe(true);
     await input.focus();
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/\/naked-ui\/docs\/widget\/button\/?/);
   });
+});
+
+// Full-corpus integration: each source-owned demo must mount, beyond pilot pages.
+test('all migrated Mix preview IDs mount successfully', async ({ page }) => {
+  test.setTimeout(300_000);
+  for (const file of readdirSync('content/mix', { recursive: true }).filter(file => String(file).endsWith('.mdx'))) {
+    const text = readFileSync(`content/mix/${file}`, 'utf8');
+    const ids = [...text.matchAll(/previewId="([^"]+)"/g)].map(match => match[1]);
+    if (!ids.length) continue;
+    await page.goto('/mix/docs/' + String(file).replace(/\.mdx$/, '') + '/');
+    for (const id of ids) await expectReady(page, id);
+  }
+});
+
+test('all Remix component pages start their real catalog examples', async ({ page }) => {
+  test.setTimeout(300_000);
+  const pages = site.pages.remix.filter((slug: string) => slug.startsWith('components/'));
+  for (const slug of pages) {
+    await page.goto('/remix/docs/' + slug + '/');
+    const stage = page.locator('.remix-preview-stage');
+    await stage.scrollIntoViewIfNeeded();
+    await expect(stage).toHaveAttribute('data-status', 'ready', { timeout: 60_000 });
+    await expect(page.frameLocator('.remix-preview-stage iframe').locator('flutter-view, flt-glass-pane').first()).toBeAttached();
+  }
 });

@@ -5,6 +5,8 @@
 // directories until its digest matches and its embedded metadata names the
 // same source commit. Missing artifacts, digest mismatches, and unresolved
 // preview IDs all fail the build.
+import { buildIdentity } from './build-identity.mjs';
+import { isDeepStrictEqual } from 'node:util';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { cp, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
@@ -14,7 +16,7 @@ import { validateLock, validateSiteInputMetadata } from './lock.mjs';
 import { readArchive, sha256, writeEntries } from './tar.mjs';
 
 /** Where each docs-snapshot input lands, keyed by input name. */
-const SNAPSHOT_INPUTS = { 'remix-docs': 'remix' };
+const SNAPSHOT_INPUTS = { 'remix-docs': 'remix', 'naked-ui-docs': 'naked-ui' };
 
 export function paths(root) {
   return {
@@ -84,6 +86,11 @@ export async function extractInput(name, entry, data, destination) {
       throw new Error(`${name}: archive source.${key} is ${metadata.source[key]}, sources.lock.json pins ${entry.source[key]}`);
     }
   }
+  for (const key of ['producer', 'toolchain']) {
+    if (entry[key] && !isDeepStrictEqual(metadata[key], entry[key])) {
+      throw new Error(`${name}: archive ${key} differs from sources.lock.json`);
+    }
+  }
   await rm(destination, { recursive: true, force: true });
   await mkdir(destination, { recursive: true });
   await writeEntries(entries, destination);
@@ -131,11 +138,19 @@ function hasRegion(source, region) {
 }
 
 /** Resolve every Mix preview ID against the locked manifest and bundled sources. */
-export async function verifyMixPreviews(contentDir, bundleDir) {
+export async function verifyMixPreviews(contentDir, bundleDir, authoringRoot) {
   const manifest = JSON.parse(await readFile(path.join(bundleDir, 'previews-manifest.json'), 'utf8'));
   const byId = new Map(manifest.entries.map(entry => [entry.previewId, entry]));
   const problems = [];
   const used = [];
+  if (authoringRoot) {
+    for (const entry of manifest.entries) {
+      if (!entry.sourcePath.startsWith('packages/mix_docs_preview/')) throw new Error(`Unexpected Mix source path: ${entry.sourcePath}`);
+      const authored = await readFile(path.join(authoringRoot, entry.sourcePath));
+      const bundled = await readFile(path.join(bundleDir, 'sources', entry.sourcePath));
+      if (!authored.equals(bundled)) problems.push(`Stale bundled source for ${entry.previewId}; rebuild and pin the canonical Mix input`);
+    }
+  }
   for (const file of await walk(contentDir, name => name.endsWith('.mdx'))) {
     for (const id of extractPreviewIds(await readFile(path.join(contentDir, file), 'utf8'), file)) {
       used.push(id);
@@ -225,7 +240,7 @@ export async function stageDocsSnapshot(projectId, snapshotDir, scopePages, outD
 }
 
 /** Projects whose MDX lives in this repository. */
-const IN_REPO_PROJECTS = ['mix', 'naked-ui'];
+const IN_REPO_PROJECTS = ['mix'];
 
 /** Published docs slugs for in-repository content. */
 async function repoPages(contentDir) {
@@ -271,6 +286,7 @@ export async function syncSiteInputs({ root, offline = false, fetchImpl, log = c
   const p = paths(root);
   const lockText = await readFile(p.lock, 'utf8');
   const lock = validateLock(JSON.parse(lockText));
+  if (lock.inputs['mix-previews'].source.repository !== 'btwld/mix-website') throw new Error('Mix inputs must come from their canonical owner btwld/mix-website');
   const scope = JSON.parse(await readFile(p.scope, 'utf8'));
   const summary = { lockSha256: createHash('sha256').update(lockText).digest('hex'), inputs: {} };
   const metadata = {};
@@ -294,7 +310,7 @@ export async function syncSiteInputs({ root, offline = false, fetchImpl, log = c
   await rm(p.publicPreviews, { recursive: true, force: true });
   await mkdir(path.join(p.publicPreviews, 'mix'), { recursive: true });
   await cp(path.join(p.extracted, 'mix-previews/bundle'), path.join(p.publicPreviews, 'mix', previewId), { recursive: true });
-  const usedPreviews = await verifyMixPreviews(p.mixContent, path.join(p.publicPreviews, 'mix', previewId));
+  const usedPreviews = await verifyMixPreviews(p.mixContent, path.join(p.publicPreviews, 'mix', previewId), root);
 
   // Docs snapshots: only the scoped pages and their navigation.
   const projects = [];
@@ -332,10 +348,12 @@ export async function syncSiteInputs({ root, offline = false, fetchImpl, log = c
   await mkdir(p.generated, { recursive: true });
   const site = {
     ...summary,
+    source: buildIdentity(root),
     mix: { previewsBase, sourcesBase: `${previewsBase}/sources`, previewIds: usedPreviews },
     remix: { catalogPath: PROJECTS.remix.catalogPath },
     pages: Object.fromEntries(projects.map(item => [item.projectId, [...item.published].sort()])),
   };
+  await writeFile(path.join(root, 'public/__site.json'), JSON.stringify({ ...site.source, lockSha256: site.lockSha256, inputs: site.inputs }) + '\n');
   await writeFile(path.join(p.generated, 'site-inputs.json'), JSON.stringify(site, null, 2) + '\n');
   await writeFile(path.join(p.generated, 'pending-redirects.json'), JSON.stringify(redirects, null, 2) + '\n');
   log(`staged ${usedPreviews.length} Mix previews, ${projects.reduce((n, item) => n + item.published.size, 0)} pages, ${redirects.length} pending redirects`);

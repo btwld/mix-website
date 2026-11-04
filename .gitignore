@@ -17,3 +17,9 @@ playwright-report/
 .dart_tool/
 **/.dart_tool/
 **/build/
+
+.next-*/
+out/
+public/__site.json
+.firebase/
+*-debug.log

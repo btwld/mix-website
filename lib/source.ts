@@ -11,15 +11,15 @@ const schema = pageSchema.extend({ keywords: z.array(z.string()).default([]) });
 // surfaces, where GitHub's legacy themes do not.
 const rehypeCodeOptions = { themes: { light: 'github-light-default', dark: 'github-dark-default' } } as const;
 
-// Mix and Naked UI MDX is authored here with final URLs.
+// Mix MDX is authored here with final URLs.
 const mixDocs = defineDocs({
   dir: 'content/mix',
-  docs: { files: ['**/*.mdx'], schema, postprocess: { includeProcessedMarkdown: true }, mdxOptions: applyMdxPreset({ rehypeCodeOptions }) },
+  docs: { files: ['**/*.mdx'], schema, postprocess: { includeProcessedMarkdown: true }, mdxOptions: applyMdxPreset({ rehypeCodeOptions, remarkPlugins: plugins => [[remarkProjectLinks, { project: 'mix' }], ...plugins] }) },
   meta: { files: ['**/meta.json'] },
 });
 const nakedUiDocs = defineDocs({
-  dir: 'content/naked-ui',
-  docs: { files: ['**/*.mdx'], schema, postprocess: { includeProcessedMarkdown: true }, mdxOptions: applyMdxPreset({ rehypeCodeOptions }) },
+  dir: '.generated/content/naked-ui',
+  docs: { files: ['**/*.mdx'], schema, postprocess: { includeProcessedMarkdown: true }, mdxOptions: applyMdxPreset({ rehypeCodeOptions, remarkPlugins: plugins => [[remarkProjectLinks, { project: 'naked-ui' }], ...plugins] }) },
   meta: { files: ['**/meta.json'] },
 });
 // Remix MDX comes from the pinned btwld/remix snapshot, staged by the prebuild.

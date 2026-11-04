@@ -93,9 +93,10 @@ test('the reader rejects unsafe or unsupported entries', () => {
 });
 
 test('lock validation requires every input, a release URL, and full digests', () => {
-  const entry = { source: { repository: 'btwld/remix', commit: COMMIT }, artifact: { url: releaseCoordinates('remix-docs', COMMIT).url, sha256: 'f'.repeat(64), size: 1 } };
-  const lock = { version: 1, inputs: { 'mix-previews': { ...entry, source: { repository: 'btwld/website', commit: COMMIT } }, 'remix-docs': entry } };
+  const entry = { producer: {repository: 'btwld/mix-website', script: 'scripts/site-inputs/produce/remix-docs.sh', commit: COMMIT}, source: { repository: 'btwld/remix', commit: COMMIT }, artifact: { url: releaseCoordinates('remix-docs', COMMIT).url, sha256: 'f'.repeat(64), size: 1 } };
+  const lock = { version: 1, inputs: { 'mix-previews': { ...entry, producer: {...entry.producer, script:'scripts/site-inputs/produce/mix-previews.sh'}, source: { repository: 'btwld/mix-website', commit: COMMIT } }, 'remix-docs': entry, 'naked-ui-docs': {...entry, producer:{...entry.producer, script:'scripts/site-inputs/produce/naked-ui-docs.sh'}} } };
   assert.doesNotThrow(() => validateLock(lock));
+  assert.throws(() => validateLock({...lock, inputs:{...lock.inputs, 'remix-docs': {...entry, producer:undefined}}}), /missing producer/);
   assert.throws(() => validateLock({ version: 1, inputs: { 'remix-docs': entry } }), /missing input mix-previews/);
   assert.throws(() => validateLock({ ...lock, inputs: { ...lock.inputs, 'remix-docs': { ...entry, artifact: { ...entry.artifact, url: 'https://example.com/x.tar.gz' } } } }), /release asset/);
   assert.throws(() => validateLock({ ...lock, inputs: { ...lock.inputs, 'remix-docs': { ...entry, source: { ...entry.source, commit: 'main' } } } }), /40-character/);
@@ -214,4 +215,33 @@ test('docs snapshots publish only scoped pages and their navigation', async () =
   ]);
   assert.deepEqual(assets, ['/remix/assets/x.png']);
   await assert.rejects(stageDocsSnapshot('remix', snapshot, ['components/missing'], out), /not in the pinned snapshot/);
+});
+
+test('archive provenance rejects another producer or toolchain even at the same source commit', async () => {
+  const root = await tempDir();
+  const producer = { repository: 'btwld/mix-website', script: 'scripts/site-inputs/produce/mix-previews.sh', commit: COMMIT };
+  const toolchain = { flutter: '3.44.0' };
+  const archive = await archiveFor({ 'site-input.json': metadata({ producer, toolchain }) });
+  const entry = { ...lockEntry(archive), producer, toolchain };
+  try {
+    await extractInput('mix-previews', entry, archive, path.join(root, 'out'));
+    await assert.rejects(extractInput('mix-previews', { ...entry, producer: { ...producer, commit: 'b'.repeat(40) } }, archive, path.join(root, 'out')), /producer differs/);
+    await assert.rejects(extractInput('mix-previews', { ...entry, toolchain: { flutter: '3.45.0' } }, archive, path.join(root, 'out')), /toolchain differs/);
+  } finally { await rm(root, { recursive: true }); }
+});
+
+test('prebuild refuses a preview archive after its canonical Dart source changes', async () => {
+  const root = await tempDir();
+  const relative = 'packages/mix_docs_preview/lib/example.dart';
+  try {
+    await writeTree(root, {
+      [relative]: 'class Example {}',
+      'content/example.mdx': '<FlutterPreview previewId="example.0" />',
+      'bundle/previews-manifest.json': JSON.stringify({entries:[{previewId:'example.0',sourcePath:relative}]}),
+      ['bundle/sources/'+relative]: 'class Example {}',
+    });
+    assert.deepEqual(await verifyMixPreviews(path.join(root,'content'),path.join(root,'bundle'),root),['example.0']);
+    await writeFile(path.join(root,relative),'class ChangedExample {}');
+    await assert.rejects(verifyMixPreviews(path.join(root,'content'),path.join(root,'bundle'),root), /Stale bundled source/);
+  } finally { await rm(root,{recursive:true}); }
 });

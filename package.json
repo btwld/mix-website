@@ -15,7 +15,12 @@
     "typecheck": "node scripts/site-inputs/sync.mjs && next typegen && tsc --noEmit",
     "test": "node --test tests/unit/*.test.mjs",
     "test:e2e": "playwright test",
-    "test:lock-update": "node tests/lock-update/returning-browser.mjs"
+    "test:lock-update": "node tests/lock-update/returning-browser.mjs",
+    "lint": "node scripts/audit/repository.mjs",
+    "audit:inputs": "node scripts/audit/site-inputs.mjs",
+    "site-inputs:remote": "node scripts/site-inputs/verify-remote.mjs",
+    "build:preview": "SITE_BUILD_TARGET=static-preview pnpm build && node scripts/site-inputs/prepare-static-preview.mjs",
+    "audit:inventory": "node scripts/audit/inventory.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",
@@ -23,6 +28,7 @@
     "fumadocs-core": "16.15.8",
     "fumadocs-mdx": "15.4.0",
     "fumadocs-ui": "npm:@fumadocs/base-ui@16.15.8",
+    "github-slugger": "2.0.0",
     "next": "16.4.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",

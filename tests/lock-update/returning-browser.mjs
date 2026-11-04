@@ -8,8 +8,8 @@
 // WebKit in the official container); one context then shares the HTTP cache.
 // Needs the locked archives in the cache. Rebuilds the site twice on port
 // 3200, then restores sources.lock.json and rebuilds from it.
-import { spawn, execFileSync } from 'node:child_process';
-import { copyFile, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { spawn } from 'node:child_process';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { chromium, webkit } from '@playwright/test';
@@ -25,8 +25,12 @@ const lockBackup = await readFile(p.lock, 'utf8');
 const env = { ...process.env, SITE_INPUTS_OFFLINE: '1', NEXT_TELEMETRY_DISABLED: '1' };
 const log = message => console.log(`[lock-update] ${message}`);
 
-function build() {
-  execFileSync('pnpm', ['build'], { cwd: root, env, stdio: ['ignore', 'ignore', 'inherit'] });
+async function build() {
+  await new Promise((resolve, reject) => {
+    const process = spawn('pnpm', ['build'], { cwd: root, env, stdio: 'inherit' });
+    process.once('error', reject);
+    process.once('exit', (code, signal) => code === 0 ? resolve() : reject(new Error(`Build failed: ${signal ?? code}`)));
+  });
 }
 
 async function serve() {
@@ -63,10 +67,11 @@ const failures = [];
 const check = (ok, message) => { log(`${ok ? 'PASS' : 'FAIL'} ${message}`); if (!ok) failures.push(message); };
 
 try {
+  log('build A from the current lock');
   // Build A: the current lock.
   const lockA = JSON.parse(lockBackup);
   const baseA = base(lockA.inputs['mix-previews'].artifact.sha256);
-  build();
+  await build();
   server = await serve();
   const remote = process.env.PW_WS_ENDPOINT ? await engine.connect(process.env.PW_WS_ENDPOINT) : null;
   const context = remote ? await remote.newContext() : await engine.launchPersistentContext(profile);
@@ -74,6 +79,7 @@ try {
   const seenA = [];
   page.on('request', request => seenA.push(new URL(request.url()).pathname));
   await page.goto(`${origin}/mix/docs/guides/animations/`);
+  await page.locator('[data-testid="flutter-preview"][data-preview-id="guides/animations.0"]').scrollIntoViewIfNeeded();
   await page.locator('[data-preview-id="guides/animations.0"] [role="application"][data-state="ready"]').waitFor({ timeout: 60_000 });
   await page.goto(`${origin}/remix/catalog/`);
   await page.locator('flutter-view, flt-glass-pane').first().waitFor({ state: 'attached', timeout: 60_000 });
@@ -83,14 +89,16 @@ try {
   // An open tab from build A stays open across the deploy.
   const openTab = await context.newPage();
   await openTab.goto(`${origin}/mix/docs/widgets/box/`);
+  await openTab.locator('[data-testid="flutter-preview"][data-preview-id="widgets/box.0"]').scrollIntoViewIfNeeded();
   await openTab.locator('[data-preview-id="widgets/box.0"] [role="application"][data-state="ready"]').waitFor({ timeout: 60_000 });
 
   // Build B: a new Mix bundle and a changed catalog file, as a lock update would bring.
+  log('build B with distinct preview/catalog digests');
   stop(server);
   const digestB = await variant('mix-previews', 'bundle/lock-update-check.txt', 'build B\n');
   await variant('remix-docs', 'catalog/version.json', JSON.stringify({ app_name: 'demo', version: 'lock-update-check-B' }));
   const baseB = base(digestB);
-  build();
+  await build();
   server = await serve();
 
   // Returning browser: same profile and HTTP cache, fresh navigation.
@@ -102,6 +110,7 @@ try {
   page.on('response', response => { if (response.status() >= 400) failed.push(`${response.status()} ${new URL(response.url()).pathname}`); });
   await page.goto(`${origin}/mix/docs/guides/animations/`);
   for (const index of [0, 1, 2, 3, 4]) {
+    await page.locator(`[data-testid="flutter-preview"][data-preview-id="guides/animations.${index}"]`).scrollIntoViewIfNeeded();
     await page.locator(`[data-preview-id="guides/animations.${index}"] [role="application"][data-state="ready"]`).waitFor({ timeout: 60_000 });
   }
   const previews = previewRequests(seenB);
@@ -118,6 +127,10 @@ try {
   await openTab.getByRole('button', { name: 'Guides', exact: true }).click();
   await openTab.getByRole('link', { name: 'Animations', exact: true }).first().click();
   await openTab.waitForURL(/\/guides\/animations\/$/);
+  for (const index of [0, 1, 2, 3, 4]) {
+    await openTab.locator(`[data-testid="flutter-preview"][data-preview-id="guides/animations.${index}"]`).scrollIntoViewIfNeeded();
+    await openTab.locator(`[data-preview-id="guides/animations.${index}"] [role="application"][data-state="ready"]`).waitFor({ timeout: 60_000 });
+  }
   const states = await openTab.locator('[data-preview-id^="guides/animations."] [role="application"]').evaluateAll(
     hosts => hosts.map(host => host.getAttribute('data-state')),
   ).catch(() => []);
@@ -125,13 +138,15 @@ try {
   const settledStates = await openTab.locator('[data-preview-id^="guides/animations."] [role="application"]').evaluateAll(hosts => hosts.map(host => host.getAttribute('data-state')));
   log(`open tab after deploy: states ${JSON.stringify(settledStates)} (initially ${JSON.stringify(states)}); failed responses ${JSON.stringify(openFailed)}`);
   check(settledStates.length === 5 && settledStates.every(state => state === 'ready'), 'a tab open across the deploy still renders all previews after client-side navigation');
+  check(openFailed.length === 0, 'the tab open across the deploy has no failed asset or snippet responses');
   await context.close();
   await remote?.close();
 } finally {
   if (server) stop(server);
   await writeFile(p.lock, lockBackup);
-  // Leave the workspace built from the committed lock again.
-  build();
+  log('restore the original lock and build');
+  // Leave the workspace built from the original lock again.
+  await build();
   await rm(profile, { recursive: true, force: true });
 }
 

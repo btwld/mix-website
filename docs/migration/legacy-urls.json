@@ -1,0 +1,2117 @@
+[
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/overview/introduction",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/overview/introduction/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/overview/introduction.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/overview/introduction",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/overview/introduction/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/overview/introduction.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/overview/getting-started",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/overview/getting-started/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/overview/getting-started.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/overview/getting-started",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/overview/getting-started/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/overview/getting-started.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/overview/utility-first",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/overview/utility-first/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/overview/utility-first.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/overview/utility-first",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/overview/utility-first/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/overview/utility-first.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/overview/comparison",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/overview/comparison/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/overview/comparison.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/overview/comparison",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/overview/comparison/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/overview/comparison.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/overview/migration",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/overview/migration/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/overview/migration.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/overview/migration",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/overview/migration/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/overview/migration.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/guides/styling",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/guides/styling/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/guides/styling.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/guides/styling",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/guides/styling/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/guides/styling.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/guides/design-token",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/guides/design-token/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/guides/design-token.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/guides/design-token",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/guides/design-token/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/guides/design-token.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/guides/dynamic-styling",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/guides/dynamic-styling/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/guides/dynamic-styling.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/guides/dynamic-styling",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/guides/dynamic-styling/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/guides/dynamic-styling.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/guides/widget-modifiers",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/guides/widget-modifiers/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/guides/widget-modifiers.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/guides/widget-modifiers",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/guides/widget-modifiers/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/guides/widget-modifiers.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/guides/animations",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/guides/animations/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/guides/animations.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/guides/animations",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/guides/animations/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/guides/animations.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/guides/directives",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/guides/directives/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/guides/directives.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/guides/directives",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/guides/directives/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/guides/directives.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/guides/common-patterns",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/guides/common-patterns/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/guides/common-patterns.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/guides/common-patterns",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/guides/common-patterns/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/guides/common-patterns.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/widgets/stylewidgets",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/stylewidgets/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/widgets/stylewidgets.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/widgets/stylewidgets",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/stylewidgets/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/widgets/stylewidgets.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/widgets/box",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/box/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/widgets/box.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/widgets/box",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/box/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/widgets/box.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/widgets/flexbox",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/flexbox/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/widgets/flexbox.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/widgets/flexbox",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/flexbox/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/widgets/flexbox.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/widgets/text",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/text/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/widgets/text.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/widgets/text",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/text/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/widgets/text.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/widgets/icon",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/icon/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/widgets/icon.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/widgets/icon",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/icon/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/widgets/icon.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/widgets/image",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/image/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/widgets/image.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/widgets/image",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/image/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/widgets/image.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/widgets/pressable",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/pressable/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/widgets/pressable.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/widgets/pressable",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/pressable/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/widgets/pressable.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/widgets/stack",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/stack/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/widgets/stack.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/widgets/stack",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/stack/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/widgets/stack.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/tutorials/creating-a-widget",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/tutorials/creating-a-widget/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/tutorials/creating-a-widget.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/tutorials/creating-a-widget",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/tutorials/creating-a-widget/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/tutorials/creating-a-widget.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/tutorials/controlling-widget-state",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/tutorials/controlling-widget-state/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/tutorials/controlling-widget-state.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/tutorials/controlling-widget-state",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/tutorials/controlling-widget-state/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/tutorials/controlling-widget-state.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/tutorials/theming",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/tutorials/theming/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/tutorials/theming.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/tutorials/theming",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/tutorials/theming/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/tutorials/theming.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/tutorials/creating-context-variants",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/tutorials/creating-context-variants/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/tutorials/creating-context-variants.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/tutorials/creating-context-variants",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/tutorials/creating-context-variants/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/tutorials/creating-context-variants.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/tutorials/creating-custom-tokens",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/tutorials/creating-custom-tokens/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/tutorials/creating-custom-tokens.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/tutorials/creating-custom-tokens",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/tutorials/creating-custom-tokens/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/tutorials/creating-custom-tokens.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/ecosystem/mix-winds",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/ecosystem/mix-winds/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/ecosystem/mix-winds.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/ecosystem/mix-winds",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/ecosystem/mix-winds/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/ecosystem/mix-winds.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/ecosystem/mix-schema",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/ecosystem/mix-schema/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/ecosystem/mix-schema.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/ecosystem/mix-schema",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/ecosystem/mix-schema/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/ecosystem/mix-schema.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/ecosystem/mix-lint",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/ecosystem/mix-lint/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/ecosystem/mix-lint.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/ecosystem/mix-lint",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/ecosystem/mix-lint/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/ecosystem/mix-lint.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/ecosystem/mix-generator",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/ecosystem/mix-generator/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/ecosystem/mix-generator.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/ecosystem/mix-generator",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/ecosystem/mix-generator/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/ecosystem/mix-generator.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/_meta.js"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/overview",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/overview/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/_meta.js"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/guides",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/guides/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/_meta.js"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/widgets",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/widgets/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/_meta.js"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/tutorials",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/tutorials/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/_meta.js"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/ecosystem",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/ecosystem/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/mix/_meta.js"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/index.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/index.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/styler-api",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/styler-api/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/styler-api.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/styler-api",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/styler-api/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/styler-api.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/fortal",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/fortal/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/fortal.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/fortal",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/fortal/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/fortal.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/accordion",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/accordion/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/accordion.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/accordion",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/accordion/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/accordion.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/avatar",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/avatar/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/avatar.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/avatar",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/avatar/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/avatar.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/badge",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/badge/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/badge.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/badge",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/badge/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/badge.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/button",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/button/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/button.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/button",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/button/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/button.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/callout",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/callout/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/callout.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/callout",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/callout/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/callout.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/card",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/card/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/card.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/card",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/card/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/card.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/checkbox",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/checkbox/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/checkbox.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/checkbox",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/checkbox/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/checkbox.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/dialog",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/dialog/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/dialog.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/dialog",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/dialog/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/dialog.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/divider",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/divider/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/divider.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/divider",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/divider/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/divider.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/icon_button",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/icon_button/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/icon_button.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/icon_button",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/icon_button/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/icon_button.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/menu",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/menu/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/menu.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/menu",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/menu/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/menu.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/popover",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/popover/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/popover.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/popover",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/popover/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/popover.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/progress",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/progress/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/progress.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/progress",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/progress/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/progress.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/radio",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/radio/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/radio.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/radio",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/radio/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/radio.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/select",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/select/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/select.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/select",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/select/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/select.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/slider",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/slider/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/slider.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/slider",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/slider/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/slider.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/spinner",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/spinner/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/spinner.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/spinner",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/spinner/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/spinner.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/switch",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/switch/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/switch.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/switch",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/switch/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/switch.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/tabs",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/tabs/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/tabs.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/tabs",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/tabs/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/tabs.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/textfield",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/textfield/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/textfield.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/textfield",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/textfield/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/textfield.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/toggle",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/toggle/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/toggle.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/toggle",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/toggle/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/toggle.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/toggle_group",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/toggle_group/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/toggle_group.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/toggle_group",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/toggle_group/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/toggle_group.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/remix/components/tooltip",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/tooltip/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/tooltip.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components/tooltip",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/tooltip/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/tooltip.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/remix/components",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/documentation/remix/components/_meta.js"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/agent/activity/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/agent/activity/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/agent/activity.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/agent/answer/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/agent/answer/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/agent/answer.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/agent/composer/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/agent/composer/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/agent/composer.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/agent/execution/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/agent/execution/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/agent/execution.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/agent/message/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/agent/message/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/agent/message.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/agent/permission/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/agent/permission/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/agent/permission.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/agent/plan/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/agent/plan/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/agent/plan.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/agent/transcript/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/agent/transcript/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/agent/transcript.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/accordion/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/accordion/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/accordion.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/app_bar/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/app_bar/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/app_bar.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/avatar/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/avatar/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/avatar.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/badge/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/badge/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/badge.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/button/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/button/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/button.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/callout/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/callout/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/callout.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/card/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/card/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/card.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/checkbox/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/checkbox/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/checkbox.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/checkbox_group/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/checkbox_group/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/checkbox_group.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/data_list/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/data_list/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/data_list.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/data_table/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/data_table/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/data_table.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/dialog/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/dialog/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/dialog.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/disclosure/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/disclosure/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/disclosure.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/divider/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/divider/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/divider.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/icon_button/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/icon_button/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/icon_button.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/link/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/link/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/link.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/menu/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/menu/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/menu.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/popover/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/popover/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/popover.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/progress/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/progress/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/progress.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/radio/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/radio/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/radio.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/segmented_control/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/segmented_control/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/segmented_control.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/select/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/select/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/select.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/sidebar/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/sidebar/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/sidebar.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/skeleton/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/skeleton/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/skeleton.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/slider/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/slider/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/slider.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/spinner/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/spinner/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/spinner.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/switch/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/switch/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/switch.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/tabs/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/tabs/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/tabs.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/textarea/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/textarea/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/textarea.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/textfield/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/textfield/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/textfield.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/toast/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/toast/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/toast.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/toggle/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/toggle/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/toggle.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/toggle_group/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/toggle_group/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/toggle_group.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/components/tooltip/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/tooltip/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/components/tooltip.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/fortal/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/fortal/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/fortal.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/fortal/catalog/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/fortal/catalog/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/fortal/catalog.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/fortal/typography/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/fortal/typography/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/fortal/typography.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/getting-started/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/getting-started/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/getting-started.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/guides/icons/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/guides/icons/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/guides/icons.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/guides/registries/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/guides/registries/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/guides/registries.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/guides/styling-components/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/guides/styling-components/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/guides/styling-components.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/index.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/open-code/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/open-code/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/open-code.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/styler-api/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/styler-api/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/styler-api.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/tutorials/settings-screen/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/tutorials/settings-screen/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/tutorials/settings-screen.mdx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/catalog/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/catalog/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "apps/demo (built by apps/docs/scripts/build-previews.mjs)"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/catalog/#/?path=components/remixbutton/button-component",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/catalog/#/?path=components/remixbutton/button-component",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/component-previews.json (button)"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/dashboard/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/dashboard/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "apps/dashboard (deploy_web.yml)"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/#/?path=components/button",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/catalog/#/?path=components/button",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "apps/docs/components/legacy-catalog-redirect.tsx"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/remix-cli-tutorial.html",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/tutorials/settings-screen/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "apps/docs/scripts/prepare-static.mjs"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/remix-cli-guide.html",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/open-code/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "apps/docs/scripts/prepare-static.mjs"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/previews/",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/catalog/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "apps/docs/scripts/prepare-static.mjs"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/remix/flutter_service_worker.js",
+    "project": "remix",
+    "classification": "intentionally-excluded",
+    "destination": null,
+    "reason": "Retain the existing retirement worker on its original Pages origin; worker fetch must not redirect.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "apps/docs/public/flutter_service_worker.js"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/remix",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs.json + docs/index.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/remix/components/button",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/docs/components/button/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs.json + docs/components/button.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/index.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/accordion",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/accordion/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/accordion.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/button",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/button/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/button.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/checkbox",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/checkbox/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/checkbox.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/dialog",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/dialog/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/dialog.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/disclosure",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/disclosure/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/disclosure.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/link",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/link/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/link.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/menu",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/menu/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/menu.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/popover",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/popover/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/popover.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/radio",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/radio/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/radio.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/select",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/select/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/select.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/slider",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/slider/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/slider.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/switch",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/switch/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/switch.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/tabs",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/tabs/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/tabs.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/textfield",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/textfield/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/textfield.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/toast",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/toast/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/toast.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/toggle",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/toggle/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/toggle.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/btwld/naked_ui/widget/tooltip",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/widget/tooltip/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "docs/widget/tooltip.mdx"
+  },
+  {
+    "oldUrl": "https://docs.page/conceptadev/naked_ui",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/docs/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "packages/naked_ui/pubspec.yaml (documentation)"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/naked_ui/",
+    "project": "naked-ui",
+    "classification": "intentionally-excluded",
+    "destination": "https://btwld.github.io/naked_ui/",
+    "reason": "Keep this standalone legacy Flutter app on its current origin. Mix Gallery has an active caching worker; retirement is a separate original-origin change.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "gh-pages branch (deploy 90f8560, 2026-09-15)"
+  },
+  {
+    "oldUrl": "https://concepta.dev/mix",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/mix.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/remix",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/remix.mdx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/naked-ui",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/app/naked-ui/page.tsx"
+  },
+  {
+    "oldUrl": "https://concepta.dev/naked_ui",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/mix",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/mix.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/remix",
+    "project": "remix",
+    "classification": "migrated",
+    "destination": "/remix/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/content/remix.mdx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/naked-ui",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "src/app/naked-ui/page.tsx"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/naked_ui",
+    "project": "naked-ui",
+    "classification": "migrated",
+    "destination": "/naked-ui/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://fluttermix.com/",
+    "project": "site",
+    "classification": "migrated",
+    "destination": "/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects() host rule + Vercel apex->www domain redirect"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/",
+    "project": "site",
+    "classification": "migrated",
+    "destination": "/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects() host rule"
+  },
+  {
+    "oldUrl": "https://concepta.dev/docs",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://concepta.dev/docs/:path*",
+    "project": "mix",
+    "classification": "unresolved",
+    "destination": "see historical-paths.json (Mix v0/v1 /docs/... paths)",
+    "reason": "Current namespace redirect prepared in the site; historical /docs/* variants are classified individually in historical-paths.json.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation",
+    "project": "mix",
+    "classification": "intentionally-excluded",
+    "destination": "https://concepta.dev/documentation",
+    "reason": "Shared Concepta documentation entry also serves Ack; keep its original owner. Explicit Mix/Remix paths receive separate forwarding rules.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/overview/:path*",
+    "project": "mix",
+    "classification": "redirected",
+    "destination": "/mix/docs/overview/:path*/",
+    "reason": "Current namespace redirect prepared in the site; historical /docs/* variants are classified individually in historical-paths.json.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/guides/:path*",
+    "project": "mix",
+    "classification": "redirected",
+    "destination": "/mix/docs/guides/:path*/",
+    "reason": "Current namespace redirect prepared in the site; historical /docs/* variants are classified individually in historical-paths.json.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/widgets/:path*",
+    "project": "mix",
+    "classification": "redirected",
+    "destination": "/mix/docs/widgets/:path*/",
+    "reason": "Current namespace redirect prepared in the site; historical /docs/* variants are classified individually in historical-paths.json.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/tutorials/:path*",
+    "project": "mix",
+    "classification": "redirected",
+    "destination": "/mix/docs/tutorials/:path*/",
+    "reason": "Current namespace redirect prepared in the site; historical /docs/* variants are classified individually in historical-paths.json.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/ecosystem/:path*",
+    "project": "mix",
+    "classification": "redirected",
+    "destination": "/mix/docs/ecosystem/:path*/",
+    "reason": "Current namespace redirect prepared in the site; historical /docs/* variants are classified individually in historical-paths.json.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://concepta.dev/documentation/mix/ecosystem/mix-tailwinds",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/ecosystem/mix-winds/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://concepta.dev/mix-tailwinds",
+    "project": "mix",
+    "classification": "intentionally-excluded",
+    "destination": "https://concepta.dev/mix-winds",
+    "reason": "Mix Winds product landing stays on Concepta; its Mix ecosystem documentation is migrated.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://concepta.dev/mix-winds",
+    "project": "mix",
+    "classification": "intentionally-excluded",
+    "destination": "https://concepta.dev/mix-winds",
+    "reason": "Mix Winds product landing stays on Concepta; its Mix ecosystem documentation is migrated.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/docs",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/docs/:path*",
+    "project": "mix",
+    "classification": "unresolved",
+    "destination": "see historical-paths.json (Mix v0/v1 /docs/... paths)",
+    "reason": "Current namespace redirect prepared in the site; historical /docs/* variants are classified individually in historical-paths.json.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/overview/:path*",
+    "project": "mix",
+    "classification": "redirected",
+    "destination": "/mix/docs/overview/:path*/",
+    "reason": "Current namespace redirect prepared in the site; historical /docs/* variants are classified individually in historical-paths.json.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/guides/:path*",
+    "project": "mix",
+    "classification": "redirected",
+    "destination": "/mix/docs/guides/:path*/",
+    "reason": "Current namespace redirect prepared in the site; historical /docs/* variants are classified individually in historical-paths.json.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/widgets/:path*",
+    "project": "mix",
+    "classification": "redirected",
+    "destination": "/mix/docs/widgets/:path*/",
+    "reason": "Current namespace redirect prepared in the site; historical /docs/* variants are classified individually in historical-paths.json.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/tutorials/:path*",
+    "project": "mix",
+    "classification": "redirected",
+    "destination": "/mix/docs/tutorials/:path*/",
+    "reason": "Current namespace redirect prepared in the site; historical /docs/* variants are classified individually in historical-paths.json.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/ecosystem/:path*",
+    "project": "mix",
+    "classification": "redirected",
+    "destination": "/mix/docs/ecosystem/:path*/",
+    "reason": "Current namespace redirect prepared in the site; historical /docs/* variants are classified individually in historical-paths.json.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/documentation/mix/ecosystem/mix-tailwinds",
+    "project": "mix",
+    "classification": "migrated",
+    "destination": "/mix/docs/ecosystem/mix-winds/",
+    "reason": "Destination content is implemented locally; external-origin redirect activation remains a cutover task.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/mix-tailwinds",
+    "project": "mix",
+    "classification": "intentionally-excluded",
+    "destination": "https://concepta.dev/mix-winds",
+    "reason": "Mix Winds product landing stays on Concepta; its Mix ecosystem documentation is migrated.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/mix-winds",
+    "project": "mix",
+    "classification": "intentionally-excluded",
+    "destination": "https://concepta.dev/mix-winds",
+    "reason": "Mix Winds product landing stays on Concepta; its Mix ecosystem documentation is migrated.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "next.config.mjs redirects()"
+  },
+  {
+    "oldUrl": "https://mix-docs-gosljkd74-fluttertools.vercel.app/",
+    "project": "mix",
+    "classification": "unresolved",
+    "destination": null,
+    "reason": "Deleted deployment returns 410; current docs do not substitute for historical major-version APIs. Archive rebuild requires a separate source/version decision.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "Concepta FloatingNavbar + _meta.js \"Mix v1\" link"
+  },
+  {
+    "oldUrl": "https://www.fluttermix.com/previews/",
+    "project": "mix",
+    "classification": "redirected",
+    "destination": "/mix/docs/",
+    "reason": "The old preview root was an asset bundle, not a docs page. Old script files are not redirected to HTML; current pages use versioned bundles.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "packages/mix_docs_preview -> public/previews/"
+  },
+  {
+    "oldUrl": "https://btwld.github.io/mix/",
+    "project": "mix",
+    "classification": "intentionally-excluded",
+    "destination": "https://btwld.github.io/mix/",
+    "reason": "Keep this standalone legacy Flutter app on its current origin. Mix Gallery has an active caching worker; retirement is a separate original-origin change.",
+    "delivery": "local implementation; old origins and DNS unchanged",
+    "sourcePath": "gh-pages branch"
+  }
+]
