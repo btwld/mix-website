@@ -1,8 +1,8 @@
 {
   "title": "Overview",
   "pages": [
-    "introduction",
     "getting-started",
+    "introduction",
     "utility-first",
     "comparison",
     "migration"
