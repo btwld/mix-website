@@ -58,7 +58,13 @@ jobs:
         run: pnpm test:e2e
       - name: Stop site server before rebuilding
         run: kill "$(cat /tmp/mix-site.pid)"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+          channel: stable
       - name: Returning browser after a lock update
+        env:
+          FLUTTER_BIN: flutter
         run: pnpm test:lock-update chromium
       - name: Production sitemap and rendered metadata
         run: |

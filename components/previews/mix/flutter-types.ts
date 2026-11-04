@@ -118,6 +118,11 @@ export interface FlutterBuildConfig {
 
 declare global {
   interface Window {
+    /** Owner and in-flight initialization survive module replacement/HMR. */
+    __MIX_FLUTTER_BUNDLE__?: string;
+    __MIX_FLUTTER_ENGINE_PROMISE__?: Promise<FlutterMultiViewApp> | null;
+    __MIX_FLUTTER_SCRIPT_PROMISE__?: Promise<void> | null;
+
     /** Flutter loader, set by flutter.js or flutter_bootstrap.js */
     _flutter?: {
       loader: FlutterLoader;

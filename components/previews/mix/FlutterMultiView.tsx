@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import type { FlutterMultiViewApp, FlutterEngineInitializer } from "./flutter-types";
 import { FLUTTER_TIMEOUTS, withTimeout } from "./flutter/timeouts";
 import { MIX_PREVIEWS_BASE } from "./bundle";
+import { acceptMixBundle } from './bundle-identity.mjs';
 
 // Re-export for consumers
 export type { FlutterMultiViewApp };
@@ -40,37 +41,28 @@ interface FlutterMultiViewProps {
 //
 // 1. IDLE: No engine loaded (initial state, all variables null/false)
 // 2. LOADING: Engine being initialized (first component mount triggers this)
-// 3. READY: Engine ready, views can be added (engineReady = true)
+// 3. READY: window.flutterApp is ready; views can be added
 //
-// State is stored at module level to survive component remounts.
+// State is stored on the page global to survive remounts and replacement chunks.
 // This is intentional - recreating the engine is expensive (~2-3s).
 //
 // IMPORTANT: The engine is NEVER destroyed during normal operation.
 // Only a full page reload resets the engine state.
 // This prevents WebGL context loss and CanvasKit reinitialization.
 //
-// Why module-level state instead of React context?
+// Why page-global state instead of React context?
 // - Context would cause re-initialization on every provider remount
 // - The Flutter engine is truly global to the page (one WebGL context)
 // - This matches Flutter's own singleton pattern for web embedding
 // =============================================================================
 
-/** Promise resolving to initialized Flutter app (singleton, survives remounts) */
-let enginePromise: Promise<FlutterMultiViewApp> | null = null;
-
-/** Whether engine initialization completed successfully */
-let engineReady = false;
-
-/** Promise for loading flutter_bootstrap.js script (singleton) */
-let flutterScriptPromise: Promise<void> | null = null;
-
 /**
  * Load the Flutter bootstrap script.
  */
 async function ensureFlutterScript(basePath: string): Promise<void> {
-  if (flutterScriptPromise) return flutterScriptPromise;
+  if (window.__MIX_FLUTTER_SCRIPT_PROMISE__) return window.__MIX_FLUTTER_SCRIPT_PROMISE__;
 
-  flutterScriptPromise = new Promise((resolve, reject) => {
+  window.__MIX_FLUTTER_SCRIPT_PROMISE__ = new Promise((resolve, reject) => {
     // Check if already loaded
     if (window._flutter) {
       resolve();
@@ -92,7 +84,7 @@ async function ensureFlutterScript(basePath: string): Promise<void> {
         if (window._flutter) {
           resolve();
         } else if (attempts >= maxAttempts) {
-          flutterScriptPromise = null;
+          window.__MIX_FLUTTER_SCRIPT_PROMISE__ = null;
           reject(new Error("Flutter script loaded but _flutter not available"));
         } else {
           attempts++;
@@ -103,25 +95,26 @@ async function ensureFlutterScript(basePath: string): Promise<void> {
     };
 
     script.onerror = () => {
-      flutterScriptPromise = null;
+      window.__MIX_FLUTTER_SCRIPT_PROMISE__ = null;
       reject(new Error("Failed to load Flutter script"));
     };
 
     document.head.appendChild(script);
   });
 
-  return flutterScriptPromise;
+  return window.__MIX_FLUTTER_SCRIPT_PROMISE__;
 }
 
 /**
  * Initialize the Flutter multi-view engine (singleton).
  */
 async function ensureFlutterEngine(basePath: string): Promise<FlutterMultiViewApp> {
-  if (engineReady && window.flutterApp) {
+  if (!acceptMixBundle(window, basePath)) return new Promise(() => {});
+  if (window.flutterApp) {
     return window.flutterApp;
   }
 
-  if (!enginePromise) {
+  if (!window.__MIX_FLUTTER_ENGINE_PROMISE__) {
     const initPromise = (async () => {
       await ensureFlutterScript(basePath);
 
@@ -131,7 +124,6 @@ async function ensureFlutterEngine(basePath: string): Promise<FlutterMultiViewAp
       // Use the convenience function if available, otherwise initialize directly
       if (window.initFlutterMultiView) {
         const app = await window.initFlutterMultiView();
-        engineReady = true;
         return app;
       }
 
@@ -158,10 +150,9 @@ async function ensureFlutterEngine(basePath: string): Promise<FlutterMultiViewAp
 
               const app = await engine.runApp() as unknown as FlutterMultiViewApp;
               window.flutterApp = app;
-              engineReady = true;
               resolve(app);
             } catch (err) {
-              enginePromise = null;
+              window.__MIX_FLUTTER_ENGINE_PROMISE__ = null;
               reject(err);
             }
           },
@@ -169,19 +160,19 @@ async function ensureFlutterEngine(basePath: string): Promise<FlutterMultiViewAp
       });
     })();
 
-    enginePromise = initPromise.catch((err) => {
-      enginePromise = null;
+    window.__MIX_FLUTTER_ENGINE_PROMISE__ = initPromise.catch((err) => {
+      window.__MIX_FLUTTER_ENGINE_PROMISE__ = null;
       throw err;
     });
   }
 
   return withTimeout(
-    enginePromise!,
+    window.__MIX_FLUTTER_ENGINE_PROMISE__!,
     FLUTTER_TIMEOUTS.ENGINE_INIT,
     "Flutter engine initialization"
   ).catch((err) => {
     if (err?.name === "TimeoutError") {
-      enginePromise = null;
+      window.__MIX_FLUTTER_ENGINE_PROMISE__ = null;
     }
     throw err;
   });
@@ -500,9 +491,8 @@ export function __resetEngineState_TESTING_ONLY(): void {
   if (process.env.NODE_ENV !== "test" && process.env.NODE_ENV !== "development") {
     console.warn("__resetEngineState_TESTING_ONLY should only be used in tests");
   }
-  enginePromise = null;
-  engineReady = false;
-  flutterScriptPromise = null;
+  window.__MIX_FLUTTER_ENGINE_PROMISE__ = null;
+  window.__MIX_FLUTTER_SCRIPT_PROMISE__ = null;
 }
 
 export default FlutterMultiView;

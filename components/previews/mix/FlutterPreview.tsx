@@ -9,6 +9,7 @@ import {
   findPreviewManifestEntry,
 } from "./flutter/preview-manifest";
 import { MIX_PREVIEWS_BASE, MIX_SOURCES_BASE } from "./bundle";
+import { acceptMixBundle } from './bundle-identity.mjs';
 
 type PreviewMode = "preview" | "code" | "both";
 type ManifestState = "loading" | "ready" | "error";
@@ -45,6 +46,7 @@ export function FlutterPreview({
   const [manifestState, setManifestState] = useState<ManifestState>("loading");
   const [entry, setEntry] = useState<PreviewManifestEntry | null>(null);
   const [manifestError, setManifestError] = useState<string | null>(null);
+  const [sourceOpen, setSourceOpen] = useState(false);
   const showPreview = defaultMode === "preview" || defaultMode === "both";
   const showCode = defaultMode === "code" || defaultMode === "both";
 
@@ -52,6 +54,8 @@ export function FlutterPreview({
     let isMounted = true;
 
     const loadEntry = async () => {
+      // A retained engine must never be paired with a new manifest or snippet.
+      if (!acceptMixBundle(window, basePath)) return;
       setManifestState("loading");
       setManifestError(null);
       setEntry(null);
@@ -126,6 +130,13 @@ export function FlutterPreview({
               maxHeight={codeMaxHeight}
               fallbackToFullFile={fallbackToFullFile}
             />
+          )}
+          {!showCode && (
+            <details className="mt-3" onToggle={event => setSourceOpen(event.currentTarget.open)}>
+              <summary className="cursor-pointer py-3 text-sm font-medium">View Dart source</summary>
+              {sourceOpen && <FlutterSnippet sourcePath={entry.sourcePath} region={entry.snippetRegion ?? undefined}
+                basePath={sourceBasePath} maxHeight={codeMaxHeight} fallbackToFullFile={fallbackToFullFile} />}
+            </details>
           )}
         </>
       )}

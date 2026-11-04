@@ -4,6 +4,7 @@ import { Callout as FumadocsCallout } from 'fumadocs-ui/components/callout';
 import type { MDXComponents } from 'mdx/types';
 import type { ComponentProps, ReactNode } from 'react';
 import type { ProjectId } from '@/lib/projects.mjs';
+import site from '@/.generated/site-inputs.json';
 import { FlutterPreview as MixFlutterPreview } from './previews/mix/FlutterPreview';
 import { CatalogSearch } from './previews/remix/catalog-search';
 import { FlutterPreview as RemixFlutterPreview } from './previews/remix/flutter-preview';
@@ -25,8 +26,14 @@ function Callout({ type = 'default', ...props }: Omit<ComponentProps<typeof Fuma
 // Each project keeps its own preview integration under the shared name its
 // content already uses: Mix mounts views into one shared Flutter engine;
 // Remix embeds its Widgetbook catalog in an iframe.
+// Resolve the bundle on the server for each route, rather than relying on a
+// retained tab's old client-module default after a new release.
+function MixPreview(props: ComponentProps<typeof MixFlutterPreview>) {
+  return <MixFlutterPreview {...props} basePath={props.basePath ?? site.mix.previewsBase}
+    sourceBasePath={props.sourceBasePath ?? site.mix.sourcesBase} />;
+}
 const PREVIEW_ADAPTERS = {
-  mix: { FlutterPreview: MixFlutterPreview },
+  mix: { FlutterPreview: MixPreview },
   remix: { FlutterPreview: RemixFlutterPreview, CatalogSearch },
   'naked-ui': {},
 } satisfies Record<ProjectId, MDXComponents>;
