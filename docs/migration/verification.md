@@ -54,8 +54,10 @@ it is not silently replaced by current upstream main.
   source panels. The rebuilt payload's 142 files match the pilot payload bytes;
   only archive provenance changed.
 - Type checking, repository lint, input/source parity, exact inventory audit,
-  **23 unit tests** and actionlint all pass locally. Digest mismatch, missing
+  **24 unit tests** and actionlint all pass locally. Digest mismatch, missing
   archives, wrong source/producer/toolchain and stale Mix snippets fail closed.
+  Build identity treats uncommitted new authored files as dirty while excluding
+  ignored generated outputs; an untracked page cannot masquerade as clean source.
 
 ## Rendered and browser checks
 

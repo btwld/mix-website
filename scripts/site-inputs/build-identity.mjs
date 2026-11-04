@@ -6,7 +6,7 @@ export function buildIdentity(root, env = process.env) {
   let dirty = false;
   try {
     checkout = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
-    dirty = Boolean(execFileSync('git', ['status', '--porcelain', '--untracked-files=no'], { cwd: root, encoding: 'utf8' }).trim());
+    dirty = Boolean(execFileSync('git', ['status', '--porcelain', '--untracked-files=normal'], { cwd: root, encoding: 'utf8' }).trim());
   } catch { /* Managed source archives may omit Git metadata. */ }
   const explicit = env.SITE_COMMIT;
   if (explicit && !/^[0-9a-f]{40}$/.test(explicit)) throw new Error('SITE_COMMIT must be a full source commit SHA');
