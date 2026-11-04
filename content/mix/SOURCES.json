@@ -2,13 +2,121 @@
   "repository": "btwld/website",
   "commit": "509c4a9ddb698b86f26a51291fa6540087461614",
   "pages": {
+    "ecosystem/mix-generator": {
+      "path": "src/content/documentation/mix/ecosystem/mix-generator.mdx",
+      "sha256": "88a78f8b645d98a9af3ea151b48f5bf86370d37d87fd53d546fc25f15ea4b634"
+    },
+    "ecosystem/mix-lint": {
+      "path": "src/content/documentation/mix/ecosystem/mix-lint.mdx",
+      "sha256": "de26cbb4d542e5ef6a110ad99c9ffb3a1037aa1fe640107852107ea1c840f8fc"
+    },
+    "ecosystem/mix-schema": {
+      "path": "src/content/documentation/mix/ecosystem/mix-schema.mdx",
+      "sha256": "5d7572edcd49ddf0c1811829bcdcda7e636f61c3e955cba31a0027c53d72d2c4"
+    },
+    "ecosystem/mix-winds": {
+      "path": "src/content/documentation/mix/ecosystem/mix-winds.mdx",
+      "sha256": "df5b5ff37df790e8e4da34fa3474df15c6af25d650195a6067d98831083a4dfe"
+    },
     "guides/animations": {
       "path": "src/content/documentation/mix/guides/animations.mdx",
       "sha256": "7e711b57fa95989a5e26efc39a614cba16561cdb4760ea5a1123a1c352593b7a"
     },
+    "guides/common-patterns": {
+      "path": "src/content/documentation/mix/guides/common-patterns.mdx",
+      "sha256": "fc36a31cb36c9adb53bdb60c19fc007e1b9cc390b3a21473affc8762702323fc"
+    },
+    "guides/design-token": {
+      "path": "src/content/documentation/mix/guides/design-token.mdx",
+      "sha256": "d435e2a94ca37dcdc356fab586cb3471cd0552869abcbb0ef7bf921293654e82"
+    },
+    "guides/directives": {
+      "path": "src/content/documentation/mix/guides/directives.mdx",
+      "sha256": "fad27566abc8a229930b3acbf66bc05dca32fdf8340db9cb3c7bdab1e2a4d2f2"
+    },
+    "guides/dynamic-styling": {
+      "path": "src/content/documentation/mix/guides/dynamic-styling.mdx",
+      "sha256": "6a95100a42d64cf5d1c0615ddd2698cb0d89f801bf23b37ec86bb32d2da7c7a6"
+    },
+    "guides/styling": {
+      "path": "src/content/documentation/mix/guides/styling.mdx",
+      "sha256": "74892cddd787139fa255a11be376056de1f18ffc0394b5505901ddc7a84df434"
+    },
+    "guides/widget-modifiers": {
+      "path": "src/content/documentation/mix/guides/widget-modifiers.mdx",
+      "sha256": "6bae01dbc03798bf1557551e352f08a2bc68bab3f001a30f9fcc36693d65512e"
+    },
+    "overview/comparison": {
+      "path": "src/content/documentation/mix/overview/comparison.mdx",
+      "sha256": "6e6420a9f6d4d8aa2ac58042359e4ecb254ddcd75d872f94da69e24e15beceab"
+    },
+    "overview/getting-started": {
+      "path": "src/content/documentation/mix/overview/getting-started.mdx",
+      "sha256": "7b425671c26b37cee6f15483519e9a3e951cb8ef911330653bdaf2a00b5ce719"
+    },
+    "overview/introduction": {
+      "path": "src/content/documentation/mix/overview/introduction.mdx",
+      "sha256": "15050b29ecf859df9d55c0bb61907b7bf006cfb082fe1c3623313442fade664f"
+    },
+    "overview/migration": {
+      "path": "src/content/documentation/mix/overview/migration.mdx",
+      "sha256": "dc192250a50dcc5e3770be1429f616467a01d04772a95068320c3a0ecb87d0d1"
+    },
+    "overview/utility-first": {
+      "path": "src/content/documentation/mix/overview/utility-first.mdx",
+      "sha256": "8aea062fecb5732416488f6ada1ddf0b03267abe2fc65a9f62745f72e1576f72"
+    },
+    "tutorials/controlling-widget-state": {
+      "path": "src/content/documentation/mix/tutorials/controlling-widget-state.mdx",
+      "sha256": "5701fc51ecf481564c887e35303e00ae74ddcf518595c218914e3f17fed66220"
+    },
+    "tutorials/creating-a-widget": {
+      "path": "src/content/documentation/mix/tutorials/creating-a-widget.mdx",
+      "sha256": "da1e0b5470ca91edcfc55cf8bce9524cff0e1e06a95ab27f82a97dc7c54f2738"
+    },
+    "tutorials/creating-context-variants": {
+      "path": "src/content/documentation/mix/tutorials/creating-context-variants.mdx",
+      "sha256": "035d8139462e17676a0fd72e70664f414f78402ead536eac19becfb8e5227f94"
+    },
+    "tutorials/creating-custom-tokens": {
+      "path": "src/content/documentation/mix/tutorials/creating-custom-tokens.mdx",
+      "sha256": "0b14eecb77d7de143bcc9a6067d36aca17b47a9411dbdde90d6fb635f42db0e8"
+    },
+    "tutorials/theming": {
+      "path": "src/content/documentation/mix/tutorials/theming.mdx",
+      "sha256": "9fff83f808e3b8ebbf39d74be7e79c225f0aceb354717ea5a81b996901a6496e"
+    },
     "widgets/box": {
       "path": "src/content/documentation/mix/widgets/box.mdx",
       "sha256": "3e73ffc6669a72e6d7d814fc73eaf506e463acea16fa0ab2a9c3504153a2534c"
+    },
+    "widgets/flexbox": {
+      "path": "src/content/documentation/mix/widgets/flexbox.mdx",
+      "sha256": "ae9f74026fd1d84c878e49712def3dde5794736a84467d852d2a84fdacc9c024"
+    },
+    "widgets/icon": {
+      "path": "src/content/documentation/mix/widgets/icon.mdx",
+      "sha256": "647226dbb2b613ce51b77ee44473122c2b35ec15a8192cc481d13f717af651e3"
+    },
+    "widgets/image": {
+      "path": "src/content/documentation/mix/widgets/image.mdx",
+      "sha256": "66091f3251a0f486ae1e5a227df93f4b390ec5b9df7aec86daa3c41e66a973b4"
+    },
+    "widgets/pressable": {
+      "path": "src/content/documentation/mix/widgets/pressable.mdx",
+      "sha256": "1086a22cbaf335125083a76bad57eeab0b9991fa7b1a129111c734099c2970ad"
+    },
+    "widgets/stack": {
+      "path": "src/content/documentation/mix/widgets/stack.mdx",
+      "sha256": "12122a699ce23131821f05e8af259fe7331824457beaceb607936b4c4ae2fd7e"
+    },
+    "widgets/stylewidgets": {
+      "path": "src/content/documentation/mix/widgets/stylewidgets.mdx",
+      "sha256": "1cb47bd165952df2d7e3ceec016265161ae61d2076a9f2e589e6f814855d10b3"
+    },
+    "widgets/text": {
+      "path": "src/content/documentation/mix/widgets/text.mdx",
+      "sha256": "b60c691f31ea6acd87874bd6e4a49f2efe80ee5f927f3121d5d0cbbeea52b14f"
     }
   }
 }

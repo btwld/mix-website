@@ -12,3 +12,8 @@ public/remix/
 test-results/
 playwright-report/
 .apphosting/
+# Local evidence, scratch, and Flutter outputs
+.context/
+.dart_tool/
+**/.dart_tool/
+**/build/

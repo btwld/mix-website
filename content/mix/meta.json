@@ -1,6 +1,9 @@
 {
   "pages": [
+    "overview",
     "guides",
-    "widgets"
+    "widgets",
+    "tutorials",
+    "ecosystem"
   ]
 }

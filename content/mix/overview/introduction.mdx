@@ -1,0 +1,100 @@
+---
+title: Introduction
+og_image: introduction-og.png
+description: "Learn the core ideas behind Mix and how it separates style semantics from widget structure."
+---
+
+Mix is a styling system for Flutter that separates style definitions from widget structure. It provides a composable, type-safe way to define and apply styles using a fluent API, design tokens, and context-aware variants.
+
+- Compose, merge, and apply styles across widgets
+- Write maintainable styling definitions separate from widget code
+- Adapt styles conditionally based on interactions and context
+
+## Why Mix?
+
+Flutter's built-in styling works well for simple widgets, but as your app grows, common pain points emerge:
+
+- **Style duplication**: The same colors, spacing, and borders are repeated across widgets with no easy way to share them.
+- **Tight coupling**: Style logic lives inside `build()` methods, making it hard to reuse or test independently.
+- **No conditional styling**: Adapting styles for hover, press, dark mode, or breakpoints requires manual boilerplate.
+
+Mix solves these by giving you a dedicated styling layer that stays consistent across widgets and files — without being tied to Material Design.
+
+## Goals and Principles
+
+- Define styles outside widgets while retaining `BuildContext` access
+- Reuse style definitions across your app for consistency
+- Adapt styles conditionally using variants (hover, dark mode, breakpoints)
+- Type-safe composability using Dart's type system
+
+Mix is designed to be a **simple**, thin layer over Flutter — widgets remain compatible and predictable. The API mirrors Flutter naming conventions for **consistency**, lets you build complex styles from reusable pieces through **composability**, and is fully **extensible** to fit your needs.
+
+## The Styler Pattern
+
+Define styles using a fluent, chainable API with `Styler` classes:
+
+```dart
+final boxStyle = BoxStyler()
+    .color(Colors.red)
+    .size(100, 100)
+    .borderRadius(.circular(10));
+```
+
+<FlutterPreview previewId="overview/introduction.0" height={200} />
+
+Use this pattern when defining styles with direct values, chaining multiple properties, or building most common styling use cases. Learn more about [styling](/mix/docs/guides/styling/).
+
+## Key Features
+
+### Dynamic Styling
+
+Styles can adapt to interactions and context (hover, press, dark mode):
+
+```dart
+final buttonStyle = BoxStyler()
+    .height(50)
+    .borderRadius(.circular(25))
+    .color(Colors.blue)
+    .onHovered(.color(Colors.blue.shade700))
+    .onDark(.color(Colors.blue.shade200));
+```
+
+Learn more about [Dynamic Styling](/mix/docs/guides/dynamic-styling/).
+
+### Animation Support
+
+Mix supports implicit animations, phase animations (multi-step sequences), and keyframe animations. Learn more in the [Animations Guide](/mix/docs/guides/animations/).
+
+### Widget Modifiers
+
+Some visual effects — opacity, clipping, visibility — aren't style properties. Modifiers let you declare widget wrappers inside your style so they stay composable and animatable. Learn more in the [Widget Modifiers Guide](/mix/docs/guides/widget-modifiers/).
+
+### Directives
+
+Directives transform values (text casing, number scaling, color adjustments) at resolve time, keeping transformations inside the style so they survive merging. Learn more in the [Directives Guide](/mix/docs/guides/directives/).
+
+### Design Tokens and Theming
+
+Define reusable design tokens for colors, spacing, radii, and more:
+
+```dart
+final $primaryColor = ColorToken('primary');
+final $borderRadius = RadiusToken('borderRadius');
+
+// Provide token values through MixScope
+MixScope(
+  colors: {
+    $primaryColor: Colors.blue,
+  },
+  radii: {
+    $borderRadius: .circular(8),
+  },
+  child: MyApp(),
+);
+```
+
+Learn more about [Design Tokens and Theming](/mix/docs/guides/design-token/).
+
+## Next Steps
+
+Ready to start building? Head to the [Getting Started](/mix/docs/overview/getting-started/) guide to set up Mix and create your first styled widget. For a full reference of available widgets, see the [Widgets](/mix/docs/widgets/stylewidgets/) section.

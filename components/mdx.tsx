@@ -1,4 +1,5 @@
 import { getConceptaMDXComponents } from '@concepta/docs-theme/mdx';
+import { Steps } from 'fumadocs-ui/components/steps';
 import { Callout as FumadocsCallout } from 'fumadocs-ui/components/callout';
 import type { MDXComponents } from 'mdx/types';
 import type { ComponentProps, ReactNode } from 'react';
@@ -33,6 +34,7 @@ const PREVIEW_ADAPTERS = {
 export function getMDXComponents(project: ProjectId, overrides?: MDXComponents) {
   return getConceptaMDXComponents({
     CodeGroup,
+    Steps,
     Callout,
     Info: ({ children }: { children: ReactNode }) => <FumadocsCallout type="info">{children}</FumadocsCallout>,
     Note: ({ children }: { children: ReactNode }) => <FumadocsCallout type="info">{children}</FumadocsCallout>,

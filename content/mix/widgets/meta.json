@@ -1,6 +1,13 @@
 {
   "title": "Widgets",
   "pages": [
-    "box"
+    "stylewidgets",
+    "box",
+    "flexbox",
+    "text",
+    "icon",
+    "image",
+    "pressable",
+    "stack"
   ]
 }

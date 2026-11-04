@@ -54,11 +54,11 @@ const frontmatterTitle = text => /^---\n[\s\S]*?^title:\s*["']?(.+?)["']?\s*$/m.
 function adaptMix(text) {
   const title = frontmatterTitle(text);
   let out = text.replace(/^import\s+\{([^}]+)\}\s+from\s+["']nextra\/components["'];?\n+/gm, (_, names) => {
-    const unknown = names.split(',').map(name => name.trim()).filter(name => name && name !== 'Callout');
+    const unknown = names.split(',').map(name => name.trim()).filter(name => name && !['Callout', 'Steps'].includes(name));
     if (unknown.length) throw new Error(`Unsupported nextra imports: ${unknown.join(', ')}`);
     return '';
   });
-  if (/^import\s/m.test(out)) throw new Error('Page has imports this site does not provide');
+  if (/^import\s/m.test(out.replace(/^(```|~~~)[^\n]*\n[\s\S]*?^\1[^\n]*$/gm, ''))) throw new Error('Page has imports this site does not provide');
   if (title) out = out.replace(new RegExp(`^# ${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\n+`, 'm'), '');
   // Concepta URLs move under /mix/docs; the site uses trailing slashes.
   out = out.replace(/\]\(\/documentation\/mix\/([^)#\s]+?)\/?(#[^)\s]*)?\)/g, (_, slug, hash = '') => `](/mix/docs/${slug}/${hash})`);
