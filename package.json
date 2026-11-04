@@ -20,7 +20,8 @@
     "audit:inputs": "node scripts/audit/site-inputs.mjs",
     "site-inputs:remote": "node scripts/site-inputs/verify-remote.mjs",
     "build:preview": "SITE_INDEXING=noindex SITE_BUILD_TARGET=static-preview pnpm build && node scripts/site-inputs/prepare-static-preview.mjs",
-    "audit:inventory": "node scripts/audit/inventory.mjs"
+    "audit:inventory": "node scripts/audit/inventory.mjs",
+    "test:preview-update": "node tests/components/preview-update.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",

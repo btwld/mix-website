@@ -12,7 +12,10 @@ import { MIX_PREVIEWS_BASE, MIX_SOURCES_BASE } from "./bundle";
 import { acceptMixBundle } from './bundle-identity.mjs';
 
 type PreviewMode = "preview" | "code" | "both";
-type ManifestState = "loading" | "ready" | "error";
+type ManifestResolution =
+  | { request: string; state: "loading" }
+  | { request: string; state: "ready"; entry: PreviewManifestEntry }
+  | { request: string; state: "error"; error: string };
 
 interface FlutterPreviewProps {
   /** Preview ID registered in PreviewRegistry */
@@ -43,9 +46,12 @@ export function FlutterPreview({
   bordered = true,
   fallbackToFullFile = true,
 }: FlutterPreviewProps) {
-  const [manifestState, setManifestState] = useState<ManifestState>("loading");
-  const [entry, setEntry] = useState<PreviewManifestEntry | null>(null);
-  const [manifestError, setManifestError] = useState<string | null>(null);
+  const request = JSON.stringify([previewId, basePath, sourceBasePath]);
+  const [resolved, setResolved] = useState<ManifestResolution>({ request, state: "loading" });
+  // Hide the previous entry during render, before any child passive effect can
+  // pair it with new props. Resolution and its request identity stay atomic.
+  const current = resolved.request === request ? resolved : null;
+  const entry = current?.state === "ready" ? current.entry : null;
   const [sourceOpen, setSourceOpen] = useState(false);
   const showPreview = defaultMode === "preview" || defaultMode === "both";
   const showCode = defaultMode === "code" || defaultMode === "both";
@@ -56,9 +62,7 @@ export function FlutterPreview({
     const loadEntry = async () => {
       // A retained engine must never be paired with a new manifest or snippet.
       if (!acceptMixBundle(window, basePath)) return;
-      setManifestState("loading");
-      setManifestError(null);
-      setEntry(null);
+      setResolved({ request, state: "loading" });
 
       try {
         const manifestEntry = await findPreviewManifestEntry(previewId, basePath);
@@ -68,12 +72,10 @@ export function FlutterPreview({
           throw new Error(`Unknown previewId: ${previewId}`);
         }
 
-        setEntry(manifestEntry);
-        setManifestState("ready");
+        setResolved({ request, state: "ready", entry: manifestEntry });
       } catch (error) {
         if (!isMounted) return;
-        setManifestState("error");
-        setManifestError(error instanceof Error ? error.message : "Unknown manifest error");
+        setResolved({ request, state: "error", error: error instanceof Error ? error.message : "Unknown manifest error" });
       }
     };
 
@@ -82,7 +84,7 @@ export function FlutterPreview({
     return () => {
       isMounted = false;
     };
-  }, [basePath, previewId]);
+  }, [basePath, previewId, sourceBasePath, request]);
 
   return (
     <div
@@ -90,19 +92,19 @@ export function FlutterPreview({
       data-testid="flutter-preview"
       data-preview-id={previewId}
     >
-      {manifestState === "loading" && (
+      {(!current || current.state === "loading") && (
         <div className="rounded-lg border border-white/10 bg-[#1a1a2e] px-4 py-3 text-sm text-zinc-400">
           Resolving preview metadata...
         </div>
       )}
 
-      {manifestState === "error" && (
+      {current?.state === "error" && (
         <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-          {manifestError ?? "Failed to resolve preview metadata."}
+          {current.error}
         </div>
       )}
 
-      {manifestState === "ready" && entry && (
+      {entry && (
         <>
           {showPreview && entry.renderable !== false && (
             <FlutterMultiView
@@ -132,7 +134,7 @@ export function FlutterPreview({
             />
           )}
           {!showCode && (
-            <details className="mt-3" onToggle={event => setSourceOpen(event.currentTarget.open)}>
+            <details className="mt-3" open={sourceOpen} onToggle={event => setSourceOpen(event.currentTarget.open)}>
               <summary className="cursor-pointer py-3 text-sm font-medium">View Dart source</summary>
               {sourceOpen && <FlutterSnippet sourcePath={entry.sourcePath} region={entry.snippetRegion ?? undefined}
                 basePath={sourceBasePath} maxHeight={codeMaxHeight} fallbackToFullFile={fallbackToFullFile} />}
