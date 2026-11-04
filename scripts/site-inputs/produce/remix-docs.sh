@@ -53,7 +53,7 @@ sw_version="$((16#${commit:0:8}))"
 grep -qE 'serviceWorkerVersion: "[0-9]+"' "$stage/catalog/flutter_bootstrap.js" || fail "flutter_bootstrap.js has no serviceWorkerVersion to normalize"
 sed -E -i "s/serviceWorkerVersion: \"[0-9]+\"/serviceWorkerVersion: \"$sw_version\"/" "$stage/catalog/flutter_bootstrap.js"
 
-node - "$stage" "$commit" "$flutter_json" <<'NODE'
+PRODUCER_COMMIT="${PRODUCER_COMMIT:-$(git -C "$here" rev-parse HEAD)}" node - "$stage" "$commit" "$flutter_json" <<'NODE'
 const fs = require('node:fs');
 const path = require('node:path');
 const [stage, commit, flutterJson] = process.argv.slice(2);
@@ -72,7 +72,7 @@ const metadata = {
   name: 'remix-docs',
   source: { repository: 'btwld/remix', commit, path: 'docs', license: 'BSD-3-Clause' },
   toolchain: { flutter: flutter.frameworkVersion, flutterRevision: flutter.frameworkRevision, dart: flutter.dartSdkVersion, engineRevision: flutter.engineRevision },
-  producer: { script: 'scripts/site-inputs/produce/remix-docs.sh', commit: process.env.PRODUCER_COMMIT ?? null },
+  producer: { repository: 'btwld/mix-website', script: 'scripts/site-inputs/produce/remix-docs.sh', commit: process.env.PRODUCER_COMMIT ?? null },
   normalized: ['catalog/.last_build_id removed', 'catalog/flutter_bootstrap.js serviceWorkerVersion = decimal of the first 8 hex digits of the source commit'],
   payload: { content: 'content/', assets: 'assets/', catalog: 'catalog/', catalogBaseHref: '/remix/catalog/', pages: pages.sort() },
 };

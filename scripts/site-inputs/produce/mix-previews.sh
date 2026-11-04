@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Build the Mix preview site input from a btwld/website checkout.
+# Build the Mix preview site input from a btwld/mix-website checkout.
 #
-# Usage: mix-previews.sh <website-checkout> <expected-commit> <output-dir>
+# Usage: mix-previews.sh <mix-website-checkout> <expected-commit> <output-dir>
 #
 # The archive holds the multi-view Flutter bundle, previews-manifest.json and
 # the Dart sources the manifest points at, so previews and their snippets
@@ -16,7 +16,7 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 toolchains="$here/../toolchains.json"
 fail() { echo "error: $*" >&2; exit 1; }
 
-[ $# -eq 3 ] || fail "usage: $0 <website-checkout> <expected-commit> <output-dir>"
+[ $# -eq 3 ] || fail "usage: $0 <mix-website-checkout> <expected-commit> <output-dir>"
 src="$(cd "$1" && pwd)"
 commit="$2"
 out="$(mkdir -p "$3" && cd "$3" && pwd)"
@@ -44,7 +44,7 @@ cp -R "$pkg/build/web" "$stage/bundle"
 rm -f "$stage/bundle/flutter_service_worker.js"
 commit_date="$(git -C "$src" show -s --format=%cI "$commit")"
 
-node - "$stage" "$commit" "$flutter_json" "$commit_date" <<'NODE'
+PRODUCER_COMMIT="${PRODUCER_COMMIT:-$(git -C "$here" rev-parse HEAD)}" node - "$stage" "$commit" "$flutter_json" "$commit_date" <<'NODE'
 const fs = require('node:fs');
 const path = require('node:path');
 const [stage, commit, flutterJson, commitDate] = process.argv.slice(2);
@@ -66,9 +66,9 @@ for (const entry of manifest.entries) {
 const metadata = {
   schemaVersion: 1,
   name: 'mix-previews',
-  source: { repository: 'btwld/website', commit, path: 'packages/mix_docs_preview', license: null },
+  source: { repository: 'btwld/mix-website', commit, path: 'packages/mix_docs_preview', license: null },
   toolchain: { flutter: flutter.frameworkVersion, flutterRevision: flutter.frameworkRevision, dart: flutter.dartSdkVersion, engineRevision: config.engineRevision },
-  producer: { script: 'scripts/site-inputs/produce/mix-previews.sh', commit: process.env.PRODUCER_COMMIT ?? null },
+  producer: { repository: 'btwld/mix-website', script: 'scripts/site-inputs/produce/mix-previews.sh', commit: process.env.PRODUCER_COMMIT ?? commit },
   normalized: ['bundle/previews-manifest.json generatedAt = source commit date'],
   payload: { bundle: 'bundle/', manifest: 'bundle/previews-manifest.json', sources: 'bundle/sources/', previewIds: manifest.entries.map(entry => entry.previewId) },
 };

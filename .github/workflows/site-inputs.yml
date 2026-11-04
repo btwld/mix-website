@@ -11,7 +11,7 @@ on:
         description: Site input to build
         required: true
         type: choice
-        options: [mix-previews, remix-docs]
+        options: [mix-previews, remix-docs, naked-ui-docs]
       commit:
         description: Full 40-character source commit SHA
         required: true
@@ -38,8 +38,8 @@ jobs:
         run: |
           [[ "$COMMIT" =~ ^[0-9a-f]{40}$ ]] || { echo "commit must be a full SHA"; exit 1; }
           case "$INPUT" in
-            mix-previews) echo "SOURCE_REPO=btwld/website" >> "$GITHUB_ENV" ;;
-            remix-docs) echo "SOURCE_REPO=btwld/remix" >> "$GITHUB_ENV" ;;
+            mix-previews) echo "SOURCE_REPO=$GITHUB_REPOSITORY" >> "$GITHUB_ENV" ;;
+            remix-docs|naked-ui-docs) echo "SOURCE_REPO=btwld/remix" >> "$GITHUB_ENV" ;;
           esac
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:

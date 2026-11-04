@@ -1,7 +1,5 @@
 // Shape checks shared by the producer packer and the website prebuild.
-// Naked UI has no canonical docs folder upstream yet (it belongs in
-// btwld/remix), so its pilot page is staged in content/naked-ui for now.
-export const INPUT_NAMES = ['mix-previews', 'remix-docs'];
+export const INPUT_NAMES = ['mix-previews', 'remix-docs', 'naked-ui-docs'];
 
 const COMMIT = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
@@ -31,13 +29,17 @@ export function validateSiteInputMetadata(metadata) {
 export function validateLock(lock) {
   if (lock?.version !== 1) fail('sources.lock.json: unsupported version');
   if (!lock.inputs || typeof lock.inputs !== 'object') fail('sources.lock.json: missing inputs');
-  for (const name of INPUT_NAMES) {
+  for (const name of ['mix-previews', 'remix-docs']) {
     if (!(name in lock.inputs)) fail(`sources.lock.json: missing input ${name}`);
   }
   for (const [name, input] of Object.entries(lock.inputs)) {
     const where = `sources.lock.json inputs.${name}`;
     if (!INPUT_NAMES.includes(name)) fail(`${where}: unknown input`);
     checkSource(input.source, where);
+    if (input.producer) {
+      if (input.producer.repository !== 'btwld/mix-website' || !COMMIT.test(input.producer.commit ?? '')) fail(`${where}: producer must name a full mix-website commit`);
+      if (input.producer.script !== `scripts/site-inputs/produce/${name}.sh`) fail(`${where}: unexpected producer script`);
+    }
     const artifact = input.artifact;
     if (!artifact || typeof artifact !== 'object') fail(`${where}: missing artifact`);
     if (!ARTIFACT_URL.test(artifact.url ?? '')) fail(`${where}: artifact.url must be a btwld/mix-website release asset (.tar.gz)`);

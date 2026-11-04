@@ -40,6 +40,7 @@ lock.inputs[metadata.name] = {
   source: { repository: metadata.source.repository, commit: metadata.source.commit },
   artifact: { url, sha256: digest, size: data.length },
   toolchain: metadata.toolchain ?? undefined,
+  producer: metadata.producer ?? undefined,
 };
 lock.inputs = Object.fromEntries(Object.entries(lock.inputs).sort(([a], [b]) => a.localeCompare(b)));
 try {
