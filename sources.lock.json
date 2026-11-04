@@ -4,12 +4,12 @@
     "mix-previews": {
       "source": {
         "repository": "btwld/mix-website",
-        "commit": "07f167db8124ce0870ad5736b54512506c0f0df2"
+        "commit": "23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7"
       },
       "artifact": {
-        "url": "https://github.com/btwld/mix-website/releases/download/site-input-mix-previews-07f167db8124/mix-previews-07f167db8124.tar.gz",
-        "sha256": "c633d7848a3d3479eb55ee1d5554aaca56913cf2b2b70486ca363e650edb1875",
-        "size": 1922921
+        "url": "https://github.com/btwld/mix-website/releases/download/site-input-mix-previews-23a73c6c0dda/mix-previews-23a73c6c0dda.tar.gz",
+        "sha256": "ba0a0926fab14633193e48df60dc13df9513dd415deb6adce8cdc87a2ded85e5",
+        "size": 1931761
       },
       "toolchain": {
         "flutter": "3.44.0",
@@ -20,7 +20,7 @@
       "producer": {
         "repository": "btwld/mix-website",
         "script": "scripts/site-inputs/produce/mix-previews.sh",
-        "commit": "07f167db8124ce0870ad5736b54512506c0f0df2"
+        "commit": "23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7"
       }
     },
     "naked-ui-docs": {
