@@ -6,6 +6,7 @@
 // same source commit. Missing artifacts, digest mismatches, and unresolved
 // preview IDs all fail the build.
 import { buildIdentity } from './build-identity.mjs';
+import { verifyMixBuildInputs } from './mix-build-inputs.mjs';
 import { isDeepStrictEqual } from 'node:util';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
@@ -139,6 +140,7 @@ function hasRegion(source, region) {
 
 /** Resolve every Mix preview ID against the locked manifest and bundled sources. */
 export async function verifyMixPreviews(contentDir, bundleDir, authoringRoot) {
+  if (authoringRoot) await verifyMixBuildInputs(authoringRoot, bundleDir);
   const manifest = JSON.parse(await readFile(path.join(bundleDir, 'previews-manifest.json'), 'utf8'));
   const byId = new Map(manifest.entries.map(entry => [entry.previewId, entry]));
   const problems = [];

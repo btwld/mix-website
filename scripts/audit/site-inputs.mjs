@@ -4,6 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { verifyMixBuildInputs } from '../site-inputs/mix-build-inputs.mjs';
 const lock = JSON.parse(await readFile('sources.lock.json', 'utf8'));
 assert.equal(lock.inputs['mix-previews'].source.repository, 'btwld/mix-website', 'Mix previews must be produced by their canonical owner');
 for (const [name, entry] of Object.entries(lock.inputs)) {
@@ -13,6 +14,7 @@ for (const [name, entry] of Object.entries(lock.inputs)) {
   assert.deepEqual(metadata.producer, entry.producer, `${name}: producer provenance must match the lock`);
 }
 const bundle = '.site-inputs/extracted/mix-previews/bundle';
+await verifyMixBuildInputs(process.cwd(), bundle);
 const manifest = JSON.parse(await readFile(path.join(bundle, 'previews-manifest.json'), 'utf8'));
 const used = new Set();
 for (const entry of manifest.entries) {

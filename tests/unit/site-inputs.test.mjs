@@ -11,6 +11,7 @@ import {
   collectPendingRedirects, extractInput, extractLinks, extractPreviewIds, obtainArtifact, stageDocsSnapshot, verifyMixPreviews,
 } from '../../scripts/site-inputs/sync-lib.mjs';
 import { packDirectory, readArchive, sha256 } from '../../scripts/site-inputs/tar.mjs';
+import { mixBuildInputs, verifyMixBuildInputs } from '../../scripts/site-inputs/mix-build-inputs.mjs';
 
 const COMMIT = 'a'.repeat(40);
 
@@ -240,8 +241,32 @@ test('prebuild refuses a preview archive after its canonical Dart source changes
       'bundle/previews-manifest.json': JSON.stringify({entries:[{previewId:'example.0',sourcePath:relative}]}),
       ['bundle/sources/'+relative]: 'class Example {}',
     });
+    await writeFile(path.join(root,'bundle/build-inputs.json'), JSON.stringify(await mixBuildInputs(root)));
     assert.deepEqual(await verifyMixPreviews(path.join(root,'content'),path.join(root,'bundle'),root),['example.0']);
     await writeFile(path.join(root,relative),'class ChangedExample {}');
-    await assert.rejects(verifyMixPreviews(path.join(root,'content'),path.join(root,'bundle'),root), /Stale bundled source/);
+    await assert.rejects(verifyMixPreviews(path.join(root,'content'),path.join(root,'bundle'),root), /Stale Flutter build inputs/);
   } finally { await rm(root,{recursive:true}); }
+});
+
+test('all Flutter inputs, including non-snippet helpers, additions/deletions and recipe changes, invalidate the bundle', async () => {
+  const root = await tempDir();
+  const prefix = 'packages/mix_docs_preview/';
+  const files = { [prefix+'lib/preview_registry.dart']: 'registry A', [prefix+'lib/helpers.dart']: 'helper A', [prefix+'pubspec.lock']: 'dependency A', [prefix+'web/index.html']: '<html>A</html>', 'scripts/site-inputs/toolchains.json': '{"flutter":"3.44.0"}' };
+  try {
+    await writeTree(root, { ...files, 'bundle/build-inputs.json': '{}' });
+    const baseline = await mixBuildInputs(root);
+    await writeFile(path.join(root, 'bundle/build-inputs.json'), JSON.stringify(baseline));
+    for (const [file, original] of Object.entries(files)) {
+      await writeFile(path.join(root, file), original + ' changed');
+      await assert.rejects(verifyMixBuildInputs(root, path.join(root,'bundle')), /Stale Flutter build inputs/);
+      await writeFile(path.join(root, file), original);
+    }
+    await writeFile(path.join(root, prefix+'lib/new_helper.dart'), 'new dependency');
+    await assert.rejects(verifyMixBuildInputs(root, path.join(root,'bundle')), /Stale Flutter build inputs/);
+    await rm(path.join(root, prefix+'lib/new_helper.dart'));
+    await rm(path.join(root, prefix+'lib/helpers.dart'));
+    await assert.rejects(verifyMixBuildInputs(root, path.join(root,'bundle')), /Stale Flutter build inputs/);
+    await writeTree(root, { [prefix+'lib/helpers.dart']: 'helper A', [prefix+'build/generated.dart']: 'ignored', [prefix+'.dart_tool/cache']: 'ignored' });
+    assert.deepEqual(await mixBuildInputs(root), baseline);
+  } finally { await rm(root, { recursive: true }); }
 });

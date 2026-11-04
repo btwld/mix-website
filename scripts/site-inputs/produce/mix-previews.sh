@@ -42,6 +42,15 @@ cp -R "$pkg/build/web" "$stage/bundle"
 # The bundle is embedded, never installed as an app; a worker file inside a
 # versioned directory would only invite a stray registration.
 rm -f "$stage/bundle/flutter_service_worker.js"
+# Record package sources, registry/helpers, web/assets, dependency locks and
+# exact producer/toolchain recipe. The consumer independently recomputes this.
+node --input-type=module - "$src" "$stage/bundle/build-inputs.json" "$here/../mix-build-inputs.mjs" <<'NODE'
+import { writeFile } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
+const [root, output, helper] = process.argv.slice(2);
+const { mixBuildInputs } = await import(pathToFileURL(helper).href);
+await writeFile(output, JSON.stringify(await mixBuildInputs(root), null, 2) + '\n');
+NODE
 commit_date="$(git -C "$src" show -s --format=%cI "$commit")"
 
 PRODUCER_COMMIT="${PRODUCER_COMMIT:-$(git -C "$here" rev-parse HEAD)}" node - "$stage" "$commit" "$flutter_json" "$commit_date" <<'NODE'
