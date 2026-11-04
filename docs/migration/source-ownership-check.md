@@ -21,8 +21,10 @@ the producer builds the matching input; it cannot silently keep using the
 previous owner's artifact.
 
 The legacy `btwld/website@509c4a9` preview pin has been replaced. Its pilot
-commits/evidence remain historical. This closes local producer ownership; it
-does not close archive publication or clean remote rebuild verification.
+commits/evidence remain historical. Local producer ownership was closed first;
+the exact canonical archive was subsequently published on 2026-11-04. Anonymous
+provenance/hash verification and the clean remote-input build of `70d679c` now
+close the publication/rebuild gates too. Hosted acceptance remains separate.
 
 The current archive is rebuilt from canonical source and producer commit
 `23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7`. It records a deterministic

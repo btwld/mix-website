@@ -1,0 +1,22 @@
+{
+  "apphosting": [
+    {
+      "backendId": "fluttermix",
+      "rootDir": ".",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "functions",
+        ".context",
+        ".site-inputs",
+        ".next",
+        ".source",
+        ".generated",
+        "test-results",
+        "playwright-report"
+      ]
+    }
+  ]
+}

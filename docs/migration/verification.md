@@ -1,19 +1,21 @@
 # Verification and delivery record
 
-Recorded 2026-11-04. This is a local implementation candidate, not a hosted
-release. The [plan](plan.md) is the single status checklist; this record gives
+Recorded 2026-11-04. This is a published implementation candidate; the first
+Mac-initiated App Hosting rollout now serves the reviewed candidate and passes
+identity/input and noindex rendered checks. Hosted interactive acceptance remains open.
+The [plan](plan.md) is the single status checklist; this record gives
 its evidence and limits. Raw logs, failure traces, archives and screenshots
 remain outside tracked source.
 
 ## Exact candidate inputs
 
 `sources.lock.json` is authoritative for full URLs, source/producer revisions,
-SDK revisions, sizes and SHA-256. Each archive has been built and verified
-locally, but **all three locked public release URLs return HTTP 404** in the
-uncached availability check. No clean remote rebuild or successful CI run is
-claimed.
+SDK revisions, sizes and SHA-256. All three exact archives are now published.
+Anonymous download, size, SHA-256 and source/producer/toolchain verification
+passed in the VM and on the Mac. The earlier 404/cache-only limitation is
+historical and superseded by the clean remote-input build below.
 
-| Input | Canonical source commit | Producer commit | Local archive bytes |
+| Input | Canonical source commit | Producer commit | Published archive bytes |
 | --- | --- | --- | ---: |
 | Mix previews | `mix-website@23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7` | `23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7` | 1,931,761 |
 | Naked UI docs | `remix@99c6da876de43f54d039bdb097fe5c7b74dce709` | `4230ceeed0c0526dbc72769c35cf020b0e803015` | 40,353 |
@@ -24,6 +26,54 @@ The isolated canonical Naked UI changes are published as draft
 above. They change documentation, tooling and a README, not package behavior.
 Active naked_ui is 1.5.0. Remix's older reviewed snapshot stays explicitly pinned;
 it is not silently replaced by current upstream main.
+
+## Publication and clean remote-input build
+
+The owner authorized publishing the recorded existing public btwld material
+under existing notices, without a new blanket license. Branch
+`conductor/flutter-mix-website-migration` was pushed at
+`70d679c69a7276beeacdc05d9a02363a55b3e413` and the three existing verified
+archive bytes were published without rebuilding, repinning or replacement.
+GitHub's asset digests match the lock. Its releases report `immutable:false`;
+the consumer rejects changed bytes, while GitHub-enforced immutability is not
+claimed. The integration's policy endpoint returned 403.
+
+A fresh remote clone of that exact SHA started with no `node_modules`, input
+cache, generated snapshots, Next outputs or staged public bundles. A frozen
+pnpm install reused the ordinary dependency package store; no site inputs or
+generated outputs were restored. Prebuild anonymously downloaded all three
+published archives. Node 24.22.1 / pnpm 11.5.3 passed lint, **26/26 unit tests**,
+typecheck, input/source parity, exact inventory and the production build.
+The resulting server identity reports the exact candidate SHA, `dirty:false`,
+lock hash `0c3ecb0b62fdd0ba2e06ec4b9c179747d610f41dcdd7da90f4e46860eab9a649`
+and all three pinned input digests. The noindex rendered audit passed **120
+routes, 118 internal links, 2,172 heading targets, 216 archived heading targets
+and 14 images**, with zero errors. This clean build is served on sandbox port
+3300; the earlier runtime-review build/evidence remains preserved separately.
+
+[Draft website PR #1](https://github.com/btwld/mix-website/pull/1) started actual
+GitHub CI on this published candidate. Its
+[initial run](https://github.com/btwld/mix-website/actions/runs/41928484889)
+passed 57/60 browser tests and failed three WebKit responsive checks. The
+failures reproduce locally: direct-load checks accumulated cancelled imports/
+prefetch errors across forced document navigations, and Playwright rejects wheel
+input in mobile WebKit. The corrected audit settles and checks each page before
+closing it, retaining all active-page errors and failed requests. The table
+wheel check uses the same narrow touch-capable viewport with supported desktop
+emulation; actual mobile navigation remains covered separately. The corrected
+responsive suite passes **5/5 Chromium and 5/5 WebKit**. Complete CI on the
+corrected revision remains a separate gate from the clean local build. Protected `main` remains `971cb1ac4bbb1724c6fde171470b44fce69a9e60`;
+no main-branch CI success or privileged preview deployment is implied.
+
+The first hosted review found the Getting Started installation placeholder and
+stale SDK minimums. The official pub.dev API on 2026-11-04 reports Mix 2.3.1,
+`sdk: >=3.12.0 <4.0.0`, `flutter: >=3.44.0`. The page now pins `mix: ^2.3.1`,
+states those constraints and describes Mix 2; the lint setup's current-project
+prerequisites agree. Original import hashes are preserved in `SOURCES.json`,
+with explicit update provenance. No remaining `{latest_version}` placeholders
+were found. Production build, rendered installation/metadata assertions and the
+actual Getting Started Flutter preview pass locally with no runtime/network
+errors. No Flutter source, archive or lock pin changed for these MDX edits.
 
 ## Content and source checks
 
@@ -112,21 +162,30 @@ OIDC deployment. Lifecycle unit tests cover independent channels, superseded
 build rejection/rollback and reopened-PR cleanup. **They do not establish live
 GitHub, OIDC or Hosting API behavior.** No preview resources have been created.
 
-App Hosting staging remains the next hosted proof. The owner-confirmed
-`bitwild-oss` project is active/billed with APIs enabled. The CLI backend-list
-attempt in this cloud VM failed authentication. The parent coordinator later
-confirmed working Firebase authentication on the Mac: the same project list
-command with `--json` succeeded with `result: []`, proving no backend exists.
-No credentials need to be copied into chat, this VM or source control.
+Full App Hosting staging acceptance remains open. The owner-confirmed
+`bitwild-oss` project is active/billed with APIs enabled. This cloud VM lacks
+Firebase authentication; the authenticated Mac now created `fluttermix` in
+`us-east4` and completed its first local-source rollout at reviewed app `70d679c`. The initial empty backend
+list is historical. The accidental empty `my-web-app` backend was deleted and
+its web app reused. No credentials need to be copied into chat, this VM or source
+control. Tracked Firebase source config selects `fluttermix` / root `.`. The Mac
+upload's local overlay adds `SITE_COMMIT=70d679c69a7276beeacdc05d9a02363a55b3e413`
+because `.git` is excluded; reviewed `apphosting.yaml` is unchanged. This is
+reported deployment metadata, not a claim that an overlay is part of the
+reviewed app tree. The hosted identity matches the provided app SHA, lock hash
+and all three digests. The normalized-header rendered audit passes all 120
+routes, 118 links, 2,172 heading targets, 216 archived heading targets and 14
+images with zero errors at
+https://fluttermix--bitwild-oss.us-east4.hosted.app. HTTP field names are
+normalized on both success and error responses; local and hosted audits now
+check identical targets, and zero heading coverage fails explicitly. See `deployment.md` for the identity contract.
 Next 16.4.1 has local build/adapter evidence, but the freshly checked official
-support table still lists Next 15.2 as active. Hosted compatibility and current
-Safari must be verified on the actual generated hostname.
+support table still lists Next 15.2 as active. The first hosted build/runtime serves the expected app; current Safari,
+interactive examples and returning-browser behavior still need hosted verification.
 
-Before remote delivery: settle the narrow Mix publication terms in
-[notices](notices.md), publish the source and approved archives, verify anonymous
-download/size/digest, then run CI without restored archives/generated outputs.
-Use the existing authenticated Mac identity and prove one
-App Hosting staging rollout before activating preview automation. Then prove
+Publication authorization, exact archives and the clean remote-input build are
+complete. Continue corrected-revision PR CI and finish hosted interactive
+acceptance of the first App Hosting rollout before activating preview automation. Then prove
 two independent PR URLs, same-URL update, stale/fork rejection and cleanup.
 Production project selection and domain cutover remain a separate final owner
 checkpoint. See [deployment](deployment.md) for concrete preparation and rollback.
@@ -136,9 +195,11 @@ checkpoint. See [deployment](deployment.md) for concrete preparation and rollbac
 The full desktop/mobile review is scoped to product snapshot
 `2d90f390423310e1c02b1748d1b8ba1b86e1ee1e`; the final narrow resolved-state fix is
 `2c82828b3468608ba9d29eee273ecf54a4c4670d`. Documentation-only commits after that
-snapshot do not change the tested product bytes. The latest server build records
-that product SHA and honestly reports a dirty checkout because these delivery
-records were being updated. This is not clean remote CI evidence.
+snapshot do not change the tested product bytes. That review's server build
+recorded the product SHA and honestly reported a dirty checkout while delivery
+records were edited. The later clean published-candidate build above supersedes
+that build for source-identity verification, without relabeling earlier browser
+evidence as a new test run.
 
 - Fresh production startup succeeded on sandbox port **3300**. The server was
   stopped before A/B rebuilds, restarted after canonical restoration, and rebuilt
@@ -202,14 +263,14 @@ sitemap/rendered metadata, concise navigation, source access, mobile table
 scrolling, real compiled A/B coherence and the same-instance race. The explicit
 legacy exclusions/unresolved archival decisions in `inventory.md` remain.
 
-The final uncached remote probe still returns **HTTP 404 for all three locked
-archives**, including the rebuilt Mix archive. Publication terms, clean remote CI,
-actual App Hosting staging/Safari and live two-PR preview/update/cleanup proof
-remain delivery gates. No deployment, publication, protected-main merge or DNS
-change occurred during this review. Remix draft PR #381 and source ownership
-boundaries are unchanged.
+The review initially ended with all three locked assets returning 404; the
+subsequent authorized publication and clean remote-input build above close
+that limitation. Complete corrected-revision CI, hosted interactive/Safari checks and live two-PR
+preview/update/cleanup remain delivery gates. No protected-main merge or DNS
+change occurred here. Remix draft PR #381 and source ownership are unchanged.
 
-Mac-direct visual checking remains pending unlock. The VM exposes no native Mac
-command or sync-inspection tool, so sync enablement and the Mac sync path cannot
-be established here. Use Conductor's Forward ports UI for sandbox 3300 and its
-actual assigned Mac port; do not assume the old Mac pilot matches this candidate.
+The parent independently cloned exact `70d679c` on the Mac and verified all
+three anonymous inputs. Direct Mac browser acceptance is not recorded here.
+The VM exposes no native Mac command or sync-inspection tool; an exact clone
+does not imply that Conductor file sync is enabled. Sandbox port 3300 remains
+available through Conductor's actual assigned forwarded port.

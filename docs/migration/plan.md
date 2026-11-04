@@ -12,7 +12,7 @@ One Next.js/Fumadocs application serves `/mix`, `/remix`, and `/naked-ui`, with 
 | Staging | Firebase App Hosting in `bitwild-oss` | Protected `main`, native automatic rollouts after the first hosted pilot succeeds. Noindex everywhere. |
 | Production | Separate Firebase project and App Hosting backend | Promote the exact staging-verified SHA, reject superseded candidates, verify generated hostname; domain cutover is a separate final gate. |
 
-`bitwild-oss` (416994480519, Bitwild OSS) is ACTIVE with billing enabled and Firebase/App Hosting APIs enabled. Authentication fails in this cloud VM, but the parent coordinator's authenticated Mac ran `firebase apphosting:backends:list --project bitwild-oss --json` successfully with `result: []`. This supersedes any implication that Google access is unavailable everywhere: access exists on the Mac and no backend exists. Use that existing identity there; do not copy tokens into chat, this VM or the repository. PR previews and staging are distinct deployment paths; no hosted rollout has been proved.
+`bitwild-oss` (416994480519, Bitwild OSS) is ACTIVE with billing enabled and Firebase/App Hosting APIs enabled. Authentication fails in this cloud VM; the parent uses the authenticated Mac without copying tokens. The initial empty backend list is historical: the parent has now created `fluttermix` in `us-east4` and completed its first local-source rollout at reviewed app SHA `70d679c`. The accidental empty `my-web-app` backend was deleted and its web app reused. PR previews and staging are distinct deployment paths; hosted identity and the complete noindex rendered audit pass, while interactive browser/Safari acceptance remains open.
 
 ## Checklist
 
@@ -30,31 +30,35 @@ One Next.js/Fumadocs application serves `/mix`, `/remix`, and `/naked-ui`, with 
 - [x] Explicitly account for every Naked Dart fence: 39 analyzed/frontend-compiled examples and 26 reasoned API references pinned to active source bytes (the reviewed 25 plus a restored Slider constructor reference).
 - [x] Reconcile inventory by exact page/route sets, validate rendered links/anchors/images and complete exported search coverage.
 - [x] Verify returning-browser digest isolation, catalog revalidation and an open tab across deployment, including source/snippet response failures.
-- [x] Finish final integration checks after the last content pin: production and noindex rendered audits, source/inventory parity and focused browser checks. Local builds and browser results are cache-backed; clean remote CI remains open.
+- [x] Finish final integration checks after the last content pin: production and noindex rendered audits, source/inventory parity and focused browser checks. Historical browser evidence remains snapshot-scoped; fresh remote-input build evidence is recorded separately.
 - [x] Fingerprint every authored Mix Flutter build input and pin the rebuilt canonical archive; reject registry/helper/asset/dependency/recipe drift, additions and deletions.
 - [x] Complete the fresh desktop/mobile and dev/production runtime review; retain full-size after screenshots and table-scroll interaction evidence.
 - [x] Verify a genuinely recompiled A/B demo and matching displayed source against the final test source; coordinate the page-global engine before accepting a changed bundle.
 - [x] Reproduce and close the mounted open-source prop-update race with render-time request identity gating; verify code-only and live-preview fixtures plus focused preview smoke checks.
-- [x] Distinguish cloud VM authentication failure from successful Mac access; confirm zero App Hosting backends and record the read-only DNS baseline. No DNS or deployment changes were made.
-- [ ] Resolve redistribution terms for the imported Mix MDX, preview code and images; the other upstream notices are accounted for.
-- [ ] Publish approved input archives and verify anonymous download/digests; prove clean CI without workspace cache.
-- [ ] Prove App Hosting staging on its generated hostname, then native protected-main rollout; hosted Safari and returning-browser checks.
+- [x] Distinguish cloud VM authentication failure from successful Mac access and record the DNS baseline and subsequent parent-initiated backend creation. Only verification/certificate records were added by the parent; no apex/www traffic switch occurred.
+- [x] Record owner authorization to publish the existing public btwld Mix material under existing notices, without a new blanket license; retain all upstream provenance/notices.
+- [x] Publish the three exact locked input archives and verify anonymous download, size, digest and provenance on VM and Mac.
+- [x] Build fresh remote clone `70d679c` without restored input archives/generated outputs; pass 26 unit tests, typecheck, lint, source/inventory audits and the 120-route rendered audit with clean build identity.
+- [ ] Complete PR #1 GitHub CI; record actual run conclusion separately from the successful clean local remote-input build.
+- [x] Track local-source Firebase config for `fluttermix` / `bitwild-oss`; document the first Mac upload's `SITE_COMMIT` overlay separately from app SHA `70d679c`.
+- [x] Complete the first Mac local-source rollout at `70d679c`; verify provided identity, lock/all input digests and the complete noindex rendered audit on the generated hostname.
+- [ ] Complete hosted interactive browser/Safari and returning-browser checks; record rollout ID/logs and prove native protected-main rollout separately.
 - [ ] Bootstrap trusted preview workflow definitions on reviewed default branch and configure preview-only WIF/Hosting site; no cloud resources or identities have been provisioned here.
 - [ ] Prove two independent PR preview URLs, update/stale-run/fork/cleanup cases.
 - [ ] Promote exact staging SHA to a separate production project and verify its generated hostname.
-- [ ] Final owner checkpoint: production project, canonical apex/www and DNS cutover. Preserve MX/TXT, prior origin, known-good rollout and DNS rollback.
+- [ ] Final owner checkpoint: production project and DNS traffic cutover (canonical apex selected). Preserve MX/TXT, prior origin, known-good rollout and DNS rollback.
 
 ## Bounded delivery handoff
 
-The prior candidate `487f11c2dec18de5faee163935b939ab03737d2d` and its evidence are preserved. The fresh runtime review implementation is `2c82828b3468608ba9d29eee273ecf54a4c4670d`, including the complete-input archive pin, page-global engine/version coordination, source disclosure, onboarding navigation and the same-instance render-before-effect guard. Its runtime gates and evidence are tracked above; see `verification.md` for executed results. Public `mix-website/main` remains the initial `971cb1ac4bbb1724c6fde171470b44fce69a9e60`. Publication terms and actual hosted proof remain unresolved. See [the exact publication commands](deployment.md#publish-the-exact-candidate-inputs) for the three locked archives and source/producer commits. Naked UI currently requires the unmerged source commit in Remix PR #381; an upstream merge is not technically required to fetch that exact published SHA, and must not silently change the input pin.
+The prior candidate `487f11c2dec18de5faee163935b939ab03737d2d` and its evidence are preserved. The final runtime fix is `2c82828b3468608ba9d29eee273ecf54a4c4670d`; published candidate `70d679c69a7276beeacdc05d9a02363a55b3e413` adds its verification record. Branch `conductor/flutter-mix-website-migration` and [draft website PR #1](https://github.com/btwld/mix-website/pull/1) are public. Publication and clean remote-input build are complete; first hosted identity/rendered proof passes, while full hosted interactive acceptance remains open. Public `main` remains `971cb1ac4bbb1724c6fde171470b44fce69a9e60`. See [the publication record](deployment.md#publish-the-exact-candidate-inputs) for exact archives and source/producer commits. Naked UI still pins the unmerged source commit in Remix PR #381; upstream merge is not technically required and must not silently change the pin.
 
-The parent coordinator's read-only DNS inspection found apex A `76.76.21.21`, `www` CNAME `cname.vercel-dns.com`, Namecheap nameservers, and intact MX/SPF email forwarding. Namecheap and Vercel browser tabs still need user sign-in. This is a baseline, not an approved cutover change set: preserve it and recheck full DNS before any final switch. No DNS changes were made.
+The owner chose canonical `https://fluttermix.com`, with `www` redirecting to the apex. The parent added Namecheap verification TXT/certificate CNAME records while preserving Vercel traffic records and email forwarding. The captured traffic baseline is apex A `76.76.21.21`, `www` CNAME `cname.vercel-dns.com`, Namecheap nameservers, and intact MX/SPF email forwarding. Preserve and recheck the full zone before a separately authorized cutover. Only verification/certificate records were added by the parent; no apex/www traffic switch occurred.
 
 ## Source and publication boundary
 
 The 2026-11-03 inventory pins `btwld/website@509c4a9ddb698b86f26a51291fa6540087461614`, `btwld/remix@ba450dc72223d3ebacee0282b989d4ee2823828f`, and archived `btwld/naked_ui@90f8560c` (full hash in provenance). Refreshing source pins must be explicit; do not silently replace a reviewed snapshot with today's main.
 
-Remix is BSD-3-Clause (Concepta); archived Naked UI is BSD-3-Clause (Leo Farias). Retain their full notices in copied source and distributed inputs. The website source has no root license; public availability alone does not grant a license. Migration and local preparation are authorized. Narrow publication review to the copied website MDX, React preview code, Dart package and images; do not apply a guessed blanket license. Record provenance and remaining approval in `notices.md`. This does not block local content migration or private validation.
+Remix is BSD-3-Clause (Concepta); archived Naked UI is BSD-3-Clause (Leo Farias). Retain their full notices in copied source and distributed inputs. The website source has no root license. The owner explicitly authorized moving the recorded existing public btwld MDX, React preview code, Dart package and images to public `btwld/mix-website` under existing notices; no blanket license is assigned. This supersedes the earlier publication hold. Provenance and scope are recorded in `notices.md`; unrelated nonpublic material is outside that authorization.
 
 ## Verification and rollout gates
 
@@ -79,7 +83,7 @@ Production cutover remains separate from implementation. Do not change DNS, dele
 
 ## Independent review follow-through
 
-The read-only review at `53fd022` recommended keeping the single site and refining ownership, verification and delivery. Confirmed gates: make the local Mix source drive artifact production; replace obsolete pilot fallback assertions; explicitly verify every Naked Dart fence; keep remote 404s visible; verify production sitemap and rendered canonicals; reconcile actual page/URL counts. Search already exports JSON at build time, so it does not require a dynamic server. Local implementation checks now pass those content gates; remote availability and hosted delivery remain open. `decisions.md` records the rationale.
+The read-only review at `53fd022` recommended keeping the single site and refining ownership, verification and delivery. Confirmed gates were producer ownership, obsolete pilot assertions, explicit Naked fence checks, unavailable inputs, sitemap/rendered canonicals and exact inventories. The content fixes, published-input verification and clean remote-input build now pass. Search already exports JSON at build time. Hosted delivery remains open; `decisions.md` records the rationale.
 
 The canonical Naked UI source is reviewable in [Remix draft PR #381](https://github.com/btwld/remix/pull/381). It changes docs, documentation tooling and a README only; package implementation/release contracts are unchanged. The active package at refreshed upstream main is naked_ui 1.5.0, superseding the pilot’s 1.4.0 comparison.
 

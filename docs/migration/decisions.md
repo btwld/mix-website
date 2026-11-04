@@ -35,18 +35,23 @@ canonical snapshot is pinned. Its history/provenance is retained in Git.
 
 The original Mix archive from `btwld/website@509c4a9` is an explicit migration
 checkpoint, not an ongoing producer source. The publisher now selects this repo.
-Exit: build from a clean site commit, record source and producer SHAs, compare all
-manifest source bytes with local authoring source, publish, and advance the lock
-only after anonymous download and hash verification. Never claim remote readiness
-from a cache-backed run.
+The ownership exit is complete: source/producer SHAs are recorded, all manifest
+source bytes match local authoring source, and the exact locked archives are
+published and anonymously verified. Fresh clone `70d679c` downloaded them and
+built without restored input caches/generated outputs. Future lock updates
+require publication and anonymous verification first; never infer remote
+readiness from a cache-backed run.
 
 ## Deployment and previews
 
 Keep App Hosting for staging and production. Validate one real staging rollout
 before expanding cloud infrastructure. Firebase CLI authentication fails in
-this VM, but the parent coordinator's authenticated Mac successfully listed
-backends in `bitwild-oss` and returned an empty list. Use that existing Mac
-identity without transferring tokens; Google access itself is not blocked.
+this VM, but the parent coordinator's authenticated Mac created `fluttermix` in
+`bitwild-oss` / `us-east4`; its first local-source rollout completed at `70d679c`. The
+accidentally initialized empty `my-web-app` backend was deleted and its web app
+reused. Use the existing Mac identity without transferring tokens; Google access
+itself is not blocked. Hosted identity and the complete rendered audit pass;
+interactive browser/Safari acceptance is still pending.
 Local adapter success is separate from hosted build/runtime success.
 
 The original argument that search requires a dynamic server was incorrect:

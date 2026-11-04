@@ -1,21 +1,28 @@
 # Staging and review delivery
 
-Prepared configuration is not a live deployment. As of 2026-11-04, the Firebase
-CLI fails authentication in this cloud VM, but the parent coordinator's Mac
-successfully ran `firebase apphosting:backends:list --project bitwild-oss --json`
-with `result: []`. Google access exists there; no backend exists. Use that
-existing Mac identity without copying tokens into chat, this VM or the repo.
-The locked GitHub input assets are not yet available remotely. The
-owner-confirmed `bitwild-oss` project is active and billed. Do not recreate it
-or broaden organization access.
+Updated 2026-11-04. The public branch and exact locked input archives are
+published under owner authorization and existing notices. A fresh remote clone
+of `70d679c69a7276beeacdc05d9a02363a55b3e413` downloaded the inputs and passed its
+clean build and rendered audit. GitHub CI and hosted acceptance are recorded
+separately in [verification](verification.md).
+
+The owner-confirmed `bitwild-oss` project (416994480519) is active and billed.
+Firebase authentication fails in this VM; the authenticated Mac performs Google
+operations without copying credentials. The parent reports `fluttermix` created
+in `us-east4`; its first local-source rollout completed and serves reviewed app
+SHA `70d679c` at https://fluttermix--bitwild-oss.us-east4.hosted.app. The accidental
+empty `my-web-app` backend was deleted; its web app was reused. Backend creation
+alone does not establish full hosted acceptance. Provided source identity, all
+input digests and the complete noindex rendered audit now pass there; hosted
+interactive browser/Safari and returning-browser checks remain open.
 
 ## Publish the exact candidate inputs
 
-These are instructions only, gated on resolving the Mix publication terms in
-`notices.md`. No source push, release publication, merge or deployment was run
-for this handoff. The prior candidate `487f11c2dec18de5faee163935b939ab03737d2d` is preserved.
-The local runtime review updates navigation, source display and bundle identity;
-its exact verification and product snapshots are recorded in `verification.md`.
+Publication is complete. The owner authorized moving the recorded existing public
+btwld material into public `btwld/mix-website` under existing notices; no new
+blanket license was assigned. The prior publication hold is superseded.
+[Draft website PR #1](https://github.com/btwld/mix-website/pull/1) preserves the
+candidate and verification; protected `main` has not been merged or pushed.
 
 | Release tag | Exact asset filename | Canonical source commit | Website producer commit |
 | --- | --- | --- | --- |
@@ -23,91 +30,85 @@ its exact verification and product snapshots are recorded in `verification.md`.
 | `site-input-naked-ui-docs-99c6da876de4` | `naked-ui-docs-99c6da876de4.tar.gz` | `btwld/remix@99c6da876de43f54d039bdb097fe5c7b74dce709` | `4230ceeed0c0526dbc72769c35cf020b0e803015` |
 | `site-input-remix-docs-ba450dc72223` | `remix-docs-ba450dc72223.tar.gz` | `btwld/remix@ba450dc72223d3ebacee0282b989d4ee2823828f` | `4230ceeed0c0526dbc72769c35cf020b0e803015` |
 
-Naked UI's source is the **unmerged** head of draft
-[Remix PR #381](https://github.com/btwld/remix/pull/381), confirmed open at this
-handoff. It is already published/reachable in that repository. A merge is not
-technically necessary to publish/build the pinned snapshot; its canonical source
-changes still need upstream review. The Remix docs/catalog source commit is also
-already reachable upstream. The Mix source and both producer commits become
-reachable when the website branch is pushed. No protected-main merge is needed
-for this publication step.
+The exact `sources.lock.json` URLs, sizes, SHA-256 and source/producer/toolchain
+provenance passed anonymous verification in the VM and on the Mac. Existing
+archive bytes were uploaded without rebuild, repin or replacement. GitHub's
+release API reports `immutable:false`; exact-byte lock verification rejects
+changes, while GitHub-enforced release immutability remains a separate policy.
+The policy endpoint returned 403 for this VM's GitHub integration.
 
-For the smallest handoff, publish the **existing verified bytes**, preserving
-`sources.lock.json`. From this workspace, after publication terms are resolved:
+Naked UI remains the reachable, **unmerged** head of draft
+[Remix PR #381](https://github.com/btwld/remix/pull/381). Merge is not required to
+consume this exact snapshot; upstream review remains open. Selecting a different
+commit after merge/squash requires a new archive and reviewed pin. Mix source and
+both website producer commits are reachable through the published website branch.
+
+To reverify the published bytes without using an archive cache:
 
 ```sh
-git push -u origin conductor/flutter-mix-website-migration
-
-# All three intended tags must be absent. Stop if this prints any matching tag;
-# also stop on a network/authentication error before creating any release.
-git ls-remote --tags origin 'refs/tags/site-input-mix-previews-23a73c6c0dda' 'refs/tags/site-input-naked-ui-docs-99c6da876de4' 'refs/tags/site-input-remix-docs-ba450dc72223'
-
-# Stage the exact locked cache bytes under their required release filenames.
-node --input-type=module <<'NODE'
-import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
-import { copyFile, mkdir, readFile } from 'node:fs/promises';
-const lock = JSON.parse(await readFile('sources.lock.json', 'utf8'));
-await mkdir('.site-inputs/publish', { recursive: true });
-for (const entry of Object.values(lock.inputs)) {
-  const source = `.site-inputs/cache/${entry.artifact.sha256}.tar.gz`;
-  const bytes = await readFile(source);
-  assert.equal(bytes.length, entry.artifact.size);
-  assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.artifact.sha256);
-  const filename = new URL(entry.artifact.url).pathname.split('/').at(-1);
-  await copyFile(source, `.site-inputs/publish/${filename}`);
-}
-NODE
-
-gh release create site-input-mix-previews-23a73c6c0dda .site-inputs/publish/mix-previews-23a73c6c0dda.tar.gz --repo btwld/mix-website --target 23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7 --latest=false --title 'Mix previews @ 23a73c6c0dda' --notes 'Exact locked candidate archive; source and producer btwld/mix-website@23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7.'
-gh release create site-input-naked-ui-docs-99c6da876de4 .site-inputs/publish/naked-ui-docs-99c6da876de4.tar.gz --repo btwld/mix-website --target 4230ceeed0c0526dbc72769c35cf020b0e803015 --latest=false --title 'Naked UI docs @ 99c6da876de4' --notes 'Exact locked candidate archive; source btwld/remix@99c6da876de43f54d039bdb097fe5c7b74dce709, producer btwld/mix-website@4230ceeed0c0526dbc72769c35cf020b0e803015.'
-gh release create site-input-remix-docs-ba450dc72223 .site-inputs/publish/remix-docs-ba450dc72223.tar.gz --repo btwld/mix-website --target 4230ceeed0c0526dbc72769c35cf020b0e803015 --latest=false --title 'Remix docs @ ba450dc72223' --notes 'Exact locked candidate archive; source btwld/remix@ba450dc72223d3ebacee0282b989d4ee2823828f, producer btwld/mix-website@4230ceeed0c0526dbc72769c35cf020b0e803015.'
-
-# Anonymous remote download, size, digest and provenance verification; no cache.
 pnpm site-inputs:remote
 ```
 
-Do not reuse an existing tag or replace an asset. `gh release create` rejects an
-existing release, but can reuse a tag without a release; the tag precheck above
-is therefore required. If anything already exists, stop and investigate.
-Rebuilding through today's
-workflow records today's producer SHA and may change the archive digest even
-when payload bytes match; that requires a reviewed lock update, never silently
-uploading new bytes under these locked coordinates. Merging/squashing PR #381
-and selecting a different source SHA likewise requires rebuilding and repinning.
+Do not rerun release-creation commands or replace these assets. Future producer
+runs record their actual producer SHA, publish new coordinates and advance the
+lock only after anonymous verification. Retain prior assets for rollback.
 
-After anonymous verification, open/review the website PR and prove clean CI
-without restored archives/generated outputs. The workflow definitions must be
-reviewed onto the default branch before relying on dispatch or privileged PR
-preview automation. Hosted App Hosting staging proof is the next deployment
-gate, using the Mac identity; these publication commands do not deploy it.
+## Mac local-source rollout and reviewed identity
+
+Tracked `firebase.json` selects backend `fluttermix` with `rootDir: "."`;
+`.firebaserc` defaults to `bitwild-oss`. The source ignore list excludes Git,
+dependencies, local evidence, archive caches, generated snapshots/builds and
+test reports. Prebuild must download verified inputs in the hosted builder.
+This schema was checked against the official
+[Firebase CLI 15.34.2 configuration schema](https://github.com/firebase/firebase-tools/blob/v15.34.2/schema/firebase-config.json).
+
+The completed first Mac upload is based on reviewed application SHA
+`70d679c69a7276beeacdc05d9a02363a55b3e413`. Since `.git` is excluded, the
+parent's **local deployment overlay** adds
+`SITE_COMMIT=70d679c69a7276beeacdc05d9a02363a55b3e413` at build/runtime.
+That overlay is not part of the reviewed `apphosting.yaml`, which remains
+unchanged. Record the source SHA, overlay, exact inputs and actual rollout ID
+together. An identity supplied to an archive is a provenance assertion, not
+proof that an arbitrary local tree matches Git; check the uploaded diff and
+allow only the documented deployment settings. Future uploads must use the
+actual reviewed candidate SHA, rather than inheriting this first-rollout value.
+
+The first upload therefore cannot be described as an automatic protected-main
+deployment or a byte-identical unmodified Git checkout. Inspect hosted
+`/__site.json` for the expected source SHA, lock hash and all input digests.
+Hosted verification must separately establish noindex/canonical behavior,
+WASM/assets, search, examples and catalog readiness before acceptance.
 
 ## First App Hosting staging rollout
 
-1. Resolve the publication terms recorded in `notices.md`; publish the exact
-   source commits and producer archives. `pnpm site-inputs:remote` must succeed
-   without using a cache. A lock URL returning 404 is a failed delivery gate.
-2. Land workflow definitions on protected main through review. The application
-   branch remains unmerged until its checks are green; do not bypass protection.
-3. Use the existing authenticated Mac identity and recheck
-   `firebase apphosting:backends:list --project bitwild-oss --json`. Create the staging
-   backend in a supported region (start with `us-central1` after checking current
-   availability), connect only `btwld/mix-website`, and select the app root at its
-   package manifest. Set environment name `staging`, replace the staging origin
-   placeholder with its generated hostname, and retain noindex in build/runtime.
-4. Use the managed Next adapter and pinned Node/pnpm versions. Do not override
-   `scripts.buildCommand`. Trigger the reviewed SHA with
-   `firebase apphosting:rollouts:create BACKEND --git-commit SHA --project bitwild-oss`.
-   Official support still lists Next 15.2 as active; Next 16.4 must pass a hosted
-   build and runtime gate. A local adapter pass does not establish support.
-5. Inspect hosted build/runtime logs; audit every rendered route, canonical,
-   image and heading. Run Chromium/WebKit and latest supported Safari against
-   the generated URL, check WASM MIME/cache headers and returning browsers.
-   Record URL, full source SHA, input digests and rollout ID in the staging
-   GitHub environment. Only then enable native automatic rollouts on protected
-   main and verify one follow-up rollout/check.
-6. Set project billing alerts and retain the bounded scaling in
-   `apphosting.staging.yaml`. No custom domain is attached at this stage.
+1. Input publication and clean local remote-input build are complete. Continue
+   PR #1 CI to an actual result; no main-branch CI success is implied.
+2. The parent completed the first Mac local-source rollout to
+   `fluttermix` / `bitwild-oss` / `us-east4`. Its generated hostname, provided
+   source identity/input digests and complete noindex rendered audit pass.
+   Retain its build/runtime logs and rollout ID; interactive acceptance is open.
+   Do not recreate a backend or alter IAM to work around VM authentication.
+3. Preserve the managed Next adapter and pinned Node/pnpm versions; do not
+   override `scripts.buildCommand`. Next 16.4.1 has local adapter evidence, while
+   the last checked support table lists Next 15.2 as active. Actual hosted
+   build/runtime compatibility remains the gate.
+4. Check every rendered route, metadata, heading and image on the generated URL;
+   run Chromium/WebKit and current Safari, WASM MIME/cache/noindex checks and
+   returning-browser tests. Record hosted URL, rollout ID, source SHA, overlay
+   and exact input digests. Backend creation or build completion alone is
+   insufficient.
+5. Set the staging origin to the actual generated hostname through a reviewed
+   environment setting, retain noindex, billing alerts and bounded scaling.
+   The prepared `apphosting.staging.yaml` is not proof it was selected by the
+   first local-source deployment. The owner chose apex `fluttermix.com` canonical
+   and a `www` redirect to `https://fluttermix.com`. The parent added domain
+   verification TXT/certificate CNAME records; apex/www traffic still points to
+   Vercel. Preserve MX/TXT and do not switch traffic before the cutover gate.
+6. After review and authorized protected-main integration, configure the intended
+   GitHub connection and native automatic rollout, then prove a follow-up main
+   change and App Hosting check. A local-source rollout does not establish this.
+   Commit-specific rollout commands apply to a backend with the appropriate
+   source integration; do not silently substitute a local upload.
 
 ## Review preview options
 
@@ -146,7 +147,7 @@ disabled until the separate cutover checkpoint. `SITE_INDEXING=index` and the
 canonical production origin must be set at build and runtime; prerendered pages
 require a rebuild. The production sitemap lists actual site routes only.
 
-The owner chooses apex versus www at cutover. Preserve MX/TXT records and record
+The owner selected canonical `https://fluttermix.com`; redirect `www` to that apex at cutover. Preserve MX/TXT records and record
 prior DNS, original-origin redirects and known-good App Hosting rollout IDs.
 Keep legacy origins and their worker-retirement scripts available. Roll back
 application regressions to the known-good rollout; restore prior DNS/serving
@@ -159,8 +160,9 @@ The local static export passes the Hosting emulator's full rendered audit and
 Chromium 25/25, including Flutter runtime, catalog, search, redirects, true 404s,
 WASM/cache headers and worker scopes. This supports the smaller Hosting-channel
 implementation for PRs. App Hosting remains staging/production. The workflows
-are prepared and tested locally; no preview site, WIF binding, remote build or
-live channel is claimed.
+are prepared and tested locally; no preview site, WIF binding or live channel is
+claimed. The successful remote-input build is local evidence, distinct from
+GitHub CI and the separately recorded Mac-initiated hosted rollout.
 
 `.github/workflows/ci.yml` checks out the actual PR head and runs without cloud
 credentials. It verifies remote input availability before using any archive
