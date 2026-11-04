@@ -3,6 +3,7 @@ import { Card, Cards } from 'fumadocs-ui/components/card';
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/layouts/docs/page';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { slug as headingSlug } from 'github-slugger';
+import { flattenTree } from 'fumadocs-core/page-tree';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getMDXComponents } from '@/components/mdx';
@@ -27,7 +28,11 @@ function DocsIndex({ project, slug = [] }: { project: ProjectId; slug?: string[]
 }
 
 function folderPages(project: ProjectId, slug: string[]) {
-  return sources[project].getPages().filter(page => page.slugs.length > slug.length && slug.every((part, index) => page.slugs[index] === part));
+  const source = sources[project];
+  const order = new Map(flattenTree(source.getPageTree().children).map((page, index) => [page.url, index]));
+  return source.getPages()
+    .filter(page => page.slugs.length > slug.length && slug.every((part, index) => page.slugs[index] === part))
+    .sort((a, b) => (order.get(a.url) ?? Infinity) - (order.get(b.url) ?? Infinity));
 }
 function indexTitle(project: ProjectId, slug: string[]) {
   return slug.length ? slug.at(-1)!.replace(/(^|-)(\w)/g, (_, _separator, letter) => ` ${letter.toUpperCase()}`).trim() : `${PROJECTS[project].name} documentation`;

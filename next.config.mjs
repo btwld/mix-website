@@ -10,6 +10,8 @@ const catalog = PROJECTS.remix.catalogPath;
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
+  // Starting the site must not generate an untracked authoring instruction file.
+  agentRules: false,
   output: staticPreview ? 'export' : undefined,
   distDir: process.env.SITE_DIST_DIR ?? '.next',
   poweredByHeader: false,
