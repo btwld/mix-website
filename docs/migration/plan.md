@@ -31,6 +31,10 @@ One Next.js/Fumadocs application serves `/mix`, `/remix`, and `/naked-ui`, with 
 - [x] Reconcile inventory by exact page/route sets, validate rendered links/anchors/images and complete exported search coverage.
 - [x] Verify returning-browser digest isolation, catalog revalidation and an open tab across deployment, including source/snippet response failures.
 - [x] Finish final integration checks after the last content pin: production and noindex rendered audits, source/inventory parity and focused browser checks. Local builds and browser results are cache-backed; clean remote CI remains open.
+- [x] Fingerprint every authored Mix Flutter build input and pin the rebuilt canonical archive; reject registry/helper/asset/dependency/recipe drift, additions and deletions.
+- [x] Complete the fresh desktop/mobile and dev/production runtime review; retain full-size after screenshots and table-scroll interaction evidence.
+- [x] Verify a genuinely recompiled A/B demo and matching displayed source against the final test source; coordinate the page-global engine before accepting a changed bundle.
+- [x] Reproduce and close the mounted open-source prop-update race with render-time request identity gating; verify code-only and live-preview fixtures plus focused preview smoke checks.
 - [x] Distinguish cloud VM authentication failure from successful Mac access; confirm zero App Hosting backends and record the read-only DNS baseline. No DNS or deployment changes were made.
 - [ ] Resolve redistribution terms for the imported Mix MDX, preview code and images; the other upstream notices are accounted for.
 - [ ] Publish approved input archives and verify anonymous download/digests; prove clean CI without workspace cache.
@@ -42,7 +46,7 @@ One Next.js/Fumadocs application serves `/mix`, `/remix`, and `/naked-ui`, with 
 
 ## Bounded delivery handoff
 
-The validated implementation candidate remains `487f11c2dec18de5faee163935b939ab03737d2d`; its code and local evidence are preserved. Public `mix-website/main` remains the initial `971cb1ac4bbb1724c6fde171470b44fce69a9e60`. Publication terms and actual hosted proof remain unresolved. See [the exact publication commands](deployment.md#publish-the-exact-candidate-inputs) for the three locked archives and source/producer commits. Naked UI currently requires the unmerged source commit in Remix PR #381; an upstream merge is not technically required to fetch that exact published SHA, and must not silently change the input pin.
+The prior candidate `487f11c2dec18de5faee163935b939ab03737d2d` and its evidence are preserved. The fresh runtime review implementation is `2c82828b3468608ba9d29eee273ecf54a4c4670d`, including the complete-input archive pin, page-global engine/version coordination, source disclosure, onboarding navigation and the same-instance render-before-effect guard. Its runtime gates and evidence are tracked above; see `verification.md` for executed results. Public `mix-website/main` remains the initial `971cb1ac4bbb1724c6fde171470b44fce69a9e60`. Publication terms and actual hosted proof remain unresolved. See [the exact publication commands](deployment.md#publish-the-exact-candidate-inputs) for the three locked archives and source/producer commits. Naked UI currently requires the unmerged source commit in Remix PR #381; an upstream merge is not technically required to fetch that exact published SHA, and must not silently change the input pin.
 
 The parent coordinator's read-only DNS inspection found apex A `76.76.21.21`, `www` CNAME `cname.vercel-dns.com`, Namecheap nameservers, and intact MX/SPF email forwarding. Namecheap and Vercel browser tabs still need user sign-in. This is a baseline, not an approved cutover change set: preserve it and recheck full DNS before any final switch. No DNS changes were made.
 

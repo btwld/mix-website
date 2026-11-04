@@ -15,7 +15,7 @@ claimed.
 
 | Input | Canonical source commit | Producer commit | Local archive bytes |
 | --- | --- | --- | ---: |
-| Mix previews | `mix-website@07f167db8124ce0870ad5736b54512506c0f0df2` | `07f167db8124ce0870ad5736b54512506c0f0df2` | 1,922,921 |
+| Mix previews | `mix-website@23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7` | `23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7` | 1,931,761 |
 | Naked UI docs | `remix@99c6da876de43f54d039bdb097fe5c7b74dce709` | `4230ceeed0c0526dbc72769c35cf020b0e803015` | 40,353 |
 | Remix docs/catalog | `remix@ba450dc72223d3ebacee0282b989d4ee2823828f` | `4230ceeed0c0526dbc72769c35cf020b0e803015` | 18,500,647 |
 
@@ -38,8 +38,10 @@ it is not silently replaced by current upstream main.
   count reconciliation.
 - All **30 used Mix preview IDs** resolve. Every one of the **74 manifest
   entries** has an authored source file matching the locked snippet bytes.
-  A changed canonical Dart source makes prebuild fail until its new input is
-  built/pinned. An isolated source-edit experiment changed both compiled WASM
+  A deterministic fingerprint covers the complete authored Flutter package,
+  registry/helpers, dependency locks, web/assets and producer/toolchain recipe.
+  Edits, additions or deletions make prebuild fail until a new input is built/pinned;
+  generated caches/build outputs are excluded. An isolated source-edit experiment changed both compiled WASM
   and the exported snippet; see [ownership proof](source-ownership-check.md).
 - Naked UI's canonical checker analyzes **39 complete Dart examples** and
   compiles them with the Flutter frontend against the active workspace package.
@@ -54,17 +56,17 @@ it is not silently replaced by current upstream main.
   source panels. The rebuilt payload's 142 files match the pilot payload bytes;
   only archive provenance changed.
 - Type checking, repository lint, input/source parity, exact inventory audit,
-  **24 unit tests** and actionlint all pass locally. Digest mismatch, missing
+  **26 unit tests** and actionlint all pass locally. Digest mismatch, missing
   archives, wrong source/producer/toolchain and stale Mix snippets fail closed.
   Build identity treats uncommitted new authored files as dirty while excluding
   ignored generated outputs; an untracked page cannot masquerade as clean source.
 
 ## Rendered and browser checks
 
-The latest production-mode cached build passes the rendered audit for all
+Before the fresh runtime review, a production-mode cached build passed the rendered audit for all
 **120 routes**, including project landings, docs fallback indexes and real
 pages: exact canonical and OG URLs, sitemap set and robots advertisement.
-The latest noindex candidate also passes: no production canonical/OG URL,
+That noindex candidate also passed: no production canonical/OG URL,
 noindex response headers and page metadata, disallowed robots and no advertised
 sitemap. Both audits cover **117 distinct internal links, 2,172 heading targets,
 216 archived Naked heading targets, 14 images**, every canonical search page
@@ -88,13 +90,10 @@ href and service-worker scope. The final Naked reference/anchor update was
 additionally checked by the full rendered audit and five targeted Chromium
 cases; it does not change either compiled Flutter bundle.
 
-The returning-browser test passed fresh and retained-tab cases across a lock
-update: only the new Mix digest after navigation, no retired namespace requests,
-no failed asset/snippet responses, fixed catalog filenames revalidated, and all
-five animation previews ready in an already-open tab. It restored the original
-lock and rebuilt. That run predates the final Naked prose/anchor pin; the Mix
-and Remix payloads it exercises are unchanged. Earlier failed attempts remain
-in local evidence and are not counted as passes.
+The historical returning-browser check used a namespace-only fixture and did
+not establish compiled runtime/source coherence. It is superseded by a real
+recompiled Box fixture in the local runtime review below. Historical logs remain
+available and are not counted as proof of the stronger contract.
 
 Production keeps preview/catalog/search/identity endpoints noindex even when
 docs are indexed; `__site.json` is no-store. Static PR builds force noindex even
@@ -131,3 +130,86 @@ App Hosting staging rollout before activating preview automation. Then prove
 two independent PR URLs, same-URL update, stale/fork rejection and cleanup.
 Production project selection and domain cutover remain a separate final owner
 checkpoint. See [deployment](deployment.md) for concrete preparation and rollback.
+
+## Fresh local runtime and visual review
+
+The full desktop/mobile review is scoped to product snapshot
+`2d90f390423310e1c02b1748d1b8ba1b86e1ee1e`; the final narrow resolved-state fix is
+`2c82828b3468608ba9d29eee273ecf54a4c4670d`. Documentation-only commits after that
+snapshot do not change the tested product bytes. The latest server build records
+that product SHA and honestly reports a dirty checkout because these delivery
+records were being updated. This is not clean remote CI evidence.
+
+- Fresh production startup succeeded on sandbox port **3300**. The server was
+  stopped before A/B rebuilds, restarted after canonical restoration, and rebuilt
+  once for the final resolved-state fix. Its served input identity matches all
+  three canonical lock digests and the lock SHA-256. The final server stays running
+  for Conductor Forward ports; no public tunnel or deployed URL is implied.
+- Fresh dev startup passed the home and representative Mix, Remix and Naked UI
+  routes, actual Box source/preview, Remix Flutter readiness and the real Dialog
+  anchor. A final Mix dev smoke exercises the resolved-state fix independently
+  of the production server. The dev process is stopped after the check.
+- **30/30 Chromium tests** passed on the full review snapshot, including desktop
+  1440px and mobile 390px routes, project entry points/switching, sidebar order,
+  labeled search, all used Mix IDs and all Remix component examples. A real
+  horizontal wheel gesture reaches the comparison table's final column inside
+  its local scrolling container; the document does not overflow.
+- The full rendered audit passed **120 routes, 118 distinct internal links,
+  2,172 heading targets, 216 archived heading targets and 14 images**, with zero
+  errors. The extra distinct link versus earlier evidence comes from concise
+  project entry navigation. All 105 docs remain reachable by navigation/search.
+- **26 visits and 31 original after screenshots** cover the home, three landings,
+  three docs indexes, long docs, actual Mix demo/source, ready Remix embed, Naked
+  API/AlertDialog anchor, project search and mobile sidebar. No console, page,
+  network or document-overflow errors were found. The guessed AlertDialog page
+  is an expected 404; the inventoried route is Dialog with
+  `#shownakedalertdialog`. Final source/catalog captures additionally show the
+  canonical Box disclosure, actual Remix source panel and direct Flutter catalog.
+  The parent independently approved the after contact sheet; no theme/layout
+  redesign was needed. Full-size captures remain in local evidence.
+- The final frozen returning-browser script (SHA-256
+  `e3d3a92432f6626b38abca1a778cc6026e46fb4465d3ee1d3015cadaac021365`)
+  passed against a **genuinely recompiled** Box fixture from source
+  `de92644a5829b72558a0aacd9854b0b0aa1d06ba`. Baseline bundle
+  `ba0a0926fab14633` visibly renders “Hello Mix”; fixture bundle
+  `2e7a4f0245a97ba5` visibly renders “Hello Mix B”. Compiled WASM bytes differ,
+  their displayed sources match, and screenshots preserve both. Before navigation
+  the retained tab remains coherently A. Requesting B reloads the page-global A
+  engine before rendering B, leaving five ready animation views and no failed
+  asset/snippet responses. The original lock/source/build were restored.
+  This run covers navigation on the full review snapshot; it does not claim to
+  cover the later same-instance refresh race.
+- The reviewer’s **same-instance open-source race was reproduced** with the saved
+  pre-fix component: a B source fetch preceded document reload. Final code stores
+  an atomic entry/request identity containing preview ID, preview base and source
+  base; it renders children only for matching props. The intercepted standalone
+  browser fixture bundles the actual React components using existing esbuild.
+  Both code-only and actual Flutter preview/disclosure modes pass: no B manifest
+  or source fetch before reload, and preview-ID/source-only updates resolve while
+  preserving disclosure state. This ordering fixture uses the same verified
+  payload under two namespaces; the separate compiled A/B test above establishes
+  observable version differences. No public test route or product debug API was
+  added. CI now runs the focused component check.
+- After the final fix, type checking, **26 unit tests**, actionlint, the production
+  build and **3/3 focused Chromium preview tests** pass. Those tests cover all five
+  animation interactions, same-bundle singleton reuse/view cleanup across
+  navigation, and locked snippet parity. The earlier full-corpus/30-test evidence
+  is retained with its snapshot scope, rather than relabeled as a new full run.
+
+All confirmed local review findings are closed: producer ownership/fingerprint,
+obsolete pilot assertions, Naked example/reference accounting, page/URL counts,
+sitemap/rendered metadata, concise navigation, source access, mobile table
+scrolling, real compiled A/B coherence and the same-instance race. The explicit
+legacy exclusions/unresolved archival decisions in `inventory.md` remain.
+
+The final uncached remote probe still returns **HTTP 404 for all three locked
+archives**, including the rebuilt Mix archive. Publication terms, clean remote CI,
+actual App Hosting staging/Safari and live two-PR preview/update/cleanup proof
+remain delivery gates. No deployment, publication, protected-main merge or DNS
+change occurred during this review. Remix draft PR #381 and source ownership
+boundaries are unchanged.
+
+Mac-direct visual checking remains pending unlock. The VM exposes no native Mac
+command or sync-inspection tool, so sync enablement and the Mac sync path cannot
+be established here. Use Conductor's Forward ports UI for sandbox 3300 and its
+actual assigned Mac port; do not assume the old Mac pilot matches this candidate.

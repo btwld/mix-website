@@ -13,12 +13,13 @@ or broaden organization access.
 
 These are instructions only, gated on resolving the Mix publication terms in
 `notices.md`. No source push, release publication, merge or deployment was run
-for this handoff. The validated code candidate remains
-`487f11c2dec18de5faee163935b939ab03737d2d`; subsequent handoff changes are docs only.
+for this handoff. The prior candidate `487f11c2dec18de5faee163935b939ab03737d2d` is preserved.
+The local runtime review updates navigation, source display and bundle identity;
+its exact verification and product snapshots are recorded in `verification.md`.
 
 | Release tag | Exact asset filename | Canonical source commit | Website producer commit |
 | --- | --- | --- | --- |
-| `site-input-mix-previews-07f167db8124` | `mix-previews-07f167db8124.tar.gz` | `btwld/mix-website@07f167db8124ce0870ad5736b54512506c0f0df2` | `07f167db8124ce0870ad5736b54512506c0f0df2` |
+| `site-input-mix-previews-23a73c6c0dda` | `mix-previews-23a73c6c0dda.tar.gz` | `btwld/mix-website@23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7` | `23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7` |
 | `site-input-naked-ui-docs-99c6da876de4` | `naked-ui-docs-99c6da876de4.tar.gz` | `btwld/remix@99c6da876de43f54d039bdb097fe5c7b74dce709` | `4230ceeed0c0526dbc72769c35cf020b0e803015` |
 | `site-input-remix-docs-ba450dc72223` | `remix-docs-ba450dc72223.tar.gz` | `btwld/remix@ba450dc72223d3ebacee0282b989d4ee2823828f` | `4230ceeed0c0526dbc72769c35cf020b0e803015` |
 
@@ -39,7 +40,7 @@ git push -u origin conductor/flutter-mix-website-migration
 
 # All three intended tags must be absent. Stop if this prints any matching tag;
 # also stop on a network/authentication error before creating any release.
-git ls-remote --tags origin 'refs/tags/site-input-mix-previews-07f167db8124' 'refs/tags/site-input-naked-ui-docs-99c6da876de4' 'refs/tags/site-input-remix-docs-ba450dc72223'
+git ls-remote --tags origin 'refs/tags/site-input-mix-previews-23a73c6c0dda' 'refs/tags/site-input-naked-ui-docs-99c6da876de4' 'refs/tags/site-input-remix-docs-ba450dc72223'
 
 # Stage the exact locked cache bytes under their required release filenames.
 node --input-type=module <<'NODE'
@@ -58,7 +59,7 @@ for (const entry of Object.values(lock.inputs)) {
 }
 NODE
 
-gh release create site-input-mix-previews-07f167db8124 .site-inputs/publish/mix-previews-07f167db8124.tar.gz --repo btwld/mix-website --target 07f167db8124ce0870ad5736b54512506c0f0df2 --latest=false --title 'Mix previews @ 07f167db8124' --notes 'Exact locked candidate archive; source and producer btwld/mix-website@07f167db8124ce0870ad5736b54512506c0f0df2.'
+gh release create site-input-mix-previews-23a73c6c0dda .site-inputs/publish/mix-previews-23a73c6c0dda.tar.gz --repo btwld/mix-website --target 23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7 --latest=false --title 'Mix previews @ 23a73c6c0dda' --notes 'Exact locked candidate archive; source and producer btwld/mix-website@23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7.'
 gh release create site-input-naked-ui-docs-99c6da876de4 .site-inputs/publish/naked-ui-docs-99c6da876de4.tar.gz --repo btwld/mix-website --target 4230ceeed0c0526dbc72769c35cf020b0e803015 --latest=false --title 'Naked UI docs @ 99c6da876de4' --notes 'Exact locked candidate archive; source btwld/remix@99c6da876de43f54d039bdb097fe5c7b74dce709, producer btwld/mix-website@4230ceeed0c0526dbc72769c35cf020b0e803015.'
 gh release create site-input-remix-docs-ba450dc72223 .site-inputs/publish/remix-docs-ba450dc72223.tar.gz --repo btwld/mix-website --target 4230ceeed0c0526dbc72769c35cf020b0e803015 --latest=false --title 'Remix docs @ ba450dc72223' --notes 'Exact locked candidate archive; source btwld/remix@ba450dc72223d3ebacee0282b989d4ee2823828f, producer btwld/mix-website@4230ceeed0c0526dbc72769c35cf020b0e803015.'
 
