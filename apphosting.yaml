@@ -1,5 +1,5 @@
-# Firebase App Hosting backend settings. Not provisioned: the Firebase
-# project, Blaze billing and backend still need approval (plan phase 1).
+# Firebase App Hosting settings. bitwild-oss is active with billing enabled.
+# Backend provisioning and a real hosted rollout remain unverified.
 #
 # App Hosting runs the package.json build script through its Next.js
 # adapter, so the site-input prebuild runs inside the managed build too.
