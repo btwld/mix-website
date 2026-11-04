@@ -31,7 +31,6 @@ jobs:
     env:
       INPUT: ${{ inputs.input }}
       COMMIT: ${{ inputs.commit }}
-      GH_TOKEN: ${{ github.token }}
       PRODUCER_COMMIT: ${{ github.sha }}
     steps:
       - name: Validate request
@@ -60,6 +59,8 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
       - name: Refuse to replace a published input
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           short="${COMMIT:0:12}"
           tag="site-input-$INPUT-$short"
@@ -73,6 +74,8 @@ jobs:
           bash "scripts/site-inputs/produce/$INPUT.sh" source "$COMMIT" out
           echo "SHA256=$(sha256sum "out/$ASSET" | cut -d' ' -f1)" >> "$GITHUB_ENV"
       - name: Publish release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$TAG" "out/$ASSET" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
             --title "Site input $INPUT @ ${COMMIT:0:12}" --latest=false \

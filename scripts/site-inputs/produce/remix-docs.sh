@@ -13,6 +13,7 @@ set -euo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 toolchains="$here/../toolchains.json"
 fail() { echo "error: $*" >&2; exit 1; }
+if [ -n "${FLUTTER_BIN:-}" ]; then PATH="$(dirname "$FLUTTER_BIN"):$PATH"; fi
 flutter="${FLUTTER_BIN:-flutter}"
 
 [ $# -eq 3 ] || fail "usage: $0 <remix-checkout> <expected-commit> <output-dir>"
@@ -33,7 +34,7 @@ dart="$(dirname "$(command -v "$flutter")")/dart"
 (cd "$src" && "$flutter" pub get --enforce-lockfile)
 # Same content contract as the Remix site: validate, then stage generated MDX
 # into apps/docs/.generated/content and assets into apps/docs/public/assets.
-(cd "$src" && "$dart" run tool/validate_docs.dart)
+(cd "$src" && "$dart" run melos run docs:check)
 (cd "$src" && python3 tool/prepare_docs_site.py)
 
 stage="$(mktemp -d)"
