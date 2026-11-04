@@ -43,9 +43,11 @@ from a cache-backed run.
 ## Deployment and previews
 
 Keep App Hosting for staging and production. Validate one real staging rollout
-before expanding cloud infrastructure. Firebase CLI authentication is unavailable
-in this VM (read-only backend-list attempt failed on 2026-11-04). Local adapter
-success is separate from hosted build/runtime success.
+before expanding cloud infrastructure. Firebase CLI authentication fails in
+this VM, but the parent coordinator's authenticated Mac successfully listed
+backends in `bitwild-oss` and returned an empty list. Use that existing Mac
+identity without transferring tokens; Google access itself is not blocked.
+Local adapter success is separate from hosted build/runtime success.
 
 The original argument that search requires a dynamic server was incorrect:
 `app/api/search*.json` already exports JSON at build time and queries run in the

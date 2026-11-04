@@ -12,7 +12,7 @@ One Next.js/Fumadocs application serves `/mix`, `/remix`, and `/naked-ui`, with 
 | Staging | Firebase App Hosting in `bitwild-oss` | Protected `main`, native automatic rollouts after the first hosted pilot succeeds. Noindex everywhere. |
 | Production | Separate Firebase project and App Hosting backend | Promote the exact staging-verified SHA, reject superseded candidates, verify generated hostname; domain cutover is a separate final gate. |
 
-`bitwild-oss` (416994480519, Bitwild OSS) is ACTIVE with billing enabled and Firebase/App Hosting APIs enabled, per the owner's latest verified state. The prior “project/billing pending” entries are stale. Last backend count: zero; no hosted rollout is established by local tests. PR previews and staging are distinct deployment paths. Firebase CLI backend-list verification on 2026-11-04 failed authentication in this VM; no live provisioning is implied.
+`bitwild-oss` (416994480519, Bitwild OSS) is ACTIVE with billing enabled and Firebase/App Hosting APIs enabled. Authentication fails in this cloud VM, but the parent coordinator's authenticated Mac ran `firebase apphosting:backends:list --project bitwild-oss --json` successfully with `result: []`. This supersedes any implication that Google access is unavailable everywhere: access exists on the Mac and no backend exists. Use that existing identity there; do not copy tokens into chat, this VM or the repository. PR previews and staging are distinct deployment paths; no hosted rollout has been proved.
 
 ## Checklist
 
@@ -31,6 +31,7 @@ One Next.js/Fumadocs application serves `/mix`, `/remix`, and `/naked-ui`, with 
 - [x] Reconcile inventory by exact page/route sets, validate rendered links/anchors/images and complete exported search coverage.
 - [x] Verify returning-browser digest isolation, catalog revalidation and an open tab across deployment, including source/snippet response failures.
 - [x] Finish final integration checks after the last content pin: production and noindex rendered audits, source/inventory parity and focused browser checks. Local builds and browser results are cache-backed; clean remote CI remains open.
+- [x] Distinguish cloud VM authentication failure from successful Mac access; confirm zero App Hosting backends and record the read-only DNS baseline. No DNS or deployment changes were made.
 - [ ] Resolve redistribution terms for the imported Mix MDX, preview code and images; the other upstream notices are accounted for.
 - [ ] Publish approved input archives and verify anonymous download/digests; prove clean CI without workspace cache.
 - [ ] Prove App Hosting staging on its generated hostname, then native protected-main rollout; hosted Safari and returning-browser checks.
@@ -38,6 +39,12 @@ One Next.js/Fumadocs application serves `/mix`, `/remix`, and `/naked-ui`, with 
 - [ ] Prove two independent PR preview URLs, update/stale-run/fork/cleanup cases.
 - [ ] Promote exact staging SHA to a separate production project and verify its generated hostname.
 - [ ] Final owner checkpoint: production project, canonical apex/www and DNS cutover. Preserve MX/TXT, prior origin, known-good rollout and DNS rollback.
+
+## Bounded delivery handoff
+
+The validated implementation candidate remains `487f11c2dec18de5faee163935b939ab03737d2d`; its code and local evidence are preserved. Public `mix-website/main` remains the initial `971cb1ac4bbb1724c6fde171470b44fce69a9e60`. Publication terms and actual hosted proof remain unresolved. See [the exact publication commands](deployment.md#publish-the-exact-candidate-inputs) for the three locked archives and source/producer commits. Naked UI currently requires the unmerged source commit in Remix PR #381; an upstream merge is not technically required to fetch that exact published SHA, and must not silently change the input pin.
+
+The parent coordinator's read-only DNS inspection found apex A `76.76.21.21`, `www` CNAME `cname.vercel-dns.com`, Namecheap nameservers, and intact MX/SPF email forwarding. Namecheap and Vercel browser tabs still need user sign-in. This is a baseline, not an approved cutover change set: preserve it and recheck full DNS before any final switch. No DNS changes were made.
 
 ## Source and publication boundary
 

@@ -1,10 +1,85 @@
 # Staging and review delivery
 
 Prepared configuration is not a live deployment. As of 2026-11-04, the Firebase
-CLI fails authentication in this VM, the last verified App Hosting backend
-count is zero, and the locked GitHub input assets are not yet available remotely.
-The owner-confirmed `bitwild-oss` project is active and billed. Do not recreate
-it or broaden organization access to work around missing credentials.
+CLI fails authentication in this cloud VM, but the parent coordinator's Mac
+successfully ran `firebase apphosting:backends:list --project bitwild-oss --json`
+with `result: []`. Google access exists there; no backend exists. Use that
+existing Mac identity without copying tokens into chat, this VM or the repo.
+The locked GitHub input assets are not yet available remotely. The
+owner-confirmed `bitwild-oss` project is active and billed. Do not recreate it
+or broaden organization access.
+
+## Publish the exact candidate inputs
+
+These are instructions only, gated on resolving the Mix publication terms in
+`notices.md`. No source push, release publication, merge or deployment was run
+for this handoff. The validated code candidate remains
+`487f11c2dec18de5faee163935b939ab03737d2d`; subsequent handoff changes are docs only.
+
+| Release tag | Exact asset filename | Canonical source commit | Website producer commit |
+| --- | --- | --- | --- |
+| `site-input-mix-previews-07f167db8124` | `mix-previews-07f167db8124.tar.gz` | `btwld/mix-website@07f167db8124ce0870ad5736b54512506c0f0df2` | `07f167db8124ce0870ad5736b54512506c0f0df2` |
+| `site-input-naked-ui-docs-99c6da876de4` | `naked-ui-docs-99c6da876de4.tar.gz` | `btwld/remix@99c6da876de43f54d039bdb097fe5c7b74dce709` | `4230ceeed0c0526dbc72769c35cf020b0e803015` |
+| `site-input-remix-docs-ba450dc72223` | `remix-docs-ba450dc72223.tar.gz` | `btwld/remix@ba450dc72223d3ebacee0282b989d4ee2823828f` | `4230ceeed0c0526dbc72769c35cf020b0e803015` |
+
+Naked UI's source is the **unmerged** head of draft
+[Remix PR #381](https://github.com/btwld/remix/pull/381), confirmed open at this
+handoff. It is already published/reachable in that repository. A merge is not
+technically necessary to publish/build the pinned snapshot; its canonical source
+changes still need upstream review. The Remix docs/catalog source commit is also
+already reachable upstream. The Mix source and both producer commits become
+reachable when the website branch is pushed. No protected-main merge is needed
+for this publication step.
+
+For the smallest handoff, publish the **existing verified bytes**, preserving
+`sources.lock.json`. From this workspace, after publication terms are resolved:
+
+```sh
+git push -u origin conductor/flutter-mix-website-migration
+
+# All three intended tags must be absent. Stop if this prints any matching tag;
+# also stop on a network/authentication error before creating any release.
+git ls-remote --tags origin 'refs/tags/site-input-mix-previews-07f167db8124' 'refs/tags/site-input-naked-ui-docs-99c6da876de4' 'refs/tags/site-input-remix-docs-ba450dc72223'
+
+# Stage the exact locked cache bytes under their required release filenames.
+node --input-type=module <<'NODE'
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { copyFile, mkdir, readFile } from 'node:fs/promises';
+const lock = JSON.parse(await readFile('sources.lock.json', 'utf8'));
+await mkdir('.site-inputs/publish', { recursive: true });
+for (const entry of Object.values(lock.inputs)) {
+  const source = `.site-inputs/cache/${entry.artifact.sha256}.tar.gz`;
+  const bytes = await readFile(source);
+  assert.equal(bytes.length, entry.artifact.size);
+  assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.artifact.sha256);
+  const filename = new URL(entry.artifact.url).pathname.split('/').at(-1);
+  await copyFile(source, `.site-inputs/publish/${filename}`);
+}
+NODE
+
+gh release create site-input-mix-previews-07f167db8124 .site-inputs/publish/mix-previews-07f167db8124.tar.gz --repo btwld/mix-website --target 07f167db8124ce0870ad5736b54512506c0f0df2 --latest=false --title 'Mix previews @ 07f167db8124' --notes 'Exact locked candidate archive; source and producer btwld/mix-website@07f167db8124ce0870ad5736b54512506c0f0df2.'
+gh release create site-input-naked-ui-docs-99c6da876de4 .site-inputs/publish/naked-ui-docs-99c6da876de4.tar.gz --repo btwld/mix-website --target 4230ceeed0c0526dbc72769c35cf020b0e803015 --latest=false --title 'Naked UI docs @ 99c6da876de4' --notes 'Exact locked candidate archive; source btwld/remix@99c6da876de43f54d039bdb097fe5c7b74dce709, producer btwld/mix-website@4230ceeed0c0526dbc72769c35cf020b0e803015.'
+gh release create site-input-remix-docs-ba450dc72223 .site-inputs/publish/remix-docs-ba450dc72223.tar.gz --repo btwld/mix-website --target 4230ceeed0c0526dbc72769c35cf020b0e803015 --latest=false --title 'Remix docs @ ba450dc72223' --notes 'Exact locked candidate archive; source btwld/remix@ba450dc72223d3ebacee0282b989d4ee2823828f, producer btwld/mix-website@4230ceeed0c0526dbc72769c35cf020b0e803015.'
+
+# Anonymous remote download, size, digest and provenance verification; no cache.
+pnpm site-inputs:remote
+```
+
+Do not reuse an existing tag or replace an asset. `gh release create` rejects an
+existing release, but can reuse a tag without a release; the tag precheck above
+is therefore required. If anything already exists, stop and investigate.
+Rebuilding through today's
+workflow records today's producer SHA and may change the archive digest even
+when payload bytes match; that requires a reviewed lock update, never silently
+uploading new bytes under these locked coordinates. Merging/squashing PR #381
+and selecting a different source SHA likewise requires rebuilding and repinning.
+
+After anonymous verification, open/review the website PR and prove clean CI
+without restored archives/generated outputs. The workflow definitions must be
+reviewed onto the default branch before relying on dispatch or privileged PR
+preview automation. Hosted App Hosting staging proof is the next deployment
+gate, using the Mac identity; these publication commands do not deploy it.
 
 ## First App Hosting staging rollout
 
@@ -13,8 +88,8 @@ it or broaden organization access to work around missing credentials.
    without using a cache. A lock URL returning 404 is a failed delivery gate.
 2. Land workflow definitions on protected main through review. The application
    branch remains unmerged until its checks are green; do not bypass protection.
-3. Authenticate with a suitably scoped existing Google identity and run
-   `firebase apphosting:backends:list --project bitwild-oss`. Create the staging
+3. Use the existing authenticated Mac identity and recheck
+   `firebase apphosting:backends:list --project bitwild-oss --json`. Create the staging
    backend in a supported region (start with `us-central1` after checking current
    availability), connect only `btwld/mix-website`, and select the app root at its
    package manifest. Set environment name `staging`, replace the staging origin

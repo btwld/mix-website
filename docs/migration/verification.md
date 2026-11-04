@@ -114,8 +114,11 @@ build rejection/rollback and reopened-PR cleanup. **They do not establish live
 GitHub, OIDC or Hosting API behavior.** No preview resources have been created.
 
 App Hosting staging remains the next hosted proof. The owner-confirmed
-`bitwild-oss` project is active/billed with APIs enabled; the last verified backend
-count was zero. The CLI backend-list attempt here failed authentication.
+`bitwild-oss` project is active/billed with APIs enabled. The CLI backend-list
+attempt in this cloud VM failed authentication. The parent coordinator later
+confirmed working Firebase authentication on the Mac: the same project list
+command with `--json` succeeded with `result: []`, proving no backend exists.
+No credentials need to be copied into chat, this VM or source control.
 Next 16.4.1 has local build/adapter evidence, but the freshly checked official
 support table still lists Next 15.2 as active. Hosted compatibility and current
 Safari must be verified on the actual generated hostname.
@@ -123,7 +126,7 @@ Safari must be verified on the actual generated hostname.
 Before remote delivery: settle the narrow Mix publication terms in
 [notices](notices.md), publish the source and approved archives, verify anonymous
 download/size/digest, then run CI without restored archives/generated outputs.
-Authenticate to Google using an appropriate existing identity and prove one
+Use the existing authenticated Mac identity and prove one
 App Hosting staging rollout before activating preview automation. Then prove
 two independent PR URLs, same-URL update, stale/fork rejection and cleanup.
 Production project selection and domain cutover remain a separate final owner
