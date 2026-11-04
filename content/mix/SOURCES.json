@@ -8,7 +8,14 @@
     },
     "ecosystem/mix-lint": {
       "path": "src/content/documentation/mix/ecosystem/mix-lint.mdx",
-      "sha256": "de26cbb4d542e5ef6a110ad99c9ffb3a1037aa1fe640107852107ea1c840f8fc"
+      "sha256": "de26cbb4d542e5ef6a110ad99c9ffb3a1037aa1fe640107852107ea1c840f8fc",
+      "updates": [
+        {
+          "date": "2026-11-04",
+          "description": "Align current Mix project prerequisites with Mix 2.3.1; retain historical language-feature notes and the original import hash above.",
+          "reference": "https://pub.dev/api/packages/mix"
+        }
+      ]
     },
     "ecosystem/mix-schema": {
       "path": "src/content/documentation/mix/ecosystem/mix-schema.mdx",
@@ -52,7 +59,14 @@
     },
     "overview/getting-started": {
       "path": "src/content/documentation/mix/overview/getting-started.mdx",
-      "sha256": "7b425671c26b37cee6f15483519e9a3e951cb8ef911330653bdaf2a00b5ce719"
+      "sha256": "7b425671c26b37cee6f15483519e9a3e951cb8ef911330653bdaf2a00b5ce719",
+      "updates": [
+        {
+          "date": "2026-11-04",
+          "description": "Replace the installation placeholder with Mix 2.3.1 and its published Dart/Flutter constraints; keep the original import hash above.",
+          "reference": "https://pub.dev/api/packages/mix"
+        }
+      ]
     },
     "overview/introduction": {
       "path": "src/content/documentation/mix/overview/introduction.mdx",

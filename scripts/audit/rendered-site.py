@@ -34,8 +34,8 @@ def fetch(path):
     path = path.split('#')[0]
     if path not in cache:
         try:
-            with urlopen(base + path, timeout=30) as r: cache[path] = (r.status, dict(r.headers), r.read(), r.url)
-        except HTTPError as e: cache[path] = (e.code, dict(e.headers), e.read(), e.url)
+            with urlopen(base + path, timeout=30) as r: cache[path] = (r.status, {k.lower(): v for k, v in r.headers.items()}, r.read(), r.url)
+        except HTTPError as e: cache[path] = (e.code, {k.lower(): v for k, v in e.headers.items()}, e.read(), e.url)
     return cache[path]
 def document(path, body):
     if path not in documents: documents[path] = Document(body.decode())
@@ -54,11 +54,11 @@ for route in inventory['siteRoutes']:
         expected = 'https://fluttermix.com' + route
         if doc.og_urls != [expected]: errors.append(f'{route}: OG URL {doc.og_urls}, expected {expected}')
         if doc.canonical != [expected]: errors.append(f'{route}: canonical {doc.canonical}, expected {expected}')
-        if 'noindex' in headers.get('X-Robots-Tag','') or any('noindex' in r for r in doc.robots): errors.append(f'{route}: production noindex')
+        if 'noindex' in headers.get('x-robots-tag','') or any('noindex' in r for r in doc.robots): errors.append(f'{route}: production noindex')
     else:
         if doc.og_urls: errors.append(f'{route}: preview OG URL leaked {doc.og_urls}')
         if doc.canonical: errors.append(f'{route}: preview canonical leaked {doc.canonical}')
-        if 'noindex' not in headers.get('X-Robots-Tag','') or not any('noindex' in r for r in doc.robots): errors.append(f'{route}: missing noindex')
+        if 'noindex' not in headers.get('x-robots-tag','') or not any('noindex' in r for r in doc.robots): errors.append(f'{route}: missing noindex')
     for raw in doc.links:
         target = local_url(raw, route)
         if not target: continue
@@ -67,7 +67,7 @@ for route in inventory['siteRoutes']:
         links.add(path)
         result = fetch(path)
         if result[0] != 200: errors.append(f'{route}: link {raw} -> HTTP {result[0]}')
-        elif fragment and 'text/html' in result[1].get('Content-Type','') and not path.startswith('/remix/catalog'):
+        elif fragment and 'text/html' in result[1].get('content-type','') and not path.startswith('/remix/catalog'):
             anchors.add((path,fragment))
             if fragment not in document(path, result[2]).ids: errors.append(f'{route}: missing anchor {raw}')
     for raw in doc.images:
@@ -75,7 +75,9 @@ for route in inventory['siteRoutes']:
         if not target: continue
         path, _ = target; images.add(path)
         status, headers, _, _ = fetch(path)
-        if status != 200 or not headers.get('Content-Type','').startswith('image/'): errors.append(f'{route}: image {raw}: {status}, {headers.get("Content-Type")}')
+        if status != 200 or not headers.get('content-type','').startswith('image/'): errors.append(f'{route}: image {raw}: {status}, {headers.get("content-type")}')
+
+if not anchors: errors.append('No linked heading targets were audited; check HTML content-type handling')
 
 # The canonical Naked source retains its archived heading ledger. Exact IDs
 # are checked in rendered pages, including aliases for renamed active APIs.
