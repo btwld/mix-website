@@ -1,4 +1,5 @@
 import { codeToHtml } from 'shiki';
+import { DARK_CODE_THEME } from '@/lib/code-theme';
 
 /**
  * Static Dart for the landings, highlighted on the server. The original
@@ -9,14 +10,10 @@ import { codeToHtml } from 'shiki';
  * Live, locked preview sources keep using FlutterSnippet: those bytes are
  * fetched from the pinned bundle and must not be inlined here.
  */
-export async function CodeBlock({ code, label, className = 'lx-code-pad' }: {
+export async function CodeBlock({ code, className = 'lx-code-pad' }: {
   code: string;
-  label?: string;
   className?: string;
 }) {
-  const html = await codeToHtml(code, { lang: 'dart', theme: 'github-dark' });
-  return <>
-    {label && <span className="lx-code-label">{label}</span>}
-    <div className={className} dangerouslySetInnerHTML={{ __html: html }} />
-  </>;
+  const html = await codeToHtml(code, { lang: 'dart', theme: DARK_CODE_THEME });
+  return <div className={className} dangerouslySetInnerHTML={{ __html: html }} />;
 }

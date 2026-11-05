@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
-  icons: { icon: '/remix/assets/favicon.png' },
+  icons: { icon: { url: '/assets/icon_logo.svg', type: 'image/svg+xml' } },
   // Pilot and preview backends stay out of search engines (plan phase 2).
   robots: indexing ? undefined : { index: false, follow: false },
 };

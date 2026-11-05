@@ -3,13 +3,31 @@
 @import '@concepta/docs-theme/theme.css';
 @import './landing.css';
 
-/* Project identity. The theme resolves --color-fd-primary at the root, so
-   each project scope sets it directly. Each clears WCAG AA (4.5:1) on the
-   background, muted, secondary and accent surfaces. */
-.project-mix { --color-fd-primary: #c4b5fd; }
-/* Remix value carried from btwld/remix apps/docs/app/global.css. */
-.project-remix { --color-fd-primary: #00eb03; }
-.project-naked-ui { --color-fd-primary: #93c5fd; }
+/* Project accents also apply inside docs and on project cards and links.
+   Mix uses separate violets for text, decorative accents and filled buttons. */
+.project-mix {
+  --color-fd-primary: var(--mix-primary);
+  --lx-accent-rgb: 139 92 246;
+  --lx-accent: rgb(var(--lx-accent-rgb));
+  --lx-button: #7c3aed;
+  --lx-button-ink: var(--color-fd-foreground);
+}
+.project-remix {
+  --lx-accent-rgb: 0 235 3;
+  --lx-accent: rgb(var(--lx-accent-rgb));
+  --color-fd-primary: var(--lx-accent);
+}
+.project-naked-ui {
+  --lx-accent-rgb: 147 197 253;
+  --lx-accent: rgb(var(--lx-accent-rgb));
+  --color-fd-primary: var(--lx-accent);
+}
+/* Resolve focus and native control colors against the local primary. */
+.project-mix, .project-remix, .project-naked-ui {
+  --color-fd-ring: var(--color-fd-primary);
+  accent-color: var(--color-fd-primary);
+  caret-color: var(--color-fd-primary);
+}
 
 /* The one site theme: the original dark roles, applied to the Fumadocs tokens
    so landings, docs, menus and search share a single shell. The `html` qualifier
@@ -19,7 +37,7 @@
    so Tailwind would prune them; declared here they survive (from btwld/remix). */
 html.concepta-docs.dark {
   color-scheme: dark;
-  background-color: #05040a;
+  background-color: var(--color-fd-background);
 
   --color-fd-background: #05040a;
   --color-fd-foreground: #ffffff;
@@ -34,7 +52,9 @@ html.concepta-docs.dark {
   --color-fd-accent: #161421;
   --color-fd-accent-foreground: #ffffff;
   --color-fd-border: rgb(255 255 255 / 8%);
-  --color-fd-primary-foreground: #05040a;
+  --mix-primary: #c4b5fd;
+  --color-fd-primary: var(--mix-primary);
+  --color-fd-primary-foreground: var(--color-fd-background);
 
   --color-fd-info: #7b9fff;
   --color-fd-success: #1fe0b8;
@@ -45,7 +65,7 @@ html.concepta-docs.dark {
 
 /* The original page ground: a faint fixed grid behind every route. */
 html.concepta-docs.dark body {
-  background-color: #05040a;
+  background-color: var(--color-fd-background);
   background-image:
     linear-gradient(to right, rgb(255 255 255 / 2%) 1px, transparent 1px),
     linear-gradient(to bottom, rgb(255 255 255 / 2%) 1px, transparent 1px);

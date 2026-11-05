@@ -11,8 +11,7 @@ import { Pause, Play } from './icons';
  * Readers who ask for reduced motion get the poster frame only, and everyone
  * can pause. The poster carries the whole image, so the video is decoration.
  *
- * Rendered directly under `.lx`: the landscape runs on behind the comparison
- * section and fades out there, as it did on the original page.
+ * Rendered directly under `.lx`: the landscape extends into the feature introduction and fades behind it.
  */
 export function HeroMedia() {
   const video = useRef<HTMLVideoElement>(null);

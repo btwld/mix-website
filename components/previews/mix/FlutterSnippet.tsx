@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Highlighter } from "shiki";
-import { MIX_SOURCES_BASE } from "./bundle";
+import { DARK_CODE_THEME } from "@/lib/code-theme";
 
 type SnippetStatus = "loading" | "ready" | "error";
 
@@ -12,7 +12,7 @@ function getHighlighter(): Promise<Highlighter> {
   if (!highlighterPromise) {
     highlighterPromise = import("shiki").then((shiki) =>
       shiki.createHighlighter({
-        themes: ["github-dark"],
+        themes: [DARK_CODE_THEME],
         langs: ["dart"],
       })
     );
@@ -28,7 +28,7 @@ interface FlutterSnippetProps {
   /** Optional title shown above the snippet */
   title?: string;
   /** Base path where sources are hosted */
-  basePath?: string;
+  basePath: string;
   /** Maximum code area height */
   maxHeight?: number;
   /** Fallback to full file when a region is missing */
@@ -51,12 +51,12 @@ export function FlutterSnippet({
   sourcePath,
   region,
   title,
-  basePath = MIX_SOURCES_BASE,
+  basePath,
   maxHeight = 440,
   fallbackToFullFile = true,
   showMeta = true,
   className = "",
-  surfaceClassName = "overflow-hidden rounded-lg border border-white/10 bg-[#0f1320]",
+  surfaceClassName = "overflow-hidden rounded-lg border border-fd-border bg-fd-card",
   codeClassName = "",
   loadingClassName = "",
   errorClassName = "",
@@ -113,7 +113,7 @@ export function FlutterSnippet({
 
         const html = highlighter.codeToHtml(resolvedCode, {
           lang: "dart",
-          theme: "github-dark",
+          theme: DARK_CODE_THEME,
         });
         if (!isMounted) return;
         setHighlightedHtml(html);
@@ -137,10 +137,10 @@ export function FlutterSnippet({
   return (
     <div className={`not-prose ${className}`}>
       {showMeta && (title || region) && (
-        <div className="mb-2 flex items-center justify-between text-xs text-zinc-500">
-          <span className="text-zinc-300">{title || "Source"}</span>
+        <div className="mb-2 flex items-center justify-between text-xs text-fd-muted-foreground">
+          <span className="text-fd-foreground">{title || "Source"}</span>
           {region && (
-            <span className="rounded bg-white/5 px-2 py-0.5 text-zinc-500">
+            <span className="rounded bg-fd-muted px-2 py-0.5 text-fd-muted-foreground">
               region: {region}
             </span>
           )}
@@ -150,14 +150,14 @@ export function FlutterSnippet({
       <div className={surfaceClassName}>
         {status === "loading" && (
           <div
-            className={`flex items-center justify-center p-6 text-sm text-zinc-400 ${loadingClassName}`.trim()}
+            className={`flex items-center justify-center p-6 text-sm text-fd-muted-foreground ${loadingClassName}`.trim()}
           >
             Loading source...
           </div>
         )}
 
         {status === "error" && (
-          <div className={`p-4 text-sm text-red-400 ${errorClassName}`.trim()}>
+          <div className={`p-4 text-sm text-fd-error ${errorClassName}`.trim()}>
             Failed to load snippet: {error}
           </div>
         )}

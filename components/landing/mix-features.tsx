@@ -29,13 +29,13 @@ export function MixFeatures({ only }: { only?: readonly string[] }) {
             </div>
             <div className="lx-feature-code">
               <div className="lx-code">
-                <LockedSnippet source={locked} maxHeight={wide ? 280 : 220} />
+                <LockedSnippet source={locked} basePath={site.mix.sourcesBase} maxHeight={wide ? 280 : 220} />
               </div>
             </div>
           </div>
           <div className="lx-feature-stage">
             <div className="lx-feature-view">
-              <FlutterMultiView previewId={feature.previewId} height={200} bordered={false} transparent lazyLoad />
+              <FlutterMultiView previewId={feature.previewId} basePath={site.mix.previewsBase} height={200} bordered={false} transparent lazyLoad />
             </div>
           </div>
         </div>

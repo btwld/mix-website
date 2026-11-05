@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import type { FlutterMultiViewApp, FlutterEngineInitializer } from "./flutter-types";
 import { FLUTTER_TIMEOUTS, withTimeout } from "./flutter/timeouts";
-import { MIX_PREVIEWS_BASE } from "./bundle";
 import { acceptMixBundle } from './bundle-identity.mjs';
 
 // Re-export for consumers
@@ -14,8 +13,8 @@ type LoadingState = "idle" | "loading-engine" | "adding-view" | "ready" | "error
 interface FlutterMultiViewProps {
   /** Preview ID to render (e.g., 'overview/introduction.0', 'guides/styling.0') */
   previewId: string;
-  /** Base path where Flutter previews are hosted (default: /previews) */
-  basePath?: string;
+  /** Digest-pinned Flutter preview base path */
+  basePath: string;
   /** Height of the preview container */
   height?: number;
   /** Whether to show a border around the preview */
@@ -186,12 +185,12 @@ async function ensureFlutterEngine(basePath: string): Promise<FlutterMultiViewAp
  *
  * @example
  * ```tsx
- * <FlutterMultiView previewId="overview/introduction.0" height={400} />
+ * <FlutterMultiView previewId="overview/introduction.0" basePath={previewsBase} height={400} />
  * ```
  */
 export function FlutterMultiView({
   previewId,
-  basePath = MIX_PREVIEWS_BASE,
+  basePath,
   height = 400,
   bordered = true,
   className = "",
@@ -373,9 +372,9 @@ export function FlutterMultiView({
   const containerStyles: React.CSSProperties = {
     height,
     width: "100%",
-    backgroundColor: transparent ? "transparent" : "#1a1a2e",
+    backgroundColor: transparent ? "transparent" : "var(--color-fd-card)",
     borderRadius: bordered ? "8px" : undefined,
-    border: bordered ? "1px solid rgba(255, 255, 255, 0.1)" : undefined,
+    border: bordered ? "1px solid var(--color-fd-border)" : undefined,
     overflow: transparent ? undefined : "hidden",
     position: "relative",
   };
@@ -394,20 +393,20 @@ export function FlutterMultiView({
             justifyContent: "center",
             gap: "12px",
             zIndex: 10,
-            backgroundColor: transparent ? "transparent" : "#1a1a2e",
+            backgroundColor: transparent ? "transparent" : "var(--color-fd-card)",
           }}
         >
           <div
             style={{
               width: "32px",
               height: "32px",
-              border: "3px solid rgba(167, 139, 250, 0.3)",
-              borderTopColor: "#a78bfa",
+              border: "3px solid color-mix(in srgb, var(--color-fd-primary) 30%, transparent)",
+              borderTopColor: "var(--color-fd-primary)",
               borderRadius: "50%",
               animation: "spin 1s linear infinite",
             }}
           />
-          <span style={{ color: "#a78bfa", fontSize: "12px" }}>
+          <span style={{ color: "var(--color-fd-primary)", fontSize: "12px" }}>
             {state === "loading-engine" && "Loading Flutter engine..."}
             {state === "adding-view" && "Initializing preview view..."}
             {state === "idle" && "Waiting..."}
@@ -426,14 +425,14 @@ export function FlutterMultiView({
             alignItems: "center",
             justifyContent: "center",
             gap: "12px",
-            backgroundColor: transparent ? "transparent" : "#1a1a2e",
-            color: "#ef4444",
+            backgroundColor: transparent ? "transparent" : "var(--color-fd-card)",
+            color: "var(--color-fd-error)",
             padding: "16px",
             textAlign: "center",
           }}
         >
           <span>⚠️ Failed to load preview</span>
-          <span style={{ fontSize: "12px", opacity: 0.7 }}>{error}</span>
+          <span style={{ fontSize: "12px" }}>{error}</span>
           <button
             onClick={() => {
               hasLoadedRef.current = false;
@@ -444,8 +443,8 @@ export function FlutterMultiView({
             style={{
               marginTop: "8px",
               padding: "8px 16px",
-              backgroundColor: "#a78bfa",
-              color: "white",
+              backgroundColor: "var(--color-fd-primary)",
+              color: "var(--color-fd-primary-foreground)",
               border: "none",
               borderRadius: "4px",
               cursor: "pointer",

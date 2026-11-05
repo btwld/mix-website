@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 import site from '@/.generated/site-inputs.json';
 import { LegacyCatalogRedirect } from '@/components/legacy-catalog-redirect';
 import { RemixBento } from '@/components/landing/remix-bento';
@@ -6,13 +5,13 @@ import { RemixHeroDemo } from '@/components/landing/remix-hero-demo';
 import { Faq, FeatureCards, HeroBackdrop, LandingButton, SectionHead, WindowBar } from '@/components/landing/ui';
 import { Accessibility, Blocks, Bolt, Github, Repeat, Sparkle, Wand } from '@/components/landing/icons';
 import { PROJECTS } from '@/lib/projects.mjs';
-import { canonicalMetadata } from '@/lib/site';
+import { landingMetadata } from '@/lib/site';
 
-export const metadata: Metadata = {
-  title: 'Remix',
+export const metadata = landingMetadata({
+  title: PROJECTS.remix.name,
   description: PROJECTS.remix.description,
-  ...canonicalMetadata(PROJECTS.remix.overviewPath),
-};
+  path: PROJECTS.remix.overviewPath,
+});
 
 const LINKS = {
   getStarted: PROJECTS.remix.startPath,
@@ -30,13 +29,13 @@ const COMPONENTS = site.pages.remix
 
 const STATS = [
   { value: String(COMPONENTS.length), label: 'Documented components' },
-  { value: '100%', label: 'Headless behaviour' },
+  { value: '100%', label: 'Headless behavior' },
   { value: 'Fortal', label: 'Optional design system' },
   { value: 'BSD-3', label: 'Open source' },
 ];
 
 const FEATURES = [
-  { icon: Blocks, title: 'Headless by design', wide: true, body: 'Behaviour, focus and state are handled. Remix has no opinion on how it looks — that part is entirely yours.' },
+  { icon: Blocks, title: 'Headless by design', wide: true, body: 'Behavior, focus and state are handled. Remix has no opinion on how it looks — that part is entirely yours.' },
   { icon: Wand, title: 'Styled with Mix', wide: true, body: 'Compose styles with a fluent, type-safe API — variants, states and tokens all in one place.' },
   { icon: Accessibility, title: 'Accessible out of the box', body: 'Keyboard navigation and screen-reader semantics are built into every widget.' },
   { icon: Repeat, title: 'Define once, reuse everywhere', body: 'Share one style across your whole app. No drifting variants.' },
@@ -50,7 +49,7 @@ const FAQ = [
   },
   {
     q: 'How is it different from Material or Cupertino?',
-    a: 'Material and Cupertino ship with a design language built in. Remix ships behaviour, and you style every pixel with Mix. Fortal is available when you want a ready-made look, but it is opt-in rather than the default.',
+    a: 'Material and Cupertino ship with a design language built in. Remix ships behavior, and you style every pixel with Mix. Fortal is available when you want a ready-made look, but it is opt-in rather than the default.',
   },
   {
     q: 'Do I need to know Mix first?',
@@ -67,7 +66,7 @@ const FAQ = [
 ];
 
 export default function RemixOverview() {
-  return <div className="lx lx-remix">
+  return <div className="lx project-remix lx-remix">
     <LegacyCatalogRedirect />
 
     <HeroBackdrop />
@@ -81,14 +80,18 @@ export default function RemixOverview() {
         </h1>
         <p className="lx-lead lx-enter lx-enter-2">
           <span className="lx-eyebrow lx-hero-eyebrow">Built for a generative UI future.</span>
-          Headless, accessible Flutter components with the behaviour already handled. Style every pixel with Mix — the look is entirely yours.
+          Headless, accessible Flutter components with the behavior already handled. Style every pixel with Mix — the look is entirely yours.
         </p>
         <div className="lx-hero-cta lx-enter lx-enter-3">
           <LandingButton href={LINKS.getStarted} arrow>Start in 2 minutes</LandingButton>
           <LandingButton href={LINKS.catalog} variant="secondary">Open the catalog</LandingButton>
         </div>
         <div className="lx-stagewrap lx-enter-stage">
-          <RemixHeroDemo locked={site.mix.landingPreviews} />
+          <RemixHeroDemo
+            locked={site.mix.landingPreviews}
+            previewsBase={site.mix.previewsBase}
+            sourcesBase={site.mix.sourcesBase}
+          />
         </div>
       </div>
     </section>
@@ -105,7 +108,7 @@ export default function RemixOverview() {
     <section className="lx-shell lx-gap">
       <p className="lx-statement lx-reveal">
         Material and Cupertino come with a look of their own.{' '}
-        <span className="lx-grad">Remix hands you behaviour and gets out of the way</span>, so styling becomes the part you actually enjoy.
+        <span className="lx-grad">Remix hands you behavior and gets out of the way</span>, so styling becomes the part you actually enjoy.
       </p>
     </section>
 
@@ -114,7 +117,7 @@ export default function RemixOverview() {
         eyebrow="Why Remix"
         id="remix-why"
         title="Everything you need. Nothing in your way."
-        lead="A foundation that handles the hard parts — behaviour, focus, accessibility — and then disappears so your design can take over."
+        lead="A foundation that handles the hard parts — behavior, focus, accessibility — and then disappears so your design can take over."
       />
       <FeatureCards items={FEATURES} />
     </section>

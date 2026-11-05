@@ -1,3 +1,4 @@
+import site from '@/.generated/site-inputs.json';
 import { REMIX_BENTO } from '@/lib/landing-previews.mjs';
 import { FlutterMultiView } from '@/components/previews/mix/FlutterMultiView';
 
@@ -10,7 +11,7 @@ export function RemixBento() {
     {REMIX_BENTO.map(tile => <div key={tile.previewId} className={`lx-tile${tile.span === 2 ? ' lx-tile-wide' : ''}`}>
       <div className="lx-tile-stage" style={{ height: tile.height }}>
         <div className="lx-tile-view">
-          <FlutterMultiView previewId={tile.previewId} height={Math.min(tile.height, 200)} bordered={false} transparent lazyLoad />
+          <FlutterMultiView previewId={tile.previewId} basePath={site.mix.previewsBase} height={Math.min(tile.height, 200)} bordered={false} transparent lazyLoad />
         </div>
       </div>
       <p className="lx-tile-cap">{tile.label}</p>

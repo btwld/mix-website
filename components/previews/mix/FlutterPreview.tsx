@@ -8,7 +8,6 @@ import {
   type PreviewManifestEntry,
   findPreviewManifestEntry,
 } from "./flutter/preview-manifest";
-import { MIX_PREVIEWS_BASE, MIX_SOURCES_BASE } from "./bundle";
 import { acceptMixBundle } from './bundle-identity.mjs';
 
 type PreviewMode = "preview" | "code" | "both";
@@ -27,9 +26,9 @@ interface FlutterPreviewProps {
   /** Maximum code block height */
   codeMaxHeight?: number;
   /** Preview bundle base path */
-  basePath?: string;
+  basePath: string;
   /** Source bundle base path */
-  sourceBasePath?: string;
+  sourceBasePath: string;
   /** Show border around preview */
   bordered?: boolean;
   /** Fallback to full file when region does not exist */
@@ -41,8 +40,8 @@ export function FlutterPreview({
   defaultMode = "preview",
   height = 360,
   codeMaxHeight = 420,
-  basePath = MIX_PREVIEWS_BASE,
-  sourceBasePath = MIX_SOURCES_BASE,
+  basePath,
+  sourceBasePath,
   bordered = true,
   fallbackToFullFile = true,
 }: FlutterPreviewProps) {
@@ -93,13 +92,13 @@ export function FlutterPreview({
       data-preview-id={previewId}
     >
       {(!current || current.state === "loading") && (
-        <div className="rounded-lg border border-white/10 bg-[#1a1a2e] px-4 py-3 text-sm text-zinc-400">
+        <div className="rounded-lg border border-fd-border bg-fd-card px-4 py-3 text-sm text-fd-muted-foreground">
           Resolving preview metadata...
         </div>
       )}
 
       {current?.state === "error" && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+        <div className="rounded-lg border border-fd-error/30 bg-fd-error/10 px-4 py-3 text-sm text-fd-error">
           {current.error}
         </div>
       )}
@@ -119,7 +118,7 @@ export function FlutterPreview({
           )}
 
           {showPreview && entry.renderable === false && (
-            <div className="mb-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
+            <div className="mb-3 rounded-lg border border-fd-warning/30 bg-fd-warning/10 px-4 py-3 text-sm text-fd-warning">
               This preview is snippet-only and cannot be rendered interactively.
             </div>
           )}

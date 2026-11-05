@@ -1,6 +1,7 @@
 # Purpose, ownership and delivery decisions
 
-Updated 2026-11-04 after independent read-only review.
+Updated 2026-11-05. The historical delivery decisions below document the pilot.
+[The migration record](plan.md) identifies the live topology.
 
 The site succeeds when readers discover the three projects, search accurate docs
 and run working Flutter examples, and maintainers edit each page in one place,
@@ -14,6 +15,15 @@ Project identity, routes and source paths live in `lib/projects.mjs`. Shared
 components/layout/search avoid separate sites drifting. A future project needs a
 source adapter, content/config and verification, not a new deployment system.
 No future gateways or independent product backends are part of this migration.
+
+## Visual baseline
+
+The standalone Mix homepage at `btwld/website@5fd657eb` supplies the layout and
+feature reference. The headline and subtitle also appear at `a83438a`. The
+apex keeps the narrower copy column, approved smaller mark and larger heading,
+and three live feature examples. `/mix/` supplies all five features and code
+generation. The Concepta checkpoint `509c4a9` supplies retained media. See the
+[design and ownership baseline](design-baseline.md) for exact commits.
 
 ## Source adjacent ownership
 
@@ -42,7 +52,7 @@ built without restored input caches/generated outputs. Future lock updates
 require publication and anonymous verification first; never infer remote
 readiness from a cache-backed run.
 
-## Deployment and previews
+## Historical deployment and preview decisions
 
 Keep App Hosting for staging and production. Validate one real staging rollout
 before expanding cloud infrastructure. Firebase CLI authentication fails in

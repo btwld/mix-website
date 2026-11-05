@@ -361,9 +361,8 @@ export async function syncSiteInputs({ root, offline = false, fetchImpl, log = c
   await cp(path.join(remixDir, 'catalog'), path.join(p.publicRemix, 'catalog'), { recursive: true });
 
   const { redirects, assets } = await collectPendingRedirects(projects);
-  // Copy only the assets the published pages reference, plus the wordmarks.
-  // Wordmarks, the favicon and the Remix landing's catalog still shot are
-  // required even if no published page happens to reference them.
+  // Retain the published Remix favicon URL alongside the wordmarks and
+  // catalog still. The site-wide favicon comes from the Mix asset set.
   const wanted = new Set([...assets, '/remix/assets/logo_light.png', '/remix/assets/logo_dark.png', '/remix/assets/favicon.png', '/remix/assets/fortal-catalog.png']);
   for (const url of wanted) {
     const relative = url.slice('/remix/assets/'.length).split(/[?#]/)[0];

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { defineDocsConfig, createPageMetadata, type DocsConfig } from '@concepta/docs-theme';
 import site from '@/.generated/site-inputs.json';
 import { PROJECTS, PROJECT_IDS, type ProjectId } from './projects.mjs';
@@ -44,6 +45,19 @@ export function pageMetadata(id: ProjectId, input: { title: string; description?
 }
 
 /** Landings share the same environment policy as documentation pages. */
-export function canonicalMetadata(path: string) {
-  return indexing ? { alternates: { canonical: path }, openGraph: { url: path } } : {};
+export function landingMetadata({ path, title, description }: { path: string; title?: string; description: string }): Metadata {
+  const socialTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
+  return {
+    ...(title ? { title } : {}),
+    description,
+    alternates: indexing ? { canonical: path } : undefined,
+    openGraph: {
+      type: 'website',
+      siteName: SITE_NAME,
+      title: socialTitle,
+      description,
+      url: indexing ? path : undefined,
+    },
+    twitter: { card: 'summary', title: socialTitle, description },
+  };
 }

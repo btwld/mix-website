@@ -18,7 +18,7 @@ type Locked = Record<string, LockedPreviewSource>;
  * `style` docregion from the locked bundle, so the code shown is the code that
  * was compiled.
  */
-export function RemixHeroDemo({ locked }: { locked: Locked }) {
+export function RemixHeroDemo({ locked, previewsBase, sourcesBase }: { locked: Locked; previewsBase: string; sourcesBase: string }) {
   const id = useId();
   const [active, setActive] = useState(0);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -55,7 +55,7 @@ export function RemixHeroDemo({ locked }: { locked: Locked }) {
     <div className="lx-window-body" id={`${id}-panel`} role="tabpanel" aria-labelledby={`${id}-tab-${current.key}`}>
       <div className="lx-window-code">
         {REMIX_HERO_STYLES.map((style, index) => <div key={style.key} className="lx-code" hidden={index !== active}>
-          <LockedSnippet source={locked[style.previewId]} maxHeight={260} />
+          <LockedSnippet source={locked[style.previewId]} basePath={sourcesBase} maxHeight={260} />
         </div>)}
       </div>
 
@@ -74,7 +74,7 @@ export function RemixHeroDemo({ locked }: { locked: Locked }) {
             aria-hidden={index !== active}
             inert={index !== active}
           >
-            <FlutterMultiView previewId={style.previewId} height={140} bordered={false} transparent lazyLoad={false} />
+            <FlutterMultiView previewId={style.previewId} basePath={previewsBase} height={140} bordered={false} transparent lazyLoad={false} />
           </div>)}
         </div>
       </div>

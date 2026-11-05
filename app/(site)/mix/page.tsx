@@ -1,21 +1,20 @@
 import Link from 'next/link';
-import type { Metadata } from 'next';
 import { InstallSection } from '@/components/landing/install-section';
 import { MixCodegen } from '@/components/landing/mix-codegen';
 import { MixFeatures } from '@/components/landing/mix-features';
 import { HeroBackdrop, LandingButton, SectionHead } from '@/components/landing/ui';
 import { ArrowRight } from '@/components/landing/icons';
 import { PROJECTS } from '@/lib/projects.mjs';
-import { canonicalMetadata } from '@/lib/site';
+import { landingMetadata } from '@/lib/site';
 
-export const metadata: Metadata = {
-  title: 'Mix',
+export const metadata = landingMetadata({
+  title: PROJECTS.mix.name,
   description: PROJECTS.mix.description,
-  ...canonicalMetadata(PROJECTS.mix.overviewPath),
-};
+  path: PROJECTS.mix.overviewPath,
+});
 
 export default function MixOverview() {
-  return <div className="lx lx-mix">
+  return <div className="lx project-mix lx-mix">
     <HeroBackdrop />
     <section className="lx-band">
       <div className="lx-shell lx-shell-narrow">
@@ -23,7 +22,7 @@ export default function MixOverview() {
         <img className="lx-mark lx-enter" src="/assets/icon_logo.svg" alt="" width={95} height={105} />
         <h1 className="lx-display lx-enter lx-enter-1">Mix</h1>
         <p className="lx-lead lx-enter lx-enter-2">
-          Flutter styling without the boilerplate. {PROJECTS.mix.description}
+          {PROJECTS.mix.description}
         </p>
         <div className="lx-hero-cta lx-enter lx-enter-3">
           <LandingButton href={PROJECTS.mix.startPath} arrow>Get started</LandingButton>

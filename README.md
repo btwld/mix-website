@@ -2,18 +2,21 @@
 
 One Next.js/Fumadocs application for Mix, Remix and Naked UI, with shared
 navigation, project-labeled search and working Flutter examples. The durable
-[plan and checklist](docs/migration/plan.md) records implementation and delivery
-status; [ownership decisions](docs/migration/decisions.md) trace every source.
+[migration record](docs/migration/plan.md) preserves the implementation and
+delivery history. The [ownership decisions](docs/migration/decisions.md)
+trace each source.
+The [design and ownership baseline](docs/migration/design-baseline.md) identifies
+the historical Mix reference, shared theme and remaining consolidation work.
 
 The full local corpus is **29 Mix, 53 Remix and 23 Naked UI pages**. Generated
 folder indexes and landings bring the site to 120 routes. The exact locked
 archives are published and anonymously verified. A fresh remote clone of
 `70d679c` built successfully without restored input archives or generated outputs.
 Publication is owner-authorized under the existing [notices](docs/migration/notices.md),
-with no new blanket license. PR [#1](https://github.com/btwld/mix-website/pull/1)
-tracks CI; the first Mac-initiated App Hosting rollout completed at reviewed app
-SHA `70d679c`, with identity/input and full rendered hosted audit passing. Hosted
-interactive browser/Safari and live PR preview acceptance remain open.
+with no new blanket license. The indexed production site is live at
+[fluttermix.com](https://fluttermix.com) on Firebase App Hosting.
+The deployment branch is tracked in [PR #1](https://github.com/btwld/mix-website/pull/1).
+Automatic rollouts and live PR preview channels remain separate delivery work.
 
 | Project | Overview / docs | Canonical editing location |
 | --- | --- | --- |
@@ -83,35 +86,27 @@ records the source-edit → compiled demo/snippet check.
 Mix assets use `/previews/mix/<digest>/` with immutable caching. The catalog uses
 `/remix/catalog/` and revalidates fixed filenames. Their asset/worker scopes stay
 separate. Historical URLs, exclusions and version decisions are recorded in
-[the inventory](docs/migration/inventory.md); legacy traffic still serves from
-Vercel while the parent prepares DNS verification/certificates.
+[the inventory](docs/migration/inventory.md).
 
 ## Deployment
 
-App Hosting remains the staging/production target. `firebase.json` selects the
-`fluttermix` backend at root `.`; `.firebaserc` defaults to `bitwild-oss`. The
-parent created this backend in `us-east4` through authenticated Mac local-source
-deployment. The first rollout serves the expected identity and passes the
-rendered audit; full hosted interactive acceptance is still pending.
-`apphosting.yaml` preserves
-the managed adapter; do not override `scripts.buildCommand`. The staging config
-is prepared only and needs the backend's actual generated hostname. Every build
-is noindex unless `SITE_INDEXING=index`; production indexing requires the correct
-canonical origin at both build and runtime and a rebuild. The production sitemap
-lists actual routes. Preview builds omit production canonical and OG URLs.
+`firebase.json` selects the live App Hosting backend `fluttermix` at root `.`
+in `bitwild-oss` / `us-east4`. The `www` hostname redirects to the apex
+and preserves the path and query. `apphosting.yaml` uses the managed adapter.
+A `scripts.buildCommand` override disables the adapter. Builds are noindex
+by default. Production uses `SITE_INDEXING=index` and the canonical origin
+at build and runtime. Its sitemap lists actual routes. Preview builds omit
+production canonical and Open Graph URLs.
 
 `public/__site.json` records the checkout, dirty state and pinned inputs. A
 managed source archive without Git metadata may provide an exact `SITE_COMMIT`;
 otherwise its identity is explicitly unavailable and cannot pass promotion
 verification. Never substitute a workflow merge SHA for the source checkout.
-The first Mac source upload uses a local `SITE_COMMIT=70d679c69a7276beeacdc05d9a02363a55b3e413`
-overlay because `.git` is excluded. This deployment setting is separate from the
-reviewed app tree; see the deployment record for its provenance and verification.
+Local-source uploads use a temporary `SITE_COMMIT` overlay for the exact
+reviewed source because the upload excludes `.git`. The production
+[`/__site.json`](https://fluttermix.com/__site.json) reports the deployed SHA.
 
 [Deployment instructions](docs/migration/deployment.md) cover the first hosted
 rollout, PR preview tradeoffs, environment identities, promotion and rollback.
 [Verification evidence and limits](docs/migration/verification.md) distinguish
-local checks from live delivery. Domain/DNS cutover remains a separate owner
-checkpoint. The owner selected canonical `https://fluttermix.com`, with
-`www` redirecting to the apex. DNS verification/certificate preparation has begun
-on the Mac; traffic records still point to Vercel.
+local checks from live delivery.

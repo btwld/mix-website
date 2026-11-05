@@ -159,17 +159,23 @@ test.describe('floating navigation', () => {
 });
 
 test.describe('restored composition', () => {
-  test('the landscape runs on behind the comparison and the mark keeps its size', async ({ page }) => {
+  test('the historical Mix hero leads into live features with balanced branding', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/');
     const media = (await page.locator('.lx-band-media').boundingBox())!;
-    const comparison = (await page.locator('#why-mix').boundingBox())!;
-    expect(media.y + media.height, 'the backdrop reaches the comparison heading').toBeGreaterThan(comparison.y + comparison.height);
+    const features = (await page.locator('#home-features').boundingBox())!;
+    expect(media.y + media.height, 'the backdrop reaches the feature heading').toBeGreaterThan(features.y + features.height);
     expect(media.height).toBeLessThanOrEqual(1100);
-    expect((await page.locator('.lx-mark').boundingBox())!.width).toBe(150);
+    expect((await page.locator('.lx-mark').boundingBox())!.width).toBe(95);
+    const heading = page.getByRole('heading', { level: 1 });
+    const subtitle = page.getByText('Effortlessly style your widgets and build design systems.', { exact: true });
+    await expect(heading).toHaveCSS('font-size', '70px');
+    await expect(subtitle).toHaveCSS('font-size', '25.6px');
     await page.setViewportSize({ width: 320, height: 700 });
-    expect((await page.locator('.lx-mark').boundingBox())!.width).toBeGreaterThanOrEqual(120);
+    await expect(heading).toHaveCSS('font-size', '40px');
+    await expect(subtitle).toHaveCSS('font-size', '18px');
+    expect((await page.locator('.lx-mark').boundingBox())!.width).toBeGreaterThanOrEqual(72);
   });
 
   test('the Remix backdrop reaches behind the preview window', async ({ page }) => {
@@ -241,12 +247,14 @@ test.describe('landings', () => {
 
   test('the apex leads with Mix and reaches every project', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { level: 1, name: 'Flutter styling without the boilerplate.' })).toBeVisible();
+    await expect(page).toHaveTitle('Flutter Mix');
+    await expect(page.getByRole('heading', { level: 1, name: 'An Expressive Styling System for Flutter' })).toBeVisible();
 
     // The restored hero media, served from this repository with recorded bytes.
     const poster = page.locator('.lx-band-media img');
     await expect(poster).toHaveAttribute('src', '/assets/concepta-hero-poster.jpg');
     expect((await page.request.get('/assets/concepta-hero-poster.jpg')).status()).toBe(200);
+    await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', '/assets/icon_logo.svg');
     expect((await page.request.get('/assets/icon_logo.svg')).status()).toBe(200);
 
     await expectViewsAligned(page, HOME_FEATURE_IDS);

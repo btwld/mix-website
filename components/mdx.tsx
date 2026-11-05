@@ -36,9 +36,8 @@ function Callout({ type = 'default', ...props }: Omit<ComponentProps<typeof Fuma
 // Remix embeds its Widgetbook catalog in an iframe.
 // Resolve the bundle on the server for each route, rather than relying on a
 // retained tab's old client-module default after a new release.
-function MixPreview(props: ComponentProps<typeof MixFlutterPreview>) {
-  return <MixFlutterPreview {...props} basePath={props.basePath ?? site.mix.previewsBase}
-    sourceBasePath={props.sourceBasePath ?? site.mix.sourcesBase} />;
+function MixPreview(props: Omit<ComponentProps<typeof MixFlutterPreview>, 'basePath' | 'sourceBasePath'>) {
+  return <MixFlutterPreview {...props} basePath={site.mix.previewsBase} sourceBasePath={site.mix.sourcesBase} />;
 }
 const PREVIEW_ADAPTERS = {
   mix: { FlutterPreview: MixPreview },

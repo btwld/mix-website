@@ -160,6 +160,16 @@ try {
   await writeFile('test-results/lock-update/compiled-A.png', screenshotA);
   await openTab.evaluate(() => { window.__retainedBuildA = true; });
 
+  // Start at phone width so the desktop nav cannot prefetch Remix from A.
+  const landingTab = await context.newPage();
+  await landingTab.setViewportSize({ width: 390, height: 844 });
+  await landingTab.goto(`${origin}/`);
+  const homeView = landingTab.locator('[role="application"][data-preview-id="homepage/styling"]');
+  await homeView.locator('..').scrollIntoViewIfNeeded();
+  await homeView.and(landingTab.locator('[data-state="ready"]')).waitFor({ timeout: 60_000 });
+  const landingA = await landingTab.evaluate(() => window.__MIX_FLUTTER_BUNDLE__);
+  check(landingA && new URL(landingA).pathname === baseA, 'the apex landing tab initializes build A');
+
   // Build B: a new Mix bundle and a changed catalog file, as a lock update would bring.
   log('build B with distinct preview/catalog digests');
   stop(server);
@@ -221,6 +231,26 @@ try {
   check(new URL(retained.identity).pathname === baseB && !retained.retained, 'requesting B replaced retained A with a deliberate full-page reload');
   await openTab.goto(`${origin}/mix/docs/widgets/box/`);
   await boxEvidence(openTab, baseB, marker);
+
+  const landingRequests = [];
+  const landingFailures = [];
+  landingTab.on('request', request => landingRequests.push(new URL(request.url()).pathname));
+  landingTab.on('response', response => {
+    const pathname = new URL(response.url()).pathname;
+    if (response.status() >= 400 && previewRequests([pathname]).length) landingFailures.push(pathname);
+  });
+  await landingTab.setViewportSize({ width: 1280, height: 900 });
+  await landingTab.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Remix', exact: true }).click();
+  await landingTab.waitForURL(`${origin}/remix/`);
+  await landingTab.locator('[role="application"][data-preview-id="homepage/hero-classic"][data-state="ready"]').waitFor({ timeout: 60_000 });
+  await landingTab.getByRole('tabpanel', { name: 'Classic' }).locator('.shiki:visible').waitFor({ timeout: 60_000 });
+  const landingB = await landingTab.evaluate(() => window.__MIX_FLUTTER_BUNDLE__);
+  const requestedPreviews = previewRequests(landingRequests);
+  check(landingB && new URL(landingB).pathname === baseB &&
+    requestedPreviews.some(url => url.endsWith('/flutter_bootstrap.js')) &&
+    requestedPreviews.some(url => url.startsWith(`${baseB}sources/`)) &&
+    requestedPreviews.every(url => url.startsWith(baseB)) && landingFailures.length === 0,
+  'a retained apex tab uses only B for the Remix hero engine and source after navigation');
   await context.close();
   await remote?.close();
 } finally {

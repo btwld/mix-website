@@ -3,13 +3,14 @@ import { pageSchema } from 'fumadocs-core/source/schema';
 import { applyMdxPreset } from 'fumadocs-mdx/config';
 import { defineDocs } from 'fumadocs-mdx/macro';
 import { z } from 'zod';
+import { DARK_CODE_THEME } from './code-theme';
 import type { ProjectId } from './projects.mjs';
 import { remarkProjectLinks } from './remark-project-links.mjs';
 
 const schema = pageSchema.extend({ keywords: z.array(z.string()).default([]) });
 // Carried from btwld/remix: the Primer defaults clear AA on Concepta's card
 // surfaces, where GitHub's legacy themes do not.
-const rehypeCodeOptions = { themes: { light: 'github-light-default', dark: 'github-dark-default' } } as const;
+const rehypeCodeOptions = { themes: { light: 'github-light-default', dark: DARK_CODE_THEME } } as const;
 
 // Mix MDX is authored here with final URLs.
 const mixDocs = defineDocs({

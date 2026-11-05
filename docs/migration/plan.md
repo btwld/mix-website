@@ -1,10 +1,22 @@
 # Flutter Mix consolidation and deployment
 
-Updated 2026-11-04. This is the authoritative checklist. Historical pilot logs and browser evidence remain outside the repository. Work continues from pilot commit `030cf83aa2c598a2b40ebedadbc96cb44780bee4`; those eleven commits are preserved.
+The checklist below preserves the 2026-11-04 migration pilot and its gates.
+Historical pilot logs and browser evidence remain outside the repository. The pilot began at `030cf83aa2c598a2b40ebedadbc96cb44780bee4`; those eleven commits are preserved.
 
 One Next.js/Fumadocs application serves `/mix`, `/remix`, and `/naked-ui`, with project navigation, labeled search and isolated Flutter assets. Mix content and preview source belong here. Remix and Naked UI documentation belong in `btwld/remix`; this app consumes exact commits and verified archives. Package release workflows stay independent.
 
-## Delivery topology
+## Verified delivery status on 2026-11-05
+
+[fluttermix.com](https://fluttermix.com) is live and indexed on Firebase App
+Hosting, backend `fluttermix` in `bitwild-oss` / `us-east4`. The `www`
+hostname redirects to the apex and preserves paths and query strings. The
+separate production project described in the pilot was not used. The dark-only
+release `de27d79` passed the local and public 120-route rendered audit. Its
+[GitHub CI run](https://github.com/btwld/mix-website/actions/runs/42034857950)
+finished cancelled after the build and rendered audit. Native automatic
+rollouts and live PR preview activation still require delivery work.
+
+## Historical delivery topology
 
 | Target | Deployment | Trigger and gate |
 | --- | --- | --- |
@@ -14,7 +26,7 @@ One Next.js/Fumadocs application serves `/mix`, `/remix`, and `/naked-ui`, with 
 
 `bitwild-oss` (416994480519, Bitwild OSS) is ACTIVE with billing enabled and Firebase/App Hosting APIs enabled. Authentication fails in this cloud VM; the parent uses the authenticated Mac without copying tokens. The initial empty backend list is historical: the parent has now created `fluttermix` in `us-east4` and completed its first local-source rollout at reviewed app SHA `70d679c`. The accidental empty `my-web-app` backend was deleted and its web app reused. PR previews and staging are distinct deployment paths; hosted identity and the complete noindex rendered audit pass, while interactive browser/Safari acceptance remains open.
 
-## Checklist
+## Historical checklist
 
 - [x] Preserve and inspect pilot commits, worktree and source instructions.
 - [x] Recount pinned source trees: 29 Mix MDX pages (the old inventory incorrectly reported 33), 53 Remix MDX pages, 18 archived Naked UI pages. Inventory preserves 235 legacy URL rows, 151 historical paths and five additional non-page pattern groups. Active Naked UI adds five previously undocumented widget pages.
@@ -48,7 +60,7 @@ One Next.js/Fumadocs application serves `/mix`, `/remix`, and `/naked-ui`, with 
 - [ ] Promote exact staging SHA to a separate production project and verify its generated hostname.
 - [ ] Final owner checkpoint: production project and DNS traffic cutover (canonical apex selected). Preserve MX/TXT, prior origin, known-good rollout and DNS rollback.
 
-## Bounded delivery handoff
+## Historical delivery handoff
 
 The prior candidate `487f11c2dec18de5faee163935b939ab03737d2d` and its evidence are preserved. The final runtime fix is `2c82828b3468608ba9d29eee273ecf54a4c4670d`; published candidate `70d679c69a7276beeacdc05d9a02363a55b3e413` adds its verification record. Branch `conductor/flutter-mix-website-migration` and [draft website PR #1](https://github.com/btwld/mix-website/pull/1) are public. Publication and clean remote-input build are complete; first hosted identity/rendered proof passes, while full hosted interactive acceptance remains open. Public `main` remains `971cb1ac4bbb1724c6fde171470b44fce69a9e60`. See [the publication record](deployment.md#publish-the-exact-candidate-inputs) for exact archives and source/producer commits. Naked UI still pins the unmerged source commit in Remix PR #381; upstream merge is not technically required and must not silently change the pin.
 
@@ -60,7 +72,7 @@ The 2026-11-03 inventory pins `btwld/website@509c4a9ddb698b86f26a51291fa65400874
 
 Remix is BSD-3-Clause (Concepta); archived Naked UI is BSD-3-Clause (Leo Farias). Retain their full notices in copied source and distributed inputs. The website source has no root license. The owner explicitly authorized moving the recorded existing public btwld MDX, React preview code, Dart package and images to public `btwld/mix-website` under existing notices; no blanket license is assigned. This supersedes the earlier publication hold. Provenance and scope are recorded in `notices.md`; unrelated nonpublic material is outside that authorization.
 
-## Verification and rollout gates
+## Historical verification and rollout gates
 
 The historical pilot reported 21/21 Chromium and 21/21 WebKit tests and a local Firebase adapter pass. These are local evidence, not a live deployment. The release URLs in the pilot lock were backed by workspace cache, not proven published assets. A cache-only build cannot close the artifact-availability gate.
 
