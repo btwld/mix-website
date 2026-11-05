@@ -12,7 +12,7 @@ import { hostingVersionConfig } from './hosting-config.mjs';
 
 const env = process.env;
 const gh = async (route, method = 'GET', body) => {
-  const response = await fetch(`https://api.github.com/repos/${REPOSITORY}/${route}`, {
+  const response = await fetch(`https://api.github.com/repos/${REPOSITORY}${route ? `/${route}` : ''}`, {
     method, headers: { Authorization: `Bearer ${env.GH_TOKEN}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'Content-Type': 'application/json' },
     ...(body ? { body: JSON.stringify(body) } : {}),
   });
