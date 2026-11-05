@@ -71,11 +71,17 @@ export function RemixHeroDemo({ locked }: { locked: Locked }) {
       <div className={`lx-live lx-live-${current.key}`}>
         <span className="lx-live-label">Live render · Flutter</span>
         <div className="lx-live-stack">
+          {/* Flutter's view host is tabbable, and neither aria-hidden nor a
+              zero opacity takes it out of the tab order: Tab would walk into
+              the two styles the reader cannot see. `inert` removes the whole
+              subtree from focus and the accessibility tree while the layer
+              stays mounted, so the cross-fade is unaffected. */}
           {REMIX_HERO_STYLES.map((style, index) => <div
             key={style.key}
             className="lx-live-layer"
             data-active={index === active}
             aria-hidden={index !== active}
+            inert={index !== active}
           >
             <FlutterMultiView previewId={style.previewId} height={140} bordered={false} transparent lazyLoad={false} />
           </div>)}

@@ -113,6 +113,31 @@ test.describe('landings', () => {
     await expect(tab('Classic')).toHaveAttribute('aria-selected', 'true');
   });
 
+  test('keyboard focus never enters a hidden hero style', async ({ page }) => {
+    await page.goto('/remix/');
+    // All three styles stay mounted for the cross-fade, so the two the reader
+    // cannot see must be out of the tab order entirely.
+    await expect.poll(async () => page.locator('.lx-live-stack flutter-view').count(), { timeout: 60_000 }).toBe(3);
+    await page.getByRole('tab', { name: 'Gradient' }).click();
+    await expect(page.getByRole('tab', { name: 'Gradient' })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('.lx-live-layer[aria-hidden="true"]')).toHaveCount(2);
+
+    await page.getByRole('tab', { name: 'Gradient' }).focus();
+    for (let step = 0; step < 12; step++) {
+      await page.keyboard.press('Tab');
+      const landed = await page.evaluate(() => {
+        const active = document.activeElement;
+        const layer = active?.closest?.('.lx-live-layer');
+        return {
+          tag: active?.tagName ?? null,
+          hiddenLayer: layer ? layer.getAttribute('aria-hidden') === 'true' : false,
+          previewId: layer?.querySelector('[data-preview-id]')?.getAttribute('data-preview-id') ?? null,
+        };
+      });
+      expect(landed.hiddenLayer, `Tab ${step + 1} reached ${landed.tag} inside hidden ${landed.previewId}`).toBe(false);
+    }
+  });
+
   test('reduced motion removes the video and keeps every section visible', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await context.newPage();
