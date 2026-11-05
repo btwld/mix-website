@@ -21,7 +21,7 @@ export default function MixOverview() {
         <div className="lx-band-aurora" />
         <div className="lx-band-grid" />
       </div>
-      <div className="lx-shell">
+      <div className="lx-shell lx-shell-narrow">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="lx-mark lx-enter" src="/assets/icon_logo.svg" alt="" width={95} height={105} />
         <h1 className="lx-display lx-enter lx-enter-1">Mix</h1>
@@ -55,7 +55,7 @@ export default function MixOverview() {
         <h2 className="lx-title">Add Mix to your project.</h2>
         <CopyCommand command="flutter pub add mix" />
         <p className="lx-lead" style={{ marginInline: 'auto' }}>
-          Mix 2 requires Dart 3.12 and Flutter 3.44 or newer.{' '}
+          Mix 2.3.1 requires Dart 3.12 and Flutter 3.44 or newer.{' '}
           <Link className="lx-inline-link" href={PROJECTS.mix.startPath}>Installation details<ArrowRight /></Link>
         </p>
       </div>

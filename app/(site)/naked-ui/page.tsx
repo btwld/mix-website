@@ -29,7 +29,7 @@ export default function NakedUiOverview() {
         <div className="lx-band-aurora" />
         <div className="lx-band-grid" />
       </div>
-      <div className="lx-shell">
+      <div className="lx-shell lx-shell-narrow">
         <span className="lx-eyebrow lx-enter">Headless Flutter widgets</span>
         <h1 className="lx-display lx-enter lx-enter-1">Naked UI</h1>
         <p className="lx-lead lx-enter lx-enter-2">{PROJECTS['naked-ui'].description}</p>

@@ -204,12 +204,13 @@ test('landing previews resolve to locked, renderable manifest entries', async ()
   await assert.rejects(verifyMixPreviews(content, bundle, undefined, ['hero.0']), /region "style" for "hero\.0" is missing/);
 });
 
-test('every landing preview is a real ID in the locked manifest', async () => {
-  // Guards the actual lists the pages render, not a fixture: the staged bundle
-  // is the one the build will serve.
-  const manifest = JSON.parse(await readFile('.site-inputs/extracted/mix-previews/bundle/previews-manifest.json', 'utf8'));
-  const renderable = new Set(manifest.entries.filter(entry => entry.renderable).map(entry => entry.previewId));
-  assert.deepEqual(LANDING_PREVIEW_IDS.filter(id => !renderable.has(id)), []);
+test('the landing preview lists are internally consistent', async () => {
+  // Self-contained: no staged bundle, so this runs on a clean checkout. The
+  // real manifest is checked by `pnpm audit:inputs`, after the prebuild stages
+  // it; a cache-backed unit test could not establish that anyway.
+  assert.ok(LANDING_PREVIEW_IDS.length > 0);
+  assert.deepEqual([...new Set(LANDING_PREVIEW_IDS)], LANDING_PREVIEW_IDS, 'no duplicate landing previews');
+  for (const id of LANDING_PREVIEW_IDS) assert.match(id, /^[\w./-]+$/, `suspicious preview ID: ${id}`);
   assert.deepEqual(HOME_FEATURE_IDS.filter(id => !MIX_FEATURES.some(feature => feature.previewId === id)), []);
 });
 

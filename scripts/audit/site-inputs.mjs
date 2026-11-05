@@ -31,6 +31,15 @@ assert.equal(site.pages['naked-ui'].length, 23);
 // 30 referenced by Mix MDX plus the 13 the landing pages mount.
 assert.equal(site.mix.previewIds.length, 43);
 assert.deepEqual(Object.keys(site.mix.landingPreviews).sort(), [...LANDING_PREVIEW_IDS].sort());
+// Checked here rather than in a unit test: the manifest only exists once the
+// prebuild has staged it, and a cache-backed check could not prove anything.
+const renderable = new Set(manifest.entries.filter(entry => entry.renderable).map(entry => entry.previewId));
+assert.deepEqual(LANDING_PREVIEW_IDS.filter(id => !renderable.has(id)), [], 'every landing preview must be a renderable locked entry');
+for (const [id, locked] of Object.entries(site.mix.landingPreviews)) {
+  const entry = manifest.entries.find(candidate => candidate.previewId === id);
+  assert.equal(locked.sourcePath, entry.sourcePath, `${id}: staged source path must match the manifest`);
+  assert.equal(locked.snippetRegion, entry.snippetRegion ?? null, `${id}: staged snippet region must match the manifest`);
+}
 const inventory = JSON.parse(await readFile('docs/migration/pages.json', 'utf8'));
 for (const project of ['mix', 'remix', 'naked-ui']) assert.equal(site.pages[project].length, inventory.counts[project], `${project} inventory must match the actual staged corpus`);
 console.log(`Verified ${manifest.entries.length} preview entries / ${used.size} authored source files, ${site.mix.previewIds.length} used IDs (${LANDING_PREVIEW_IDS.length} on landings) and all 105 canonical pages.`);

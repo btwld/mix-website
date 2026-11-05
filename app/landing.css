@@ -42,7 +42,10 @@
 
 /* ── Layout ─────────────────────────────────────────────────────────── */
 .lx-shell { width: 100%; max-width: 76rem; margin-inline: auto; padding-inline: 1.5rem; }
+/* The original hero and comparison sat in a 64rem column with 2rem gutters
+   (Tailwind `max-w-5xl px-8`), which is the measure this copy was written for. */
 .lx-shell-narrow { max-width: 64rem; }
+@media (min-width: 48rem) { .lx-shell-narrow { padding-inline: 2rem; } }
 .lx-gap { margin-top: clamp(72px, 11vw, 160px); }
 .lx-gap-sm { margin-top: clamp(56px, 8vw, 112px); }
 .lx-center { text-align: center; }
@@ -68,11 +71,13 @@
    A scroll-driven `view()` timeline was the obvious alternative, but it is
    positional: scrolling back up hides a section again, and a full-page capture
    of the document renders everything below the fold blank. */
-.lx-js .lx-reveal { opacity: 0; translate: 0 22px; }
-.lx-js .lx-reveal[data-shown] {
-  opacity: 1;
-  translate: 0 0;
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), translate 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+@media (prefers-reduced-motion: no-preference) {
+  .lx-js .lx-reveal { opacity: 0; translate: 0 22px; }
+  .lx-js .lx-reveal[data-shown] {
+    opacity: 1;
+    translate: 0 0;
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), translate 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
 }
 
 /* ── Typography ─────────────────────────────────────────────────────── */
@@ -85,12 +90,14 @@
   letter-spacing: 0.12em;
   color: var(--lx-accent);
 }
-.lx-display {
+/* `.concepta-docs h1` (0,1,1) outranks a single class, so scope this. Sized
+   against the original Mix hero, which measured ~40px at a 1185px viewport. */
+.lx .lx-display {
   margin-top: 1.25rem;
-  font-size: clamp(2.5rem, 6.4vw, 4.5rem);
+  font-size: clamp(2.125rem, 3.4vw, 3.25rem);
   font-weight: 650;
-  letter-spacing: -0.038em;
-  line-height: 1.04;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
   text-wrap: balance;
 }
 .lx-lead {
@@ -124,7 +131,7 @@
   text-wrap: balance;
 }
 .lx-grad {
-  background: linear-gradient(100deg, var(--lx-accent) 0%, color-mix(in oklab, var(--lx-accent), white 45%) 55%, var(--lx-ink) 115%);
+  background: linear-gradient(100deg, var(--lx-accent) 0%, color-mix(in oklab, var(--lx-accent), var(--lx-ink) 45%) 55%, var(--lx-ink) 115%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -298,8 +305,15 @@
   background: var(--lx-code-bg);
   overflow: hidden;
 }
-.lx-code pre { margin: 0; background: transparent !important; }
+/* Shiki emits its own themed <pre>; reset it everywhere a snippet is placed,
+   or the static panes show a second grey rectangle inside the card. */
+.lx-code pre, .lx-code-pad pre, .lx-codegen-code pre { margin: 0; padding: 0; background: transparent !important; }
 .lx-code-pad { padding: 1rem 1.15rem; overflow-x: auto; }
+/* Highlighting is a dark theme in both site themes, matching the snippets the
+   docs serve, so every surface a snippet lands on has to be dark too. On a
+   light card the dark palette's comments and punctuation disappear. */
+.lx-code-surface, .lx-codegen-code, .lx-window-code { background: var(--lx-code-bg); }
+.lx-code-surface { border: 1px solid var(--lx-code-line); border-radius: 12px; overflow: hidden; }
 .lx-code-label {
   display: block;
   margin-bottom: 0.75rem;
@@ -396,14 +410,17 @@
 .lx-live-classic { background: radial-gradient(circle at 50% 40%, rgb(0 235 3 / 7%), transparent 70%); }
 .lx-live-gradient { background: radial-gradient(circle at 50% 40%, rgb(139 92 246 / 11%), transparent 70%); }
 .lx-live-neon { background: #06000f; }
-/* Flutter multi-views share one fixed rasterizer surface (~360px), so cap the
-   stage to that width and centre it; a wider host clips the rendered widget. */
 .lx-live-stack { position: relative; display: grid; place-items: center; width: 100%; max-width: 22.5rem; margin-inline: auto; min-height: 8.75rem; }
-/* Flutter positions each view's zero-width glass pane as inline content, so an
-   inherited `text-align: center` shifts the painted widget to the host's middle
-   and it overflows to the right. Pin every embedded view's host to the start. */
+/* Flutter gives each view a zero-width glass pane positioned as inline content
+   and paints the widget from there. Measured: under an inherited
+   `text-align: center` the pane sits at the host's midpoint and the widget
+   overflows right by half the host width. Pin embedded hosts to the start.
+   (An earlier guess blamed a shared fixed-width rasterizer surface; comparing
+   each pane's box with its host disproved that.) */
 .lx-live-stack, .lx-feature-view, .lx-tile-view { text-align: left; }
-.lx-live-stack > * { grid-area: 1 / 1; width: 100%; }
+.lx-live-layer { grid-area: 1 / 1; width: 100%; opacity: 0; pointer-events: none; }
+.lx-live-layer[data-active='true'] { opacity: 1; pointer-events: auto; }
+@media (prefers-reduced-motion: no-preference) { .lx-live-layer { transition: opacity 0.3s ease; } }
 .lx-segmented { display: flex; gap: 0.2rem; padding: 0.2rem; border: 1px solid var(--lx-line); border-radius: 999px; background: rgb(0 0 0 / 22%); }
 .lx-seg { position: relative; padding: 0.35rem 0.85rem; border-radius: 999px; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 500; color: var(--lx-ink-dim); cursor: pointer; }
 .lx-seg[aria-selected='true'] { background: var(--lx-accent); color: #05040a; }

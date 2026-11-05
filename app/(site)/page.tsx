@@ -38,7 +38,7 @@ export default function Home() {
   return <main className="lx lx-mix">
     <section className="lx-band">
       <HeroMedia />
-      <div className="lx-shell">
+      <div className="lx-shell lx-shell-narrow">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="lx-mark lx-enter" src="/assets/icon_logo.svg" alt="Mix" width={95} height={105} />
         <h1 className="lx-display lx-enter lx-enter-1">Flutter styling without<br />the boilerplate.</h1>
@@ -52,11 +52,17 @@ export default function Home() {
       </div>
     </section>
 
-    <section className="lx-shell lx-gap" aria-labelledby="why-mix">
+    <section className="lx-shell lx-shell-narrow lx-gap" aria-labelledby="why-mix">
       <SectionHead align="left" eyebrow="Why Mix" id="why-mix" title="Less nesting. More clarity." />
       <div className="lx-compare">
-        <div><CodeBlock code={WITHOUT_MIX} label="Without Mix" /></div>
-        <div className="lx-compare-good"><CodeBlock code={WITH_MIX} label="With Mix" /></div>
+        <div>
+          <span className="lx-code-label">Without Mix</span>
+          <div className="lx-code-surface"><CodeBlock code={WITHOUT_MIX} /></div>
+        </div>
+        <div className="lx-compare-good">
+          <span className="lx-code-label">With Mix</span>
+          <div className="lx-code-surface"><CodeBlock code={WITH_MIX} /></div>
+        </div>
       </div>
     </section>
 
