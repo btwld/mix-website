@@ -2,10 +2,12 @@
 
 ## Activation status — 2026-11-05
 
-The production website is live on Firebase App Hosting. Automatic deployment is
-prepared on migration PR #1, but is **not activated or end-to-end verified** yet.
-The default branch must contain the workflows, CI must pass, and cloud identities
-and GitHub variables/environments must be configured. No service-account keys
+The production website is live on Firebase App Hosting. Migration PR #1 merged
+as `e3550901d3ef191149f9f7d00cc77a3b85ef3d54` after full CI passed, activating
+the workflows on main. The first automatic rollout and PR preview acceptance
+checks are in progress; end-to-end deployment success is not yet claimed.
+Cloud identities, GitHub variables/environments, the preview site and required
+main-branch CI protection are now configured with owner approval. Production deployment remains gated on successful CI for the current main commit. No service-account keys
 are used. Do not interpret a successful manual release as proof of automation.
 
 ## Production
@@ -40,8 +42,10 @@ Project: `bitwild-oss` (416994480519). Production backend: `fluttermix`,
 `us-east4`. Production URL: https://fluttermix.com. Source bucket:
 `firebaseapphosting-sources-416994480519-us-east4`.
 
-Create separate preview and production service accounts and OIDC providers.
-Bind each service account to its **exact environment subject**, not a shared
+The configured service accounts are `mix-preview-deploy@bitwild-oss.iam.gserviceaccount.com`
+and `mix-production-deploy@bitwild-oss.iam.gserviceaccount.com`. OIDC providers
+`preview` and `production` belong to pool `mix-website` in project 416994480519.
+Each service account is bound to its **exact environment subject**, not a shared
 repository-wide principal set. Providers must check numeric repository ID
 1444465253, owner ID 83911646, environment subject, and allowed workflow refs
 ending in `@refs/heads/main`. Production permits only `production.yml`; preview
@@ -60,7 +64,8 @@ account if required by the API.
 Firebase documents that Hosting does not support custom roles. Preview activation
 therefore requires the predefined Hosting Admin role at project scope (broader
 than one preview site), or a separate preview-only Firebase project. This grant
-is pending owner approval. Hosting and App Hosting are different services; the
+was explicitly approved by the owner on 2026-11-05 and configured for the
+preview service account. Hosting and App Hosting are different services; the
 preview identity must receive no App Hosting deployment permission.
 
 Protect main with the required `site` CI check, no force pushes or deletions, and
