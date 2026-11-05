@@ -30,6 +30,57 @@ async function expectViewsAligned(page: Page, ids: readonly string[]) {
 }
 
 test.describe('landings', () => {
+  test('landing layouts have one main landmark and no orphaned welcome feature', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/');
+    const boxes = await page.locator('.lx-feature').evaluateAll(nodes => nodes.map(node => {
+      const { top, width } = node.getBoundingClientRect();
+      return { top: Math.round(top), width: Math.round(width) };
+    }));
+    expect(boxes).toHaveLength(3);
+    expect(new Set(boxes.map(box => box.top)).size, 'all welcome demos share one row').toBe(1);
+    expect(new Set(boxes.map(box => box.width)).size, 'all welcome demos have equal weight').toBe(1);
+
+    await page.setViewportSize({ width: 320, height: 844 });
+    for (const route of ['/', '/mix/', '/remix/', '/naked-ui/']) {
+      await page.goto(route);
+      await expect(page.getByRole('main')).toHaveCount(1);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+      expect(overflow, `${route} stays inside a narrow phone`).toBeLessThanOrEqual(1);
+    }
+  });
+
+  test('light-theme demo tabs stay readable and usable on a phone', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/remix/');
+    if (!(await page.locator('html').getAttribute('class'))?.split(' ').includes('light')) {
+      await page.getByRole('button', { name: 'Toggle Theme' }).click();
+    }
+    await expect(page.locator('html')).toHaveClass(/\blight\b/);
+    const controls = await page.getByRole('tab').evaluateAll(tabs => {
+      const rgb = (value: string) => value.match(/[\d.]+/g)!.slice(0, 3).map(Number);
+      const luminance = (value: string) => rgb(value).map(channel => {
+        const c = channel / 255;
+        return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+      }).reduce((sum, c, i) => sum + c * [0.2126, 0.7152, 0.0722][i], 0);
+      return tabs.map(tab => {
+        const fg = luminance(getComputedStyle(tab).color);
+        const bg = luminance(getComputedStyle(tab.closest('.lx-window-bar')!).backgroundColor);
+        return { height: tab.getBoundingClientRect().height, contrast: (Math.max(fg, bg) + 0.05) / (Math.min(fg, bg) + 0.05), selected: tab.getAttribute('aria-selected') === 'true' };
+      });
+    });
+    for (const control of controls) {
+      expect(control.height).toBeGreaterThanOrEqual(44);
+      // Selected text has its own accent fill; the others sit on the panel bar.
+      if (!control.selected) expect(control.contrast).toBeGreaterThanOrEqual(4.5);
+    }
+    await expect(page.locator('.lx-window-bar .lx-dots').first()).toBeHidden();
+    await page.getByRole('tab', { name: 'Gradient' }).click();
+    await expect(page.getByRole('tabpanel', { name: 'Gradient' })).toBeVisible();
+  });
+
   test('the apex leads with Mix and reaches every project', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1, name: 'Flutter styling without the boilerplate.' })).toBeVisible();

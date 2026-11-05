@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import site from '@/.generated/site-inputs.json';
-import { LandingButton, SectionHead } from '@/components/landing/ui';
+import { FeatureCards, HeroBackdrop, LandingButton, SectionHead } from '@/components/landing/ui';
 import { Accessibility, Blocks, Sparkle } from '@/components/landing/icons';
 import { PROJECTS } from '@/lib/projects.mjs';
 import { canonicalMetadata } from '@/lib/site';
@@ -23,12 +23,9 @@ const FEATURES = [
 ];
 
 export default function NakedUiOverview() {
-  return <main className="lx lx-naked-ui">
+  return <div className="lx lx-naked-ui">
     <section className="lx-band">
-      <div className="lx-band-media" aria-hidden="true">
-        <div className="lx-band-aurora" />
-        <div className="lx-band-grid" />
-      </div>
+      <HeroBackdrop />
       <div className="lx-shell lx-shell-narrow">
         <span className="lx-eyebrow lx-enter">Headless Flutter widgets</span>
         <h1 className="lx-display lx-enter lx-enter-1">Naked UI</h1>
@@ -47,13 +44,7 @@ export default function NakedUiOverview() {
         title="The hard parts, handled. The look, untouched."
         lead="Naked UI gives you the behaviour contract of a component library without inheriting its design language."
       />
-      <div className="lx-cards lx-reveal">
-        {FEATURES.map(({ icon: Icon, ...feature }) => <div key={feature.title} className="lx-card lx-card-wide">
-          <span className="lx-card-icon"><Icon /></span>
-          <h3>{feature.title}</h3>
-          <p>{feature.body}</p>
-        </div>)}
-      </div>
+      <FeatureCards items={FEATURES} />
     </section>
 
     <section className="lx-gap-sm lx-marquee-section" aria-label={`${WIDGETS.length} documented Naked UI widgets`}>
@@ -62,9 +53,9 @@ export default function NakedUiOverview() {
           {[...WIDGETS, ...WIDGETS].map((name, index) => <span key={`${name}-${index}`} className="lx-chip">{name}</span>)}
         </div>
       </div>
-      <div className="lx-shell lx-center lx-reveal" style={{ marginTop: '2.75rem' }}>
+      <div className="lx-shell lx-center lx-reveal lx-marquee-cta">
         <LandingButton href={`${PROJECTS['naked-ui'].docsBase}/`} variant="ghost" arrow>Browse every widget</LandingButton>
       </div>
     </section>
-  </main>;
+  </div>;
 }

@@ -3,9 +3,10 @@
 import { useId, useRef, useState } from 'react';
 import { REMIX_HERO_STYLES } from '@/lib/landing-previews.mjs';
 import { FlutterMultiView } from '@/components/previews/mix/FlutterMultiView';
-import { FlutterSnippet } from '@/components/previews/mix/FlutterSnippet';
+import { LockedSnippet, type LockedPreviewSource } from './locked-snippet';
+import { WindowBar } from './ui';
 
-type Locked = Record<string, { sourcePath: string; snippetRegion: string | null }>;
+type Locked = Record<string, LockedPreviewSource>;
 
 /**
  * One RemixButton, three real Mix styles, each a real compiled Flutter app.
@@ -34,8 +35,7 @@ export function RemixHeroDemo({ locked }: { locked: Locked }) {
   };
 
   return <div className="lx-window">
-    <div className="lx-window-bar">
-      <div className="lx-dots" aria-hidden="true"><span /><span /><span /></div>
+    <WindowBar>
       <div className="lx-segmented" role="tablist" aria-label="Button style" onKeyDown={onKeyDown}>
         {REMIX_HERO_STYLES.map((style, index) => <button
           key={style.key}
@@ -50,21 +50,12 @@ export function RemixHeroDemo({ locked }: { locked: Locked }) {
           onClick={() => setActive(index)}
         >{style.name}</button>)}
       </div>
-    </div>
+    </WindowBar>
 
     <div className="lx-window-body" id={`${id}-panel`} role="tabpanel" aria-labelledby={`${id}-tab-${current.key}`}>
       <div className="lx-window-code">
         {REMIX_HERO_STYLES.map((style, index) => <div key={style.key} className="lx-code" hidden={index !== active}>
-          <FlutterSnippet
-            sourcePath={locked[style.previewId].sourcePath}
-            region={locked[style.previewId].snippetRegion ?? undefined}
-            showMeta={false}
-            maxHeight={260}
-            surfaceClassName=""
-            codeClassName="lx-code-pad"
-            loadingClassName="lx-code-pad"
-            errorClassName="lx-code-pad"
-          />
+          <LockedSnippet source={locked[style.previewId]} maxHeight={260} />
         </div>)}
       </div>
 

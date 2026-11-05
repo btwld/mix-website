@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { ProjectCard } from '@/components/project-card';
 import { CodeBlock } from '@/components/landing/code-block';
-import { CopyCommand } from '@/components/landing/copy-command';
+import { InstallSection } from '@/components/landing/install-section';
 import { HeroMedia } from '@/components/landing/hero-media';
 import { MixFeatures } from '@/components/landing/mix-features';
 import { LandingButton, SectionHead } from '@/components/landing/ui';
@@ -35,7 +35,7 @@ final cardStyle = BoxStyler()
 Box(style: cardStyle, child: ...)`;
 
 export default function Home() {
-  return <main className="lx lx-mix">
+  return <div className="lx lx-mix">
     <section className="lx-band">
       <HeroMedia />
       <div className="lx-shell lx-shell-narrow">
@@ -89,12 +89,6 @@ export default function Home() {
       </div>
     </section>
 
-    <section className="lx-shell lx-shell-narrow lx-gap">
-      <div className="lx-install lx-reveal">
-        <span className="lx-eyebrow">Get started</span>
-        <h2 className="lx-title">Add Mix to your project.</h2>
-        <CopyCommand command="flutter pub add mix" />
-      </div>
-    </section>
-  </main>;
+    <InstallSection />
+  </div>;
 }

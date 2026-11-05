@@ -142,6 +142,8 @@
   --lx-ink: #ffffff;
   --lx-ink-dim: #a1a1aa;
   --lx-line: rgb(255 255 255 / 10%);
+  --lx-surface: #0d0b14;
+  --lx-surface-2: #161421;
   --lx-accent: var(--lx-accent-dark);
 
   position: relative;
@@ -228,6 +230,8 @@
   .lx-motion-toggle:hover { border-color: var(--lx-accent); color: #fff; background: rgb(5 4 10 / 82%); }
 }
 .lx-mark { width: clamp(76px, 9vw, 112px); height: auto; }
+.lx-wordmark { height: 2.75rem; width: auto; }
+.lx-hero-eyebrow { display: block; margin-bottom: 0.75rem; }
 .lx-hero-cta { display: flex; flex-wrap: wrap; gap: 0.875rem; margin-top: 2.25rem; }
 .lx-band-center { display: flex; flex-direction: column; align-items: center; text-align: center; }
 .lx-band-center .lx-lead { max-width: 40rem; }
@@ -276,7 +280,7 @@
 /* Inline, not flex: in a narrow card the arrow must stay on the last word
    instead of being pushed onto a line of its own. */
 .lx-inline-link {
-  display: inline;
+  display: inline-block;
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--lx-ink-dim);
@@ -340,12 +344,16 @@
 .lx-window-bar:not(.lx-window-bar-start) .lx-dots { position: absolute; left: 1rem; top: 50%; translate: 0 -50%; }
 .lx-dots span { width: 0.6875rem; height: 0.6875rem; border-radius: 999px; background: rgb(128 128 150 / 35%); }
 .lx-window-file { font-family: var(--font-mono); font-size: 0.6875rem; font-style: normal; color: var(--lx-ink-dim); }
+@media (max-width: 36rem) { .lx-window-bar:not(.lx-window-bar-start) .lx-dots { display: none; } }
 
 /* ── Mix feature grid ───────────────────────────────────────────────── */
 .lx-features { display: grid; grid-template-columns: 1fr; gap: 0.75rem; padding: 0.5rem; border: 1px solid var(--lx-line); border-radius: 24px; background: var(--lx-surface-2); }
 @media (min-width: 64rem) { .lx-features { grid-template-columns: 1fr 1fr; } .lx-feature-wide { grid-column: span 2; } }
+/* The welcome page has three equally weighted features, not the full five-card
+   product grid. A separate layout avoids an orphan card and empty half-row. */
+@media (min-width: 64rem) { .lx-features-compact { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .lx-feature { display: flex; flex-direction: column; border: 1px solid var(--lx-line); border-radius: var(--lx-radius); background: var(--lx-surface); overflow: hidden; }
-.lx-feature-body { display: flex; flex-direction: column; }
+.lx-feature-body { display: flex; flex: 1; min-width: 0; flex-direction: column; }
 @media (min-width: 64rem) { .lx-feature-wide .lx-feature-body { flex-direction: row; align-items: stretch; } }
 .lx-feature-text { display: flex; min-width: 0; flex: 1; flex-direction: column; }
 .lx-feature-head { padding: 1.5rem 1.5rem 1rem; }
@@ -354,6 +362,9 @@
 .lx-feature-head .lx-inline-link { margin-top: 0.75rem; }
 .lx-feature-code { min-width: 0; flex: 1; padding: 0 0.5rem 0.5rem; }
 .lx-feature-code > .lx-code { height: 100%; }
+.lx-features-compact .lx-feature-head { flex: 1; }
+.lx-features-compact .lx-feature-code { flex: none; }
+.lx-features-compact .lx-code { min-height: 14rem; }
 .lx-feature-stage { display: flex; align-items: center; justify-content: center; padding: 1.5rem; border-top: 1px solid var(--lx-line); }
 @media (min-width: 64rem) {
   .lx-feature-wide .lx-feature-stage { border-top: 0; border-left: 1px solid var(--lx-line); flex: none; min-width: 19rem; }
@@ -376,18 +387,24 @@
 
 /* ── Install terminal ───────────────────────────────────────────────── */
 .lx-install { padding: clamp(2rem, 5vw, 3rem) 1.5rem; border: 1px solid var(--lx-line); border-radius: var(--lx-radius); background: var(--lx-surface); text-align: center; }
+.lx-install .lx-lead, .lx-cta .lx-lead { margin-inline: auto; }
 .lx-terminal { display: inline-flex; align-items: center; gap: 0.75rem; margin-top: 1.75rem; max-width: 100%; padding: 0.875rem 1.25rem; border: 1px solid var(--lx-line); border-radius: 10px; background: var(--lx-code-bg); font-family: var(--font-mono); font-size: 0.875rem; color: #e6e6ea; overflow-x: auto; }
 .lx-terminal-prompt { color: var(--lx-accent-dark); font-weight: 600; }
 .lx-terminal-cmd { white-space: nowrap; }
-.lx-terminal button { display: inline-grid; place-items: center; width: 2rem; height: 2rem; flex: none; border-radius: 6px; color: #a1a1aa; cursor: pointer; }
+.lx-terminal button { display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; flex: none; border-radius: 6px; color: #a1a1aa; cursor: pointer; }
 .lx-terminal button:hover { color: #fff; background: rgb(255 255 255 / 10%); }
 .lx-terminal svg { width: 1rem; height: 1rem; }
+.lx-copy-status { min-height: 1.5rem; margin-top: 0.5rem; font-size: 0.8125rem; color: var(--lx-ink-dim); }
 
 /* ── Sibling project cards (apex) ───────────────────────────────────── */
-.lx-siblings { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
-.lx .site-project { border-radius: var(--lx-radius); border-color: var(--lx-line); background: var(--lx-surface); padding: 1.75rem; }
-.lx .site-project h2 { letter-spacing: -0.02em; }
-.lx .site-project a { color: var(--lx-accent); }
+.lx-siblings { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); }
+.lx .site-project { display: grid; grid-template-rows: auto 1fr auto; gap: 1rem; min-width: 0; border: 1px solid var(--lx-line); border-radius: var(--lx-radius); background: var(--lx-surface); padding: 1.75rem; }
+.lx .site-project h3 { display: flex; align-items: center; gap: 0.625rem; font-size: 1.375rem; font-weight: 600; letter-spacing: -0.02em; }
+.lx-project-dot { width: 0.5rem; height: 0.5rem; flex: none; border-radius: 50%; background: var(--color-fd-primary); }
+.lx .site-project p { color: var(--lx-ink-dim); line-height: 1.6; }
+.lx .site-project ul { display: flex; flex-wrap: wrap; align-content: start; gap: 0 1rem; }
+.lx .site-project a { display: inline-flex; min-height: 2.75rem; align-items: center; color: var(--color-fd-primary); text-decoration: underline; text-underline-offset: 0.2em; }
+.lx .site-project a:focus-visible { outline-color: var(--color-fd-primary); }
 
 /* ── Remix hero window ──────────────────────────────────────────────── */
 .lx-stagewrap { position: relative; width: 100%; max-width: 62rem; margin: clamp(2.5rem, 6vw, 4.5rem) auto 0; }
@@ -415,14 +432,13 @@
    and paints the widget from there. Measured: under an inherited
    `text-align: center` the pane sits at the host's midpoint and the widget
    overflows right by half the host width. Pin embedded hosts to the start.
-   (An earlier guess blamed a shared fixed-width rasterizer surface; comparing
-   each pane's box with its host disproved that.) */
+   Keep this explicit even when the surrounding hero copy is centred. */
 .lx-live-stack, .lx-feature-view, .lx-tile-view { text-align: left; }
 .lx-live-layer { grid-area: 1 / 1; width: 100%; opacity: 0; pointer-events: none; }
 .lx-live-layer[data-active='true'] { opacity: 1; pointer-events: auto; }
 @media (prefers-reduced-motion: no-preference) { .lx-live-layer { transition: opacity 0.3s ease; } }
 .lx-segmented { display: flex; gap: 0.2rem; padding: 0.2rem; border: 1px solid var(--lx-line); border-radius: 999px; background: rgb(0 0 0 / 22%); }
-.lx-seg { position: relative; padding: 0.35rem 0.85rem; border-radius: 999px; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 500; color: var(--lx-ink-dim); cursor: pointer; }
+.lx-seg { position: relative; min-height: 2.75rem; padding: 0.35rem 0.85rem; border-radius: 999px; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 500; color: var(--lx-ink-dim); cursor: pointer; }
 .lx-seg[aria-selected='true'] { background: var(--lx-accent); color: #05040a; }
 @media (hover: hover) and (pointer: fine) { .lx-seg[aria-selected='false']:hover { color: var(--lx-ink); } }
 @media (prefers-reduced-motion: no-preference) { .lx-seg { transition: color 0.2s, background-color 0.2s; } }
@@ -453,6 +469,7 @@
 .lx-marquee-section { overflow: hidden; }
 .lx-marquee { display: flex; overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent); }
 .lx-marquee + .lx-marquee { margin-top: 0.875rem; }
+.lx-marquee-cta { margin-top: 2.75rem; }
 .lx-marquee-track { display: flex; flex: none; gap: 0.75rem; padding-right: 0.75rem; }
 @keyframes lx-scroll { to { translate: -50% 0; } }
 @media (prefers-reduced-motion: no-preference) {
@@ -467,6 +484,8 @@
 .lx-chip { flex: none; padding: 0.5rem 1.1rem; border: 1px solid var(--lx-line); border-radius: 999px; background: var(--lx-surface); font-size: 0.875rem; font-weight: 500; }
 
 .lx-split { display: grid; grid-template-columns: 1fr; gap: 2.5rem; align-items: center; }
+.lx-split-cta { margin-top: 1.75rem; }
+.lx-catalog-image { display: block; width: 100%; height: auto; }
 @media (min-width: 59rem) { .lx-split { grid-template-columns: 0.92fr 1.08fr; gap: 3.75rem; } }
 .lx-checklist { display: flex; flex-direction: column; gap: 0.75rem; }
 .lx-checklist li { display: flex; align-items: center; gap: 0.625rem; font-size: 0.9375rem; }
@@ -487,6 +506,7 @@
 
 .lx-cta { position: relative; overflow: hidden; padding: clamp(2.75rem, 7vw, 5.5rem) 1.75rem; border: 1px solid rgb(var(--lx-accent-rgb) / 30%); border-radius: 28px; background: linear-gradient(180deg, rgb(var(--lx-accent-rgb) / 8%), transparent 70%), var(--lx-surface); text-align: center; }
 .lx-cta > * { position: relative; z-index: 1; }
+.lx-cta .lx-title { font-size: clamp(2rem, 5vw, 3.2rem); }
 .lx-cta-glow { position: absolute; inset: -55% 18% auto; height: 24rem; z-index: 0; background: radial-gradient(ellipse at 50% 0%, var(--lx-accent-glow), transparent 68%); filter: blur(20px); }
 .lx-cta-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.875rem; margin-top: 2rem; }
 .lx-cta-links { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.75rem; margin-top: 1.75rem; font-size: 0.8125rem; color: var(--lx-ink-dim); }

@@ -2,9 +2,8 @@ import { REMIX_BENTO } from '@/lib/landing-previews.mjs';
 import { FlutterMultiView } from '@/components/previews/mix/FlutterMultiView';
 
 /**
- * Real, running Flutter components — never a screenshot. Flutter multi-views
- * share one fixed rasterizer surface, so each live view is capped to a centred
- * box that fits while the tile keeps its own height around it.
+ * Keep each interactive example centred inside its tile, using the same
+ * readable view width as the feature and hero examples.
  */
 export function RemixBento() {
   return <div className="lx-bento lx-reveal">

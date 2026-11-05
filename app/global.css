@@ -34,13 +34,6 @@
 .site-home { max-width: 72rem; margin-inline: auto; padding: 4rem 1.5rem; }
 .site-home h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; letter-spacing: -0.02em; text-wrap: balance; }
 .site-home > p { margin-top: 1rem; max-width: 60ch; font-size: 1.125rem; color: var(--color-fd-muted-foreground); }
-.site-projects { display: grid; gap: 1rem; margin-top: 2.5rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
-.site-project { display: grid; gap: 0.75rem; align-content: start; padding: 1.5rem; border: 1px solid var(--color-fd-border); border-radius: 0.75rem; background: var(--color-fd-card); }
-.site-project h2 { font-size: 1.375rem; font-weight: 600; }
-.site-project p { color: var(--color-fd-muted-foreground); }
-.site-project ul { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; }
-.site-project a { display: inline-flex; min-height: 2.75rem; align-items: center; color: var(--color-fd-primary); text-decoration: underline; text-underline-offset: 0.2em; }
-.site-project a:focus-visible { outline: 2px solid var(--color-fd-primary); outline-offset: 2px; }
 
 /* Remix preview and catalog-search styles, from btwld/remix apps/docs/app/global.css. */
 .concepta-docs [role="tabpanel"]:has(> .remix-preview) { padding: 0; border-radius: 0; }

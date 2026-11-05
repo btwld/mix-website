@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { CopyCommand } from '@/components/landing/copy-command';
+import { InstallSection } from '@/components/landing/install-section';
 import { MixCodegen } from '@/components/landing/mix-codegen';
 import { MixFeatures } from '@/components/landing/mix-features';
-import { LandingButton, SectionHead } from '@/components/landing/ui';
+import { HeroBackdrop, LandingButton, SectionHead } from '@/components/landing/ui';
 import { ArrowRight } from '@/components/landing/icons';
 import { PROJECTS } from '@/lib/projects.mjs';
 import { canonicalMetadata } from '@/lib/site';
@@ -15,12 +15,9 @@ export const metadata: Metadata = {
 };
 
 export default function MixOverview() {
-  return <main className="lx lx-mix">
+  return <div className="lx lx-mix">
     <section className="lx-band">
-      <div className="lx-band-media" aria-hidden="true">
-        <div className="lx-band-aurora" />
-        <div className="lx-band-grid" />
-      </div>
+      <HeroBackdrop />
       <div className="lx-shell lx-shell-narrow">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="lx-mark lx-enter" src="/assets/icon_logo.svg" alt="" width={95} height={105} />
@@ -42,23 +39,16 @@ export default function MixOverview() {
         eyebrow="Features"
         id="mix-features"
         title="Style composition, reactive variants and design tokens — in one package."
-        lead="Every card below runs a real Flutter widget beside the exact Dart that produced it, compiled from the pinned Mix preview bundle."
+        lead="Explore real Flutter widgets alongside the Dart code that creates them."
       />
       <MixFeatures />
     </section>
 
     <MixCodegen />
 
-    <section className="lx-shell lx-shell-narrow lx-gap">
-      <div className="lx-install lx-reveal">
-        <span className="lx-eyebrow">Get started</span>
-        <h2 className="lx-title">Add Mix to your project.</h2>
-        <CopyCommand command="flutter pub add mix" />
-        <p className="lx-lead" style={{ marginInline: 'auto' }}>
-          Mix 2.3.1 requires Dart 3.12 and Flutter 3.44 or newer.{' '}
-          <Link className="lx-inline-link" href={PROJECTS.mix.startPath}>Installation details<ArrowRight /></Link>
-        </p>
-      </div>
-    </section>
-  </main>;
+    <InstallSection>
+      Mix 2.3.1 requires Dart 3.12 and Flutter 3.44 or newer.{' '}
+      <Link className="lx-inline-link" href={PROJECTS.mix.startPath}>Installation details<ArrowRight /></Link>
+    </InstallSection>
+  </div>;
 }

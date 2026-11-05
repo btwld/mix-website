@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { CodeBlock } from './code-block';
-import { SectionHead } from './ui';
+import { SectionHead, WindowBar } from './ui';
 import { ArrowRight } from './icons';
 
 const STYLE_SOURCE = `@MixWidget()
@@ -45,10 +45,7 @@ export function MixCodegen() {
     />
 
     <div className="lx-window lx-reveal">
-      <div className="lx-window-bar lx-window-bar-start">
-        <div className="lx-dots" aria-hidden="true"><span /><span /><span /></div>
-        <em className="lx-window-file">AppCard code generation</em>
-      </div>
+      <WindowBar label="AppCard code generation" />
       <div className="lx-codegen">
         <article>
           <FileHeader filename="app_card.dart" label="You write" />

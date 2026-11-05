@@ -3,7 +3,7 @@ import site from '@/.generated/site-inputs.json';
 import { LegacyCatalogRedirect } from '@/components/legacy-catalog-redirect';
 import { RemixBento } from '@/components/landing/remix-bento';
 import { RemixHeroDemo } from '@/components/landing/remix-hero-demo';
-import { Faq, LandingButton, SectionHead } from '@/components/landing/ui';
+import { Faq, FeatureCards, HeroBackdrop, LandingButton, SectionHead, WindowBar } from '@/components/landing/ui';
 import { Accessibility, Blocks, Bolt, Github, Repeat, Sparkle, Wand } from '@/components/landing/icons';
 import { PROJECTS } from '@/lib/projects.mjs';
 import { canonicalMetadata } from '@/lib/site';
@@ -19,7 +19,7 @@ const LINKS = {
   components: '/remix/docs/components/button/',
   styling: '/mix/docs/guides/styling/',
   catalog: PROJECTS.remix.catalogPath,
-  github: 'https://github.com/btwld/remix',
+  github: PROJECTS.remix.codeRepository,
   pubDev: 'https://pub.dev/packages/remix',
 };
 
@@ -67,23 +67,20 @@ const FAQ = [
 ];
 
 export default function RemixOverview() {
-  return <main className="lx lx-remix">
+  return <div className="lx lx-remix">
     <LegacyCatalogRedirect />
 
     <section className="lx-band">
-      <div className="lx-band-media" aria-hidden="true">
-        <div className="lx-band-aurora" />
-        <div className="lx-band-grid" />
-      </div>
+      <HeroBackdrop />
       <div className="lx-shell lx-band-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="lx-enter" src="/remix/assets/logo_dark.png" alt="Remix" width={802} height={223}
-          style={{ height: '2.75rem', width: 'auto' }} />
+        <img src="/remix/assets/logo_dark.png" alt="Remix" width={802} height={223}
+          className="lx-wordmark lx-enter" />
         <h1 className="lx-display lx-enter lx-enter-1">
           The behavior is built in.<br /><span className="lx-grad">Style Flutter your way.</span>
         </h1>
         <p className="lx-lead lx-enter lx-enter-2">
-          <span className="lx-eyebrow" style={{ display: 'block', marginBottom: '0.75rem' }}>Built for a generative UI future</span>
+          <span className="lx-eyebrow lx-hero-eyebrow">Built for a generative UI future</span>
           Headless, accessible Flutter components with the behaviour already handled. Style every pixel with Mix — the look is entirely yours.
         </p>
         <div className="lx-hero-cta lx-enter lx-enter-3">
@@ -119,13 +116,7 @@ export default function RemixOverview() {
         title="Everything you need. Nothing in your way."
         lead="A foundation that handles the hard parts — behaviour, focus, accessibility — and then disappears so your design can take over."
       />
-      <div className="lx-cards lx-reveal">
-        {FEATURES.map(({ icon: Icon, ...feature }) => <div key={feature.title} className={`lx-card${feature.wide ? ' lx-card-wide' : ''}`}>
-          <span className="lx-card-icon"><Icon /></span>
-          <h3>{feature.title}</h3>
-          <p>{feature.body}</p>
-        </div>)}
-      </div>
+      <FeatureCards items={FEATURES} />
     </section>
 
     <section className="lx-shell lx-gap" aria-labelledby="remix-components">
@@ -144,7 +135,7 @@ export default function RemixOverview() {
           {[...COMPONENTS, ...COMPONENTS].map((name, index) => <span key={`${name}-${index}`} className="lx-chip">{name}</span>)}
         </div>
       </div>)}
-      <div className="lx-shell lx-center lx-reveal" style={{ marginTop: '2.75rem' }}>
+      <div className="lx-shell lx-center lx-reveal lx-marquee-cta">
         <LandingButton href={LINKS.components} variant="ghost" arrow>Browse the full component library</LandingButton>
       </div>
     </section>
@@ -163,18 +154,14 @@ export default function RemixOverview() {
             <li><Sparkle /> Variants, states and tokens in one place</li>
             <li><Sparkle /> Works on any Remix component</li>
           </ul>
-          <div className="lx-reveal" style={{ marginTop: '1.75rem' }}>
+          <div className="lx-reveal lx-split-cta">
             <LandingButton href={LINKS.styling} variant="ghost" arrow>Explore styling</LandingButton>
           </div>
         </div>
         <div className="lx-panel lx-reveal">
-          <div className="lx-window-bar lx-window-bar-start">
-            <div className="lx-dots" aria-hidden="true"><span /><span /><span /></div>
-            <em className="lx-window-file">Fortal design system</em>
-          </div>
+          <WindowBar label="Fortal design system" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/remix/assets/fortal-catalog.png" alt="The Fortal component catalog, showing styled Remix components" width={1600} height={1000}
-            style={{ display: 'block', width: '100%', height: 'auto' }} />
+          <img className="lx-catalog-image" src="/remix/assets/fortal-catalog.png" alt="The Fortal component catalog, showing styled Remix components" width={1600} height={1000} loading="lazy" />
         </div>
       </div>
     </section>
@@ -187,8 +174,8 @@ export default function RemixOverview() {
     <section className="lx-shell lx-gap">
       <div className="lx-cta lx-reveal">
         <div className="lx-cta-glow" aria-hidden="true" />
-        <h2 className="lx-title" style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)' }}>Build Flutter UI that&rsquo;s finally yours.</h2>
-        <p className="lx-lead" style={{ marginInline: 'auto' }}>
+        <h2 className="lx-title">Build Flutter UI that&rsquo;s finally yours.</h2>
+        <p className="lx-lead">
           Open source, free and in active development. Explore the components, read the docs, and shape it with the community.
         </p>
         <div className="lx-cta-row">
@@ -204,5 +191,5 @@ export default function RemixOverview() {
         </div>
       </div>
     </section>
-  </main>;
+  </div>;
 }
