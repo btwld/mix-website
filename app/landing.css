@@ -388,9 +388,10 @@
 /* ── Install terminal ───────────────────────────────────────────────── */
 .lx-install { padding: clamp(2rem, 5vw, 3rem) 1.5rem; border: 1px solid var(--lx-line); border-radius: var(--lx-radius); background: var(--lx-surface); text-align: center; }
 .lx-install .lx-lead, .lx-cta .lx-lead { margin-inline: auto; }
-.lx-terminal { display: inline-flex; align-items: center; gap: 0.75rem; margin-top: 1.75rem; max-width: 100%; padding: 0.875rem 1.25rem; border: 1px solid var(--lx-line); border-radius: 10px; background: var(--lx-code-bg); font-family: var(--font-mono); font-size: 0.875rem; color: #e6e6ea; overflow-x: auto; }
+.lx-terminal { display: inline-flex; align-items: center; gap: 0.75rem; margin-top: 1.75rem; max-width: 100%; padding: 0.875rem 1.25rem; border: 1px solid var(--lx-line); border-radius: 10px; background: var(--lx-code-bg); font-family: var(--font-mono); font-size: 0.875rem; color: #e6e6ea; }
 .lx-terminal-prompt { color: var(--lx-accent-dark); font-weight: 600; }
-.lx-terminal-cmd { white-space: nowrap; }
+.lx-terminal-cmd { min-width: 0; overflow-x: auto; white-space: nowrap; text-align: left; }
+.lx-terminal-cmd:focus-visible { outline: 2px solid var(--lx-accent-dark); outline-offset: 3px; }
 .lx-terminal button { display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; flex: none; border-radius: 6px; color: #a1a1aa; cursor: pointer; }
 .lx-terminal button:hover { color: #fff; background: rgb(255 255 255 / 10%); }
 .lx-terminal svg { width: 1rem; height: 1rem; }

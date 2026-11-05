@@ -48,6 +48,15 @@ test.describe('landings', () => {
       await expect(page.getByRole('main')).toHaveCount(1);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       expect(overflow, `${route} stays inside a narrow phone`).toBeLessThanOrEqual(1);
+      if (route === '/' || route === '/mix/') {
+        const terminal = page.locator('.lx-terminal');
+        const clipped = await terminal.evaluate(el => {
+          const button = el.querySelector('button')!.getBoundingClientRect();
+          const bounds = el.getBoundingClientRect();
+          return button.right > bounds.right || button.left < bounds.left || el.scrollWidth > el.clientWidth + 1;
+        });
+        expect(clipped, 'the copy control stays visible while only the command scrolls').toBe(false);
+      }
     }
   });
 

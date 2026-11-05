@@ -16,7 +16,7 @@ export function CopyCommand({ command }: { command: string }) {
   return <>
     <div className="lx-terminal">
       <span className="lx-terminal-prompt" aria-hidden="true">$</span>
-      <code className="lx-terminal-cmd">{command}</code>
+      <code className="lx-terminal-cmd" tabIndex={0}>{command}</code>
       <button type="button" onClick={async () => {
         try {
           await navigator.clipboard.writeText(command);
