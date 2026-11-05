@@ -48,7 +48,11 @@ and `mix-production-deploy@bitwild-oss.iam.gserviceaccount.com`. OIDC providers
 Each service account is bound to its **exact environment subject**, not a shared
 repository-wide principal set. Providers must check numeric repository ID
 1444465253, owner ID 83911646, environment subject, and allowed workflow refs
-ending in `@refs/heads/main`. Production permits only `production.yml`; preview
+ending in `@refs/heads/main`. This repository uses immutable OIDC subjects:
+`repo:btwld@83911646/mix-website@1444465253:environment:preview` and
+`repo:btwld@83911646/mix-website@1444465253:environment:production`. Read the
+repository OIDC API `sub_claim_prefix` when configuring a replacement; do not
+assume the older name-only subject format. Production permits only `production.yml`; preview
 permits only `preview.yml` and `preview-cleanup.yml`.
 
 GitHub environments `preview` and `production` allow only branch `main`. Repository
