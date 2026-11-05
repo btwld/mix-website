@@ -1,14 +1,18 @@
 # Deployment automation
 
-## Activation status — 2026-11-05
+## Active configuration
 
-The production website is live on Firebase App Hosting. Migration PR #1 merged
-as `e3550901d3ef191149f9f7d00cc77a3b85ef3d54` after full CI passed, activating
-the workflows on main. The first automatic rollout and PR preview acceptance
-checks are in progress; end-to-end deployment success is not yet claimed.
-Cloud identities, GitHub variables/environments, the preview site and required
-main-branch CI protection are now configured with owner approval. Production deployment remains gated on successful CI for the current main commit. No service-account keys
-are used. Do not interpret a successful manual release as proof of automation.
+The production website is live on Firebase App Hosting. Migration PR #1 and the
+preview helper correction in PR #2 are merged. Cloud identities, GitHub
+environments/variables, the preview site and required main-branch CI protection
+are configured. No service-account keys are used.
+
+Automatic production releases of `e355090` and `24dc969` succeeded and were
+verified against the public source identity and input-lock hash. Preview creation
+was verified with PR #3; the live audit then exposed a catch-all redirect syntax
+difference from the emulator, corrected by this change. Complete hosted routing
+and closed-PR cleanup acceptance are recorded in that verification PR and the
+GitHub deployment/workflow records, rather than inferred from configuration.
 
 ## Production
 
