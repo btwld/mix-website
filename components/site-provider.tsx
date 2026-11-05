@@ -35,5 +35,6 @@ function SiteSearchDialog(props: SharedProps) {
 }
 
 export function SiteProvider({ children }: { children: ReactNode }) {
-  return <RootProvider search={{ SearchDialog: SiteSearchDialog }}>{children}</RootProvider>;
+  // The server sets the site's only theme. Keep search without the client theme store or shortcut.
+  return <RootProvider theme={{ enabled: false }} search={{ SearchDialog: SiteSearchDialog }}>{children}</RootProvider>;
 }

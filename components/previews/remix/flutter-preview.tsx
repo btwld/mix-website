@@ -2,7 +2,6 @@
 
 import { PROJECTS } from '@/lib/projects.mjs';
 
-import { useTheme } from 'fumadocs-ui/provider/base';
 import { useEffect, useId, useRef, useState, type ComponentProps } from 'react';
 
 // Native selection retains keyboard navigation and the mobile system picker.
@@ -24,21 +23,18 @@ export function FlutterPreview({ title, cases }: {
 }) {
   const id = useId();
   const frame = useRef<HTMLIFrameElement>(null);
-  const { resolvedTheme } = useTheme();
   const [path, setPath] = useState(cases[0].path);
-  // The example follows the site theme until the reader picks one to compare.
-  const [chosenMode, setChosenMode] = useState<string | null>(null);
+  const [mode, setMode] = useState('dark');
   const [mounted, setMounted] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [loadState, setLoadState] = useState<{ url: string; status: 'ready' | 'slow' } | null>(null);
-  const mode = chosenMode ?? (resolvedTheme === 'dark' ? 'dark' : 'light');
   const query = new URLSearchParams({ path, theme: `{name:${mode}}` });
   const catalogUrl = `${PROJECTS.remix.catalogPath}#/?${query}`;
   const previewUrl = `${catalogUrl}&preview&attempt=${attempt}`;
   const status = loadState?.url === previewUrl ? loadState.status : 'loading';
   const compact = ['Button', 'IconButton', 'Badge', 'Switch', 'Checkbox', 'Radio', 'Spinner', 'Progress'].includes(title);
 
-  // The resolved theme is only known on the client; render one correct frame.
+  // Attach the ready-message listener before the client loads the frame.
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
@@ -58,13 +54,13 @@ export function FlutterPreview({ title, cases }: {
       <PreviewSelect label="Example" id={`${id}-case`} value={path} onChange={event => setPath(event.target.value)}>
         {cases.map(item => <option key={item.path} value={item.path}>{item.name}</option>)}
       </PreviewSelect>
-      <PreviewSelect label="Theme" aria-label="Example theme" id={`${id}-theme`} value={mode} onChange={event => setChosenMode(event.target.value)}>
+      <PreviewSelect label="Theme" aria-label="Example theme" id={`${id}-theme`} value={mode} onChange={event => setMode(event.target.value)}>
         <option value="light">Light</option><option value="dark">Dark</option>
       </PreviewSelect>
       <div className="remix-preview-actions">
         <button type="button" className="remix-preview-reset" onClick={() => {
           setPath(cases[0].path);
-          setChosenMode(null);
+          setMode('dark');
           setAttempt(value => value + 1);
         }}>Reset example</button>
         <a href={catalogUrl} target="_blank" rel="noreferrer">Open catalog</a>

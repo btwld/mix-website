@@ -16,6 +16,15 @@ export const Check = (props: ComponentProps<'svg'>) => (
 export const Copy = (props: ComponentProps<'svg'>) => (
   <Icon {...props}><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></Icon>
 );
+export const Search = (props: ComponentProps<'svg'>) => (
+  <Icon {...props}><circle cx="11" cy="11" r="7" /><path d="m20 20-3.8-3.8" /></Icon>
+);
+export const Menu = (props: ComponentProps<'svg'>) => (
+  <Icon {...props}><path d="M4 7h16M4 12h16M4 17h16" /></Icon>
+);
+export const Close = (props: ComponentProps<'svg'>) => (
+  <Icon {...props}><path d="M6 6l12 12M18 6 6 18" /></Icon>
+);
 export const Pause = (props: ComponentProps<'svg'>) => (
   <Icon {...props}><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></Icon>
 );

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { RevealScript } from '@/components/landing/reveal-script';
 import { SiteProvider } from '@/components/site-provider';
@@ -15,8 +15,12 @@ export const metadata: Metadata = {
   robots: indexing ? undefined : { index: false, follow: false },
 };
 
+// Dark is the only site theme, so it belongs in the server-rendered document:
+// first paint and readers without JavaScript must not depend on a client script.
+export const viewport: Viewport = { colorScheme: 'dark', themeColor: '#05040a' };
+
 export default function RootLayout({ children }: { children: ReactNode }) {
-  return <html lang="en" className="concepta-docs" suppressHydrationWarning>
+  return <html lang="en" className="concepta-docs dark" style={{ colorScheme: 'dark' }} suppressHydrationWarning>
     <head><RevealScript /></head>
     <body className="flex min-h-screen flex-col">
       <SiteProvider>{children}</SiteProvider>

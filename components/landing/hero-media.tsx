@@ -10,6 +10,9 @@ import { Pause, Play } from './icons';
  *
  * Readers who ask for reduced motion get the poster frame only, and everyone
  * can pause. The poster carries the whole image, so the video is decoration.
+ *
+ * Rendered directly under `.lx`: the landscape runs on behind the comparison
+ * section and fades out there, as it did on the original page.
  */
 export function HeroMedia() {
   const video = useRef<HTMLVideoElement>(null);
@@ -37,7 +40,7 @@ export function HeroMedia() {
   };
 
   return <>
-    <div className="lx-band-media" aria-hidden="true">
+    <div className="lx-band-media lx-band-plate" aria-hidden="true">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/assets/concepta-hero-poster.jpg" alt="" width={1280} height={720} />
       {motion && <video ref={video} autoPlay loop muted playsInline preload="metadata"
@@ -45,6 +48,7 @@ export function HeroMedia() {
         onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)}>
         <source src="/assets/concepta-hero.mp4" type="video/mp4" />
       </video>}
+      <div className="lx-band-filter" />
       <div className="lx-band-scrim" />
       <div className="lx-band-grid" />
     </div>

@@ -8,37 +8,35 @@
    Documentation pages are untouched: every rule below is scoped to `.lx`. */
 
 .lx {
-  --lx-ink: var(--color-fd-foreground);
-  --lx-ink-dim: var(--color-fd-muted-foreground);
-  --lx-surface: var(--color-fd-card);
-  --lx-surface-2: var(--color-fd-secondary);
-  --lx-line: var(--color-fd-border);
-  /* Snippets keep the dark Shiki surface the highlighter actually renders. */
+  --lx-ink: #ffffff;
+  --lx-ink-dim: #a1a1aa;
+  --lx-surface: #0d0b14;
+  --lx-surface-2: #161421;
+  --lx-line: rgb(255 255 255 / 8%);
   --lx-code-bg: #0d0b14;
   --lx-code-line: rgb(255 255 255 / 9%);
-  --lx-radius: 18px;
+  --lx-radius: 16px;
+  --lx-accent-soft: rgb(var(--lx-accent-rgb) / 10%);
+  --lx-accent-glow: rgb(var(--lx-accent-rgb) / 18%);
 
   position: relative;
+  /* Backdrops use a negative z-index: above the page ground, below the content. */
+  isolation: isolate;
   /* Ambient glows and the marquee must never widen the document. */
   overflow-x: clip;
   padding-bottom: clamp(72px, 10vw, 140px);
   font-family: var(--font-sans);
+  color: var(--lx-ink);
 }
+/* In-page targets must not land underneath the floating navigation. */
+.lx [id] { scroll-margin-top: 5.5rem; }
 
-.dark .lx {
-  --lx-surface: #0d0b14;
-  --lx-surface-2: #161421;
-  --lx-line: rgb(255 255 255 / 8%);
-}
-
-/* Project accents, carried from the original palette. The light values are
-   the darker tints already used for `--color-fd-primary`, so text and icons
-   on light surfaces keep AA contrast. */
-.lx-mix { --lx-accent: #6d28d9; --lx-accent-dark: #8b5cf6; --lx-accent-rgb: 139 92 246; }
-.lx-remix { --lx-accent: #066b08; --lx-accent-dark: #00eb03; --lx-accent-rgb: 0 235 3; }
-.lx-naked-ui { --lx-accent: #1d4ed8; --lx-accent-dark: #93c5fd; --lx-accent-rgb: 147 197 253; }
-.dark .lx-mix, .dark .lx-remix, .dark .lx-naked-ui { --lx-accent: var(--lx-accent-dark); }
-.lx { --lx-accent-soft: rgb(var(--lx-accent-rgb) / 10%); --lx-accent-glow: rgb(var(--lx-accent-rgb) / 18%); }
+/* Project accents, carried from the original palette. Bright accents take dark
+   button text. Mix's button uses a deeper violet with white text, as the original
+   render did: white on the #8b5cf6 role falls short of AA at this size. */
+.lx-mix { --lx-accent: #8b5cf6; --lx-accent-rgb: 139 92 246; --lx-button: #7c3aed; --lx-button-ink: #ffffff; }
+.lx-remix { --lx-accent: #00eb03; --lx-accent-rgb: 0 235 3; }
+.lx-naked-ui { --lx-accent: #93c5fd; --lx-accent-rgb: 147 197 253; }
 
 /* ── Layout ─────────────────────────────────────────────────────────── */
 .lx-shell { width: 100%; max-width: 76rem; margin-inline: auto; padding-inline: 1.5rem; }
@@ -47,7 +45,7 @@
 .lx-shell-narrow { max-width: 64rem; }
 @media (min-width: 48rem) { .lx-shell-narrow { padding-inline: 2rem; } }
 .lx-gap { margin-top: clamp(72px, 11vw, 160px); }
-.lx-gap-sm { margin-top: clamp(56px, 8vw, 112px); }
+.lx-gap-sm { margin-top: clamp(56px, 9vw, 128px); }
 .lx-center { text-align: center; }
 
 /* ── Motion ─────────────────────────────────────────────────────────── */
@@ -93,15 +91,24 @@
 /* `.concepta-docs h1` (0,1,1) outranks a single class, so scope this. Sized
    against the original Mix hero, which measured ~40px at a 1185px viewport. */
 .lx .lx-display {
-  margin-top: 1.25rem;
+  margin-top: 1.5rem;
   font-size: clamp(2.125rem, 3.4vw, 3.25rem);
-  font-weight: 650;
-  letter-spacing: -0.035em;
+  font-weight: 600;
+  letter-spacing: -0.03em;
   line-height: 1.1;
   text-wrap: balance;
 }
+/* The original Mix headline falls from white to the muted role. */
+.lx-mix .lx-display {
+  background-image: linear-gradient(to bottom right, #fff, #a1a1aa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+/* The original Remix headline is white, heavier and set solid. */
+.lx-remix .lx-display { font-weight: 640; letter-spacing: -0.04em; line-height: 1.02; }
 .lx-lead {
-  margin-top: 1.4rem;
+  margin-top: 1.5rem;
   max-width: 34rem;
   font-size: clamp(1.05rem, 1.6vw, 1.2rem);
   line-height: 1.6;
@@ -118,6 +125,8 @@
   line-height: 1.1;
   text-wrap: balance;
 }
+/* Mix sets section titles a step smaller than Remix, as the originals did. */
+.lx-mix .lx-title { font-size: clamp(1.5rem, 4vw, 2.25rem); font-weight: 600; letter-spacing: -0.03em; }
 .lx-head .lx-lead { max-width: 40rem; }
 .lx-head-center .lx-lead { margin-inline: auto; }
 .lx-statement {
@@ -137,23 +146,28 @@
   color: transparent;
 }
 
-/* ── Hero band: always a dark surface, in both themes ───────────────── */
-.lx-band {
-  --lx-ink: #ffffff;
-  --lx-ink-dim: #a1a1aa;
-  --lx-line: rgb(255 255 255 / 10%);
-  --lx-surface: #0d0b14;
-  --lx-surface-2: #161421;
-  --lx-accent: var(--lx-accent-dark);
-
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
+/* ── Hero band and the backdrops that run on past it ────────────────── */
+/* The top padding clears the floating navigation and places the first element
+   where the original did: about 175px down for Mix, 200px for Remix. */
+.lx-band { padding-block: clamp(7rem, 14.75vw, 11rem) 2.5rem; }
+.lx-remix .lx-band { padding-block: clamp(6.5rem, 16.9vw, 12.5rem) 0; }
+.lx-band-media { position: absolute; top: 0; left: 0; right: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+/* The landscape, with the original's size and fade. It ends behind the comparison. */
+.lx-band-plate {
+  height: max(980px, 115svh);
+  max-height: 1100px;
   background: #05040a;
-  color: var(--lx-ink);
-  padding-block: clamp(56px, 8vw, 104px) clamp(64px, 9vw, 120px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 62%, rgb(0 0 0 / 82%) 72%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 62%, rgb(0 0 0 / 82%) 72%, transparent 100%);
 }
-.lx-band-media { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+/* The glow and grid of the project pages, reaching past the Remix demo and stats.
+   The radial stands in for the original's page-level accent glow. */
+.lx-band-ambient {
+  height: max(1400px, 130svh);
+  background: radial-gradient(circle min(39rem, 100vw) at 50% 15rem, var(--lx-accent-glow), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent);
+}
 .lx-band-media img,
 .lx-band-media video {
   position: absolute;
@@ -164,25 +178,34 @@
   object-position: center;
 }
 .lx-band-media video { opacity: 0.78; }
-/* Keep the copy legible while preserving the movement and aqua detail. */
+.lx-band-filter { position: absolute; inset: 0; background: linear-gradient(135deg, rgb(42 89 255 / 9%), rgb(7 27 94 / 14%)); }
+/* Keep the copy legible while preserving the movement and aqua detail. These are
+   the original's values, including its blue: the landscape is not project-tinted. */
 .lx-band-scrim {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgb(5 4 10 / 92%) 0%, rgb(5 4 10 / 68%) 48%, rgb(5 4 10 / 30%) 100%),
-    radial-gradient(circle at 72% 24%, var(--lx-accent-glow) 0%, rgb(var(--lx-accent-rgb) / 6%) 38%, transparent 66%),
-    linear-gradient(180deg, rgb(5 4 10 / 10%) 0%, rgb(5 4 10 / 55%) 62%, #05040a 100%);
+    linear-gradient(90deg, rgb(5 4 10 / 90%) 0%, rgb(5 4 10 / 64%) 48%, rgb(5 4 10 / 25%) 100%),
+    radial-gradient(circle at 72% 24%, rgb(58 91 255 / 24%) 0%, rgb(58 91 255 / 8%) 38%, transparent 66%),
+    linear-gradient(180deg, rgb(5 4 10 / 6%) 0%, rgb(7 11 28 / 20%) 56%, #070b1c 100%);
 }
 .lx-band-grid {
   position: absolute;
   inset: 0;
-  opacity: 0.07;
+  opacity: 0.06;
   background-image:
     linear-gradient(to right, rgb(255 255 255 / 50%) 1px, transparent 1px),
     linear-gradient(to bottom, rgb(255 255 255 / 50%) 1px, transparent 1px);
   background-size: 40px 40px;
-  -webkit-mask-image: radial-gradient(circle at 50% 24%, #000, transparent 68%);
-  mask-image: radial-gradient(circle at 50% 24%, #000, transparent 68%);
+}
+.lx-band-ambient .lx-band-grid {
+  opacity: 1;
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 3%) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 3%) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(circle at 50% 22%, #000, transparent 62%);
+  mask-image: radial-gradient(circle at 50% 22%, #000, transparent 62%);
 }
 /* Aurora, as a second ambient layer for the project bands with no video. */
 .lx-band-aurora { position: absolute; inset: 0; overflow: hidden; }
@@ -213,8 +236,9 @@
 .lx-motion-toggle {
   position: absolute;
   z-index: 2;
-  top: 16px;
-  right: 16px;
+  /* Below the floating navigation, on the right edge of the hero column. */
+  top: 80px;
+  right: max(16px, calc((100vw - 64rem) / 2 + 2rem));
   display: grid;
   place-items: center;
   width: 2.75rem;
@@ -226,16 +250,20 @@
   backdrop-filter: blur(12px);
   cursor: pointer;
 }
+.lx-motion-toggle svg { width: 1rem; height: 1rem; }
 @media (hover: hover) and (pointer: fine) {
   .lx-motion-toggle:hover { border-color: var(--lx-accent); color: #fff; background: rgb(5 4 10 / 82%); }
 }
-.lx-mark { width: clamp(76px, 9vw, 112px); height: auto; }
+/* The original logo is 150px wide; it eases down only on the narrowest phones. */
+.lx-mark { width: clamp(120px, 38vw, 150px); height: auto; }
 .lx-wordmark { height: 2.75rem; width: auto; }
-.lx-hero-eyebrow { display: block; margin-bottom: 0.75rem; }
-.lx-hero-cta { display: flex; flex-wrap: wrap; gap: 0.875rem; margin-top: 2.25rem; }
+/* A sentence in the original, not a label: no capitals, a little more air. */
+.lx-hero-eyebrow { display: block; margin-bottom: 1.25rem; font-size: clamp(0.78rem, 1.4vw, 0.9rem); letter-spacing: 0.08em; text-transform: none; }
+.lx-hero-cta { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2.5rem; }
+.lx-band .lx-lead { max-width: 30rem; font-size: 1.125rem; line-height: 1.75; }
 .lx-band-center { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.lx-band-center .lx-lead { max-width: 40rem; }
-.lx-band-center .lx-hero-cta { justify-content: center; }
+.lx-band-center .lx-lead { max-width: 40rem; margin-top: 2.75rem; font-size: clamp(1.05rem, 2vw, 1.25rem); line-height: 1.6; }
+.lx-band-center .lx-hero-cta { justify-content: center; gap: 0.875rem; margin-top: 2.25rem; }
 
 /* ── Buttons ────────────────────────────────────────────────────────── */
 .lx-btn {
@@ -252,18 +280,15 @@
   cursor: pointer;
 }
 .lx-btn-primary {
-  background: var(--lx-accent);
-  color: var(--color-fd-primary-foreground);
+  background: var(--lx-button, var(--lx-accent));
+  color: var(--lx-button-ink, #05040a);
   box-shadow: 0 4px 20px var(--lx-accent-glow);
 }
-/* The bright project accents need dark text on dark surfaces. */
-.dark .lx-btn-primary, .lx-band .lx-btn-primary { color: #05040a; }
 .lx-btn-secondary {
   background: var(--lx-surface-2);
   color: var(--lx-ink);
   border: 1px solid var(--lx-line);
 }
-.lx-band .lx-btn-secondary { background: rgb(255 255 255 / 6%); }
 .lx-btn-ghost { color: var(--lx-accent); padding-inline: 0; }
 .lx-btn svg { width: 1.125rem; height: 1.125rem; flex: none; }
 @media (hover: hover) and (pointer: fine) {
@@ -313,10 +338,10 @@
    or the static panes show a second grey rectangle inside the card. */
 .lx-code pre, .lx-code-pad pre, .lx-codegen-code pre { margin: 0; padding: 0; background: transparent !important; }
 .lx-code-pad { padding: 1rem 1.15rem; overflow-x: auto; }
-/* Highlighting is a dark theme in both site themes, matching the snippets the
-   docs serve, so every surface a snippet lands on has to be dark too. On a
-   light card the dark palette's comments and punctuation disappear. */
-.lx-code-surface, .lx-codegen-code, .lx-window-code { background: var(--lx-code-bg); }
+/* github-dark's comment grey is under AA on these surfaces, and comments carry
+   real explanation here. Shiki writes the colour inline, hence the override. */
+.lx .shiki span[style*='#6a737d' i] { color: #8b949e !important; }
+.lx-code-surface, .lx-codegen-code { background: var(--lx-code-bg); }
 .lx-code-surface { border: 1px solid var(--lx-code-line); border-radius: 12px; overflow: hidden; }
 .lx-code-label {
   display: block;
@@ -331,18 +356,23 @@
 .lx-compare { display: grid; gap: 1rem; margin-top: 2rem; grid-template-columns: 1fr; }
 @media (min-width: 52rem) { .lx-compare { grid-template-columns: 1fr 1fr; } }
 .lx-compare > * { padding: 1.25rem; border: 1px solid var(--lx-line); border-radius: var(--lx-radius); background: var(--lx-surface); min-width: 0; }
-.lx-compare-good { border-color: rgb(var(--lx-accent-rgb) / 40%); background: rgb(var(--lx-accent-rgb) / 6%); }
+/* The landscape fades out behind this card, so its tint sits on a dark underlay. */
+.lx-compare .lx-compare-good { border-color: rgb(var(--lx-accent-rgb) / 40%); background: linear-gradient(rgb(var(--lx-accent-rgb) / 6%), rgb(var(--lx-accent-rgb) / 6%)), rgb(13 11 20 / 72%); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
 .lx-compare-good .lx-code-label { color: var(--lx-accent); }
+/* The original sets this code directly on the card, with no box inside the box. */
+.lx-compare .lx-code-surface { border: 0; border-radius: 0; background: transparent; }
+.lx-compare .lx-code-pad { padding: 0; font-size: 0.875rem; line-height: 1.7; }
+.lx-compare .lx-code-label { font-family: inherit; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.05em; }
 
 /* Window chrome, shared by the Mix codegen panel and the Remix hero. */
 /* Explicitly left-aligned: the Remix hero centres its copy, and inherited
    centring would right-align the code pane and offset the embedded view. */
-.lx-window { position: relative; text-align: left; border: 1px solid var(--lx-line); border-radius: 20px; background: var(--lx-surface); overflow: hidden; box-shadow: 0 30px 80px -56px rgb(0 0 0 / 55%); }
+.lx-window { position: relative; text-align: left; border: 1px solid var(--lx-line); border-radius: 20px; background: linear-gradient(180deg, rgb(22 20 33 / 90%), rgb(13 11 20 / 90%)); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); overflow: hidden; box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%), 0 40px 90px -50px rgb(0 0 0 / 90%), 0 0 0 1px rgb(0 0 0 / 40%); }
 .lx-window-bar { position: relative; display: flex; align-items: center; justify-content: center; gap: 1rem; padding: 0.75rem 1rem; border-bottom: 1px solid var(--lx-line); background: var(--lx-surface-2); }
 .lx-window-bar-start { justify-content: flex-start; }
 .lx-dots { display: flex; gap: 0.44rem; flex: none; }
 .lx-window-bar:not(.lx-window-bar-start) .lx-dots { position: absolute; left: 1rem; top: 50%; translate: 0 -50%; }
-.lx-dots span { width: 0.6875rem; height: 0.6875rem; border-radius: 999px; background: rgb(128 128 150 / 35%); }
+.lx-dots span { width: 0.6875rem; height: 0.6875rem; border-radius: 999px; background: rgb(255 255 255 / 13%); }
 .lx-window-file { font-family: var(--font-mono); font-size: 0.6875rem; font-style: normal; color: var(--lx-ink-dim); }
 @media (max-width: 36rem) { .lx-window-bar:not(.lx-window-bar-start) .lx-dots { display: none; } }
 
@@ -389,9 +419,9 @@
 .lx-install { padding: clamp(2rem, 5vw, 3rem) 1.5rem; border: 1px solid var(--lx-line); border-radius: var(--lx-radius); background: var(--lx-surface); text-align: center; }
 .lx-install .lx-lead, .lx-cta .lx-lead { margin-inline: auto; }
 .lx-terminal { display: inline-flex; align-items: center; gap: 0.75rem; margin-top: 1.75rem; max-width: 100%; padding: 0.875rem 1.25rem; border: 1px solid var(--lx-line); border-radius: 10px; background: var(--lx-code-bg); font-family: var(--font-mono); font-size: 0.875rem; color: #e6e6ea; }
-.lx-terminal-prompt { color: var(--lx-accent-dark); font-weight: 600; }
+.lx-terminal-prompt { color: var(--lx-accent); font-weight: 600; }
 .lx-terminal-cmd { min-width: 0; overflow-x: auto; white-space: nowrap; text-align: left; }
-.lx-terminal-cmd:focus-visible { outline: 2px solid var(--lx-accent-dark); outline-offset: 3px; }
+.lx-terminal-cmd:focus-visible { outline: 2px solid var(--lx-accent); outline-offset: 3px; }
 .lx-terminal button { display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; flex: none; border-radius: 6px; color: #a1a1aa; cursor: pointer; }
 .lx-terminal button:hover { color: #fff; background: rgb(255 255 255 / 10%); }
 .lx-terminal svg { width: 1rem; height: 1rem; }
@@ -408,12 +438,15 @@
 .lx .site-project a:focus-visible { outline-color: var(--color-fd-primary); }
 
 /* ── Remix hero window ──────────────────────────────────────────────── */
-.lx-stagewrap { position: relative; width: 100%; max-width: 62rem; margin: clamp(2.5rem, 6vw, 4.5rem) auto 0; }
+.lx-stagewrap { position: relative; isolation: isolate; width: 100%; max-width: 62rem; margin: clamp(56px, 8vw, 88px) auto 0; }
+/* The accent light the window sits in; it spills down toward the stats. */
+.lx-stagewrap::before { content: ''; position: absolute; inset: -14% 4% -30%; z-index: -1; background: radial-gradient(ellipse at 50% 0%, var(--lx-accent-glow), transparent 66%); filter: blur(30px); }
 .lx-window-body { display: grid; grid-template-columns: 1fr; }
 @media (min-width: 49rem) { .lx-window-body { grid-template-columns: 1.1fr 0.9fr; } }
 .lx-window-code { min-width: 0; padding: 1.25rem 1.4rem; }
 .lx-window-code .lx-code { border: 0; background: transparent; }
-.lx-window-code .lx-code-pad { padding: 0; min-height: 13rem; }
+/* Unlayered, so this outranks the snippet's `text-xs leading-6` utilities. */
+.lx-window-code .lx-code-pad { padding: 0; min-height: 13rem; font-size: 0.8125rem; line-height: 1.8; }
 .lx-live {
   position: relative;
   display: flex;
@@ -447,8 +480,9 @@
 /* ── Remix stats, features, bento, marquee, split, FAQ ──────────────── */
 .lx-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; border: 1px solid var(--lx-line); border-radius: 20px; background: var(--lx-line); overflow: hidden; }
 @media (min-width: 45rem) { .lx-stats { grid-template-columns: repeat(4, 1fr); } }
-.lx-stat { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; padding: 2rem 1.25rem; background: var(--lx-surface); text-align: center; }
-.lx-stat-value { font-size: clamp(1.875rem, 3.6vw, 2.75rem); font-weight: 650; letter-spacing: -0.03em; }
+/* Translucent, so the page grid and the Remix glow carry on behind the numbers. */
+.lx-stat { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; padding: 2rem 1.25rem; background: rgb(13 11 20 / 60%); text-align: center; }
+.lx-stat-value { font-size: clamp(1.875rem, 3.6vw, 2.75rem); font-weight: 640; letter-spacing: -0.03em; background-image: linear-gradient(180deg, #fff, #b7b7c2); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .lx-stat-label { font-size: 0.8125rem; color: var(--lx-ink-dim); }
 .lx-cards { display: grid; grid-template-columns: 1fr; gap: 1rem; }
 @media (min-width: 45rem) { .lx-cards { grid-template-columns: repeat(6, 1fr); } .lx-card { grid-column: span 2; } .lx-card-wide { grid-column: span 3; } }

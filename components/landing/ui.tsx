@@ -22,8 +22,9 @@ export function LandingButton({ href, variant = 'primary', arrow, children, clas
   return <Link className={classes} href={href} prefetch={prefetch} {...props}>{inner}</Link>;
 }
 
+/** Sits directly under `.lx`, so the glow and grid flow past the hero band. */
 export function HeroBackdrop() {
-  return <div className="lx-band-media" aria-hidden="true">
+  return <div className="lx-band-media lx-band-ambient" aria-hidden="true">
     <div className="lx-band-aurora" />
     <div className="lx-band-grid" />
   </div>;

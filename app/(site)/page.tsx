@@ -36,8 +36,8 @@ Box(style: cardStyle, child: ...)`;
 
 export default function Home() {
   return <div className="lx lx-mix">
+    <HeroMedia />
     <section className="lx-band">
-      <HeroMedia />
       <div className="lx-shell lx-shell-narrow">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="lx-mark lx-enter" src="/assets/icon_logo.svg" alt="Mix" width={95} height={105} />

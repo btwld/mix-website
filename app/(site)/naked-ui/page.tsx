@@ -24,8 +24,8 @@ const FEATURES = [
 
 export default function NakedUiOverview() {
   return <div className="lx lx-naked-ui">
+    <HeroBackdrop />
     <section className="lx-band">
-      <HeroBackdrop />
       <div className="lx-shell lx-shell-narrow">
         <span className="lx-eyebrow lx-enter">Headless Flutter widgets</span>
         <h1 className="lx-display lx-enter lx-enter-1">Naked UI</h1>

@@ -70,8 +70,8 @@ export default function RemixOverview() {
   return <div className="lx lx-remix">
     <LegacyCatalogRedirect />
 
+    <HeroBackdrop />
     <section className="lx-band">
-      <HeroBackdrop />
       <div className="lx-shell lx-band-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/remix/assets/logo_dark.png" alt="Remix" width={802} height={223}
@@ -80,7 +80,7 @@ export default function RemixOverview() {
           The behavior is built in.<br /><span className="lx-grad">Style Flutter your way.</span>
         </h1>
         <p className="lx-lead lx-enter lx-enter-2">
-          <span className="lx-eyebrow lx-hero-eyebrow">Built for a generative UI future</span>
+          <span className="lx-eyebrow lx-hero-eyebrow">Built for a generative UI future.</span>
           Headless, accessible Flutter components with the behaviour already handled. Style every pixel with Mix — the look is entirely yours.
         </p>
         <div className="lx-hero-cta lx-enter lx-enter-3">

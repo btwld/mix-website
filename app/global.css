@@ -5,25 +5,37 @@
 
 /* Project identity. The theme resolves --color-fd-primary at the root, so
    each project scope sets it directly. Each clears WCAG AA (4.5:1) on the
-   background, muted, secondary and accent surfaces in light and dark. */
-.project-mix { --color-fd-primary: #6d28d9; }
-.dark .project-mix, .dark.project-mix { --color-fd-primary: #c4b5fd; }
-/* Remix values carried from btwld/remix apps/docs/app/global.css. */
-.project-remix { --color-fd-primary: #066b08; }
-.dark .project-remix, .dark.project-remix { --color-fd-primary: #00eb03; }
-.project-naked-ui { --color-fd-primary: #1d4ed8; }
-.dark .project-naked-ui, .dark.project-naked-ui { --color-fd-primary: #93c5fd; }
+   background, muted, secondary and accent surfaces. */
+.project-mix { --color-fd-primary: #c4b5fd; }
+/* Remix value carried from btwld/remix apps/docs/app/global.css. */
+.project-remix { --color-fd-primary: #00eb03; }
+.project-naked-ui { --color-fd-primary: #93c5fd; }
 
-/* Fumadocs reads callout colors as var(--color-fd-<type>) from inline styles,
+/* The one site theme: the original dark roles, applied to the Fumadocs tokens
+   so landings, docs, menus and search share a single shell. The `html` qualifier
+   is there to outrank dark tokens declared by the theme packages.
+
+   Fumadocs reads callout colors as var(--color-fd-<type>) from inline styles,
    so Tailwind would prune them; declared here they survive (from btwld/remix). */
-.concepta-docs {
-  --color-fd-info: #0c31ff;
-  --color-fd-success: #006f50;
-  --color-fd-warning: #e97000;
-  --color-fd-error: #c62828;
-  --color-fd-idea: #e97000;
-}
-.concepta-docs.dark {
+html.concepta-docs.dark {
+  color-scheme: dark;
+  background-color: #05040a;
+
+  --color-fd-background: #05040a;
+  --color-fd-foreground: #ffffff;
+  --color-fd-card: #0d0b14;
+  --color-fd-card-foreground: #ffffff;
+  --color-fd-popover: #0d0b14;
+  --color-fd-popover-foreground: #ffffff;
+  --color-fd-muted: #161421;
+  --color-fd-muted-foreground: #a1a1aa;
+  --color-fd-secondary: #161421;
+  --color-fd-secondary-foreground: #ffffff;
+  --color-fd-accent: #161421;
+  --color-fd-accent-foreground: #ffffff;
+  --color-fd-border: rgb(255 255 255 / 8%);
+  --color-fd-primary-foreground: #05040a;
+
   --color-fd-info: #7b9fff;
   --color-fd-success: #1fe0b8;
   --color-fd-warning: #ffc04d;
@@ -31,7 +43,57 @@
   --color-fd-idea: #ffc04d;
 }
 
-.site-home { max-width: 72rem; margin-inline: auto; padding: 4rem 1.5rem; }
+/* The original page ground: a faint fixed grid behind every route. */
+html.concepta-docs.dark body {
+  background-color: #05040a;
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 2%) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 2%) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-attachment: fixed;
+}
+
+/* ── Floating navigation, for landings and the not-found page ───────── */
+.site-shell, .site-main { display: flex; flex: 1; flex-direction: column; }
+.site-main > * { width: 100%; }
+.site-nav { position: fixed; z-index: 40; top: 0.75rem; left: 0; right: 0; display: flex; justify-content: center; padding-inline: 0.75rem; pointer-events: none; }
+.site-nav-bar { position: relative; display: flex; align-items: center; gap: 0.25rem; width: 100%; padding: 0.25rem 0.25rem 0.25rem 0.875rem; border: 1px solid rgb(255 255 255 / 10%); border-radius: 999px; background: rgb(13 11 20 / 72%); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: 0 12px 32px -20px rgb(0 0 0 / 80%); font-size: 0.875rem; pointer-events: auto; }
+.site-nav-bar a { display: inline-flex; align-items: center; min-height: 2.75rem; text-decoration: none; }
+.site-nav-brand { gap: 0.5rem; margin-right: auto; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; color: #fff; }
+.site-nav-brand img { width: auto; height: 1.25rem; }
+.site-nav-links { display: none; }
+.site-nav-links ul { display: flex; align-items: center; gap: 0.125rem; }
+.site-nav-links a { padding-inline: 0.75rem; border-radius: 999px; }
+.site-nav-links a, .site-nav-panel a { font-weight: 500; color: #d4d4dc; }
+.site-nav-bar a[data-active] { color: var(--color-fd-primary); }
+.site-nav-search, .site-nav-menu summary { display: inline-flex; align-items: center; justify-content: center; min-width: 2.75rem; min-height: 2.75rem; border-radius: 999px; color: #d4d4dc; cursor: pointer; }
+.site-nav-search svg, .site-nav-menu summary svg { width: 1.125rem; height: 1.125rem; flex: none; }
+.site-nav-search-label, .site-nav-search kbd { display: none; }
+.site-nav-menu summary { list-style: none; }
+.site-nav-menu summary::-webkit-details-marker { display: none; }
+.site-nav-menu summary svg:last-child, .site-nav-menu[open] summary svg:first-child { display: none; }
+.site-nav-menu[open] summary svg:last-child { display: block; }
+.site-nav-panel { position: absolute; top: calc(100% + 0.5rem); left: 0; right: 0; padding: 0.5rem; border: 1px solid rgb(255 255 255 / 10%); border-radius: 1.25rem; background: #0d0b14; box-shadow: 0 24px 48px -24px rgb(0 0 0 / 90%); }
+.site-nav-panel a { width: 100%; padding-inline: 0.75rem; border-radius: 0.75rem; }
+.site-nav :is(a, button, summary):focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) {
+  .site-nav-links a:hover, .site-nav-panel a:hover, .site-nav-search:hover, .site-nav-menu summary:hover { background: rgb(255 255 255 / 8%); color: #fff; }
+  .site-nav-bar a[data-active]:hover { color: var(--color-fd-primary); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .site-nav-bar a, .site-nav-search, .site-nav-menu summary { transition: color 150ms ease-out, background-color 150ms ease-out; }
+}
+@media (min-width: 44rem) {
+  .site-nav-bar { width: auto; gap: 0.625rem; padding-left: 1rem; }
+  .site-nav-brand { margin-right: 0; padding-right: 0.75rem; border-right: 1px solid rgb(255 255 255 / 10%); }
+  .site-nav-links { display: block; }
+  .site-nav-search { justify-content: flex-start; gap: 0.5rem; min-width: 11rem; padding-inline: 0.75rem 0.5rem; color: #a1a1aa; }
+  .site-nav-search-label { display: inline; }
+  .site-nav-search kbd { display: inline-block; margin-left: auto; padding: 0.0625rem 0.375rem; border: 1px solid rgb(255 255 255 / 12%); border-radius: 0.375rem; font-family: var(--font-mono); font-size: 0.6875rem; color: #a1a1aa; }
+  .site-nav-menu { display: none; }
+}
+
+.site-home { max-width: 72rem; margin-inline: auto; padding: 7rem 1.5rem 4rem; }
 .site-home h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; letter-spacing: -0.02em; text-wrap: balance; }
 .site-home > p { margin-top: 1rem; max-width: 60ch; font-size: 1.125rem; color: var(--color-fd-muted-foreground); }
 
@@ -44,7 +106,9 @@
 .remix-preview-select { position: relative; }
 .remix-preview-select select { appearance: none; width: 100%; min-height: 2.75rem; padding: 0.5rem 2.5rem 0.5rem 0.75rem; background: var(--color-fd-background); border: 1px solid var(--color-fd-border); border-radius: 0.375rem; color: var(--color-fd-foreground); font: inherit; text-overflow: ellipsis; cursor: pointer; }
 .remix-preview-select svg { position: absolute; inset-inline-end: 0.75rem; top: 50%; transform: translateY(-50%); width: 1rem; height: 1rem; pointer-events: none; }
-.remix-preview-select select:hover { border-color: var(--color-fd-muted-foreground); }
+/* The 8% surface border is too faint to identify a form control on its own. */
+.concepta-docs .remix-preview-select select, .concepta-docs .remix-catalog-search input { border-color: rgb(255 255 255 / 28%); }
+.concepta-docs .remix-preview-select select:hover { border-color: var(--color-fd-muted-foreground); }
 .remix-preview-actions { display: flex; align-items: center; gap: 0.25rem; }
 .remix-preview-actions :is(a, button) { display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: 0.5rem 0.75rem; border-radius: 0.375rem; white-space: nowrap; color: var(--color-fd-muted-foreground); font: inherit; cursor: pointer; text-decoration: none; }
 @media (hover: hover) {

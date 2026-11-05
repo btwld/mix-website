@@ -16,8 +16,8 @@ export const metadata: Metadata = {
 
 export default function MixOverview() {
   return <div className="lx lx-mix">
+    <HeroBackdrop />
     <section className="lx-band">
-      <HeroBackdrop />
       <div className="lx-shell lx-shell-narrow">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="lx-mark lx-enter" src="/assets/icon_logo.svg" alt="" width={95} height={105} />

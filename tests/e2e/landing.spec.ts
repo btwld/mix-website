@@ -29,6 +29,159 @@ async function expectViewsAligned(page: Page, ids: readonly string[]) {
   expect(offsets, 'every embedded view paints from its own host').toEqual(offsets.map(() => 0));
 }
 
+const SHELL_ROUTES = ['/', '/mix/', '/remix/', '/naked-ui/', '/mix/docs/', '/remix/docs/components/button/', '/naked-ui/docs/', '/no-such-page/'];
+const PAGE_GROUND = 'rgb(5, 4, 10)';
+
+async function expectDark(page: Page, route: string) {
+  await expect(page.locator('html'), route).toHaveClass(/\bdark\b/);
+  await expect(page.locator('html'), route).not.toHaveClass(/\blight\b/);
+  await expect(page.locator('html'), route).toHaveCSS('color-scheme', 'dark');
+  await expect(page.locator('body'), route).toHaveCSS('background-color', PAGE_GROUND);
+}
+
+test.describe('dark is the only site theme', () => {
+  test('the server sends a dark document before any script runs', async ({ request }) => {
+    for (const route of SHELL_ROUTES) {
+      const html = await (await request.get(route)).text();
+      expect(html, route).toMatch(/<html[^>]*class="[^"]*\bdark\b[^"]*"/);
+      expect(html, route).not.toMatch(/<html[^>]*class="[^"]*\blight\b[^"]*"/);
+      expect(html, route).toMatch(/<meta name="color-scheme" content="dark"/);
+    }
+  });
+
+  test('without JavaScript pages stay dark and the phone menu still opens', async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+    const page = await context.newPage();
+    for (const route of ['/', '/mix/docs/', '/no-such-page/']) {
+      await page.goto(route);
+      await expectDark(page, route);
+    }
+    await page.goto('/');
+    await page.locator('.site-nav-menu summary').click();
+    await expect(page.locator('.site-nav-panel').getByRole('link', { name: 'Naked UI' })).toBeVisible();
+    await context.close();
+  });
+
+  test('neither an OS light preference nor a saved light theme has any effect', async ({ browser }) => {
+    const context = await browser.newContext({ colorScheme: 'light', reducedMotion: 'reduce' });
+    await context.addInitScript(() => localStorage.setItem('theme', 'light'));
+    const page = await context.newPage();
+    for (const route of SHELL_ROUTES) {
+      await page.goto(route);
+      await expectDark(page, route);
+      await page.keyboard.press('d');
+      await expectDark(page, route);
+      expect(await page.evaluate(() => localStorage.getItem('theme')), route).toBe('light');
+    }
+    // A widget's own example control still defaults from the now-dark host.
+    await page.goto('/remix/docs/components/button/');
+    await expect(page.getByLabel('Example theme')).toHaveValue('dark');
+    await context.close();
+  });
+
+  test('no global theme switch exists on landings, docs or their mobile menus', async ({ browser }) => {
+    const switches = (page: Page) => page.locator('[data-theme-toggle], button[aria-label="Toggle Theme"]');
+    for (const width of [1280, 390]) {
+      const context = await browser.newContext({ reducedMotion: 'reduce', viewport: { width, height: 844 } });
+      const page = await context.newPage();
+      for (const route of ['/', '/remix/', '/mix/docs/', '/remix/docs/components/button/', '/no-such-page/']) {
+        await page.goto(route);
+        await expect(switches(page), `${route} at ${width}px`).toHaveCount(0);
+      }
+      if (width === 390) {
+        await page.goto('/');
+        await page.locator('.site-nav-menu summary').click();
+        await expect(switches(page)).toHaveCount(0);
+        await page.goto('/mix/docs/');
+        await page.getByRole('button', { name: 'Open Sidebar', exact: true }).click();
+        await expect(page.getByRole('button', { name: 'Projects', exact: true })).toBeVisible();
+        await expect(switches(page)).toHaveCount(0);
+      }
+      await context.close();
+    }
+  });
+
+  test('a Remix example can still be switched to its own light styling', async ({ page }) => {
+    await page.goto('/remix/docs/components/button/');
+    const select = page.getByLabel('Example theme');
+    await expect(select).toHaveValue('dark');
+    await select.selectOption('light');
+    await expect(select).toHaveValue('light');
+    await expect(page.locator('.remix-preview-stage iframe')).toHaveAttribute('src', /light/);
+    await expect(page.locator('html')).toHaveClass(/\bdark\b/);
+  });
+});
+
+test.describe('floating navigation', () => {
+  test('phone controls are 44px and the menu reaches every project', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.setViewportSize({ width: 320, height: 700 });
+    await page.goto('/');
+    // Escape and outside-click handling attach on hydration.
+    await page.waitForLoadState('networkidle');
+    const search = page.locator('.site-nav').getByRole('button', { name: 'Search' });
+    const summary = page.locator('.site-nav-menu summary');
+    for (const control of [search, summary]) {
+      const box = (await control.boundingBox())!;
+      expect(box.width).toBeGreaterThanOrEqual(44);
+      expect(box.height).toBeGreaterThanOrEqual(44);
+    }
+    await summary.click();
+    const link = page.locator('.site-nav-panel').getByRole('link', { name: 'Remix' });
+    await expect(link).toBeVisible();
+    expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await page.keyboard.press('Escape');
+    await expect(link).toBeHidden();
+    await expect(summary).toBeFocused();
+    await summary.click();
+    await link.click();
+    await expect(page).toHaveURL('/remix/');
+    await expect(page.locator('.site-nav-panel')).toBeHidden();
+  });
+
+  test('desktop links mark the current project and shared search opens', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/remix/');
+    await expect(page.locator('.site-nav-links').getByRole('link', { name: 'Remix' })).toHaveAttribute('aria-current', 'page');
+    await expect(page.locator('.site-nav-menu')).toBeHidden();
+    await page.waitForLoadState('networkidle');
+    await page.locator('.site-nav').getByRole('button', { name: 'Search' }).click();
+    await expect(page.getByPlaceholder('Search Mix, Remix, and Naked UI')).toBeVisible();
+  });
+
+  test('the not-found page has one main landmark and working search', async ({ page }) => {
+    await page.goto('/no-such-page/');
+    await expect(page.getByRole('main')).toHaveCount(1);
+    await page.waitForLoadState('networkidle');
+    await page.getByRole('button', { name: 'Search documentation' }).click();
+    await expect(page.getByPlaceholder('Search Mix, Remix, and Naked UI')).toBeVisible();
+  });
+});
+
+test.describe('restored composition', () => {
+  test('the landscape runs on behind the comparison and the mark keeps its size', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/');
+    const media = (await page.locator('.lx-band-media').boundingBox())!;
+    const comparison = (await page.locator('#why-mix').boundingBox())!;
+    expect(media.y + media.height, 'the backdrop reaches the comparison heading').toBeGreaterThan(comparison.y + comparison.height);
+    expect(media.height).toBeLessThanOrEqual(1100);
+    expect((await page.locator('.lx-mark').boundingBox())!.width).toBe(150);
+    await page.setViewportSize({ width: 320, height: 700 });
+    expect((await page.locator('.lx-mark').boundingBox())!.width).toBeGreaterThanOrEqual(120);
+  });
+
+  test('the Remix backdrop reaches behind the preview window', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/remix/');
+    const media = (await page.locator('.lx-band-media').boundingBox())!;
+    const stage = (await page.locator('.lx-stagewrap').boundingBox())!;
+    expect(media.y + media.height).toBeGreaterThan(stage.y + stage.height);
+  });
+});
+
 test.describe('landings', () => {
   test('landing layouts have one main landmark and no orphaned welcome feature', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -60,14 +213,10 @@ test.describe('landings', () => {
     }
   });
 
-  test('light-theme demo tabs stay readable and usable on a phone', async ({ page }) => {
+  test('demo tabs stay readable and usable on a phone', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/remix/');
-    if (!(await page.locator('html').getAttribute('class'))?.split(' ').includes('light')) {
-      await page.getByRole('button', { name: 'Toggle Theme' }).click();
-    }
-    await expect(page.locator('html')).toHaveClass(/\blight\b/);
     const controls = await page.getByRole('tab').evaluateAll(tabs => {
       const rgb = (value: string) => value.match(/[\d.]+/g)!.slice(0, 3).map(Number);
       const luminance = (value: string) => rgb(value).map(channel => {

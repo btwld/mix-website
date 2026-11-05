@@ -1,7 +1,6 @@
-import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import type { ReactNode } from 'react';
-import { siteLayoutOptions } from '@/lib/layout';
+import { SiteShell } from '@/components/site-shell';
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
-  return <HomeLayout {...siteLayoutOptions()}>{children}</HomeLayout>;
+  return <SiteShell>{children}</SiteShell>;
 }
