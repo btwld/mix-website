@@ -1,24 +1,26 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
+import { HOME_FEATURE_IDS, MIX_FEATURES, REMIX_BENTO, REMIX_HERO_STYLES } from '../../lib/landing-previews.mjs';
 
 const site = JSON.parse(readFileSync(new URL('../../.generated/site-inputs.json', import.meta.url), 'utf8'));
 const landingIds: string[] = Object.keys(site.mix.landingPreviews);
 
-/** Feature and tile views mount lazily, so bring the whole page into view first. */
-async function scrollThrough(page: Page) {
-  await page.evaluate(async () => {
-    for (let y = 0; y < document.body.scrollHeight; y += 600) {
-      window.scrollTo(0, y);
-      await new Promise(resolve => setTimeout(resolve, 120));
-    }
-    window.scrollTo(0, 0);
-  });
-}
-
-/** Flutter paints each view at its host origin; a misaligned host clips the widget. */
-async function expectViewsAligned(page: Page, expected: number) {
-  await scrollThrough(page);
-  await expect.poll(async () => page.locator('flutter-view').count(), { timeout: 60_000 }).toBe(expected);
+/**
+ * Bring each named preview into view and wait for it to actually be running.
+ *
+ * Lazy previews attach their IntersectionObserver only once React has hydrated.
+ * A scripted sweep over the whole page can finish before that happens — in
+ * WebKit it reliably does — leaving every host `idle` with no bundle ever
+ * requested. Holding each host in the viewport and waiting on its own
+ * `data-state` is both deterministic and what a reader actually does.
+ */
+async function expectViewsAligned(page: Page, ids: readonly string[]) {
+  for (const id of ids) {
+    const host = page.locator(`[data-preview-id="${id}"]`);
+    await host.scrollIntoViewIfNeeded();
+    await expect(host, `${id} must start`).toHaveAttribute('data-state', 'ready', { timeout: 90_000 });
+  }
+  await expect(page.locator('flutter-view')).toHaveCount(ids.length);
   const offsets = await page.evaluate(() => [...document.querySelectorAll('flutter-view')].map(view => {
     const pane = view.querySelector('flt-glass-pane');
     if (!pane) return null;
@@ -38,7 +40,7 @@ test.describe('landings', () => {
     expect((await page.request.get('/assets/concepta-hero-poster.jpg')).status()).toBe(200);
     expect((await page.request.get('/assets/icon_logo.svg')).status()).toBe(200);
 
-    await expectViewsAligned(page, 3);
+    await expectViewsAligned(page, HOME_FEATURE_IDS);
 
     // Sibling access is the apex's job; each card keeps its own entry point.
     for (const name of ['Mix', 'Remix', 'Naked UI']) {
@@ -51,7 +53,7 @@ test.describe('landings', () => {
   test('the Mix landing runs every feature demo beside its locked source', async ({ page }) => {
     await page.goto('/mix/');
     await expect(page.getByRole('heading', { level: 1, name: 'Mix' })).toBeVisible();
-    await expectViewsAligned(page, 5);
+    await expectViewsAligned(page, MIX_FEATURES.map(feature => feature.previewId));
 
     // Each card shows the preview's own Dart, fetched from the pinned bundle.
     const snippets = page.locator('.lx-feature-code .shiki');
@@ -79,7 +81,7 @@ test.describe('landings', () => {
     // One engine for the whole page: switching swaps a view, never reloads.
     await expect(page.locator(`script[src="${site.mix.previewsBase}/flutter_bootstrap.js"]`)).toHaveCount(1);
 
-    await expectViewsAligned(page, 8);
+    await expectViewsAligned(page, [...REMIX_HERO_STYLES, ...REMIX_BENTO].map(item => item.previewId));
     // Counts readers see are derived from the staged docs, never hand-written.
     const components = site.pages.remix.filter((slug: string) => slug.startsWith('components/')).length;
     await expect(page.locator('.lx-stat-value').first()).toHaveText(String(components));
@@ -89,8 +91,7 @@ test.describe('landings', () => {
     const mounted = new Set<string>();
     for (const route of ['/', '/mix/', '/remix/']) {
       await page.goto(route);
-      await scrollThrough(page);
-      await expect.poll(async () => page.locator('flutter-view').count(), { timeout: 60_000 }).toBeGreaterThan(0);
+      await expect(page.locator('[data-preview-id]').first()).toBeAttached();
       for (const id of await page.locator('[data-preview-id]').evaluateAll(nodes => nodes.map(n => n.getAttribute('data-preview-id')!))) mounted.add(id);
     }
     expect([...mounted].sort()).toEqual([...landingIds].sort());
@@ -117,7 +118,8 @@ test.describe('landings', () => {
     await page.goto('/remix/');
     // All three styles stay mounted for the cross-fade, so the two the reader
     // cannot see must be out of the tab order entirely.
-    await expect.poll(async () => page.locator('.lx-live-stack flutter-view').count(), { timeout: 60_000 }).toBe(3);
+    await expectViewsAligned(page, REMIX_HERO_STYLES.map(style => style.previewId));
+    await expect(page.locator('.lx-live-stack flutter-view')).toHaveCount(3);
     await page.getByRole('tab', { name: 'Gradient' }).click();
     await expect(page.getByRole('tab', { name: 'Gradient' })).toHaveAttribute('aria-selected', 'true');
     await expect(page.locator('.lx-live-layer[aria-hidden="true"]')).toHaveCount(2);
