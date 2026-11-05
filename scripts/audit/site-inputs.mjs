@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { verifyMixBuildInputs } from '../site-inputs/mix-build-inputs.mjs';
+import { LANDING_PREVIEW_IDS } from '../../lib/landing-previews.mjs';
 const lock = JSON.parse(await readFile('sources.lock.json', 'utf8'));
 assert.equal(lock.inputs['mix-previews'].source.repository, 'btwld/mix-website', 'Mix previews must be produced by their canonical owner');
 for (const [name, entry] of Object.entries(lock.inputs)) {
@@ -27,7 +28,9 @@ const site = JSON.parse(await readFile('.generated/site-inputs.json', 'utf8'));
 assert.equal(site.pages.mix.length, 29);
 assert.equal(site.pages.remix.length, 53);
 assert.equal(site.pages['naked-ui'].length, 23);
-assert.equal(site.mix.previewIds.length, 30);
+// 30 referenced by Mix MDX plus the 13 the landing pages mount.
+assert.equal(site.mix.previewIds.length, 43);
+assert.deepEqual(Object.keys(site.mix.landingPreviews).sort(), [...LANDING_PREVIEW_IDS].sort());
 const inventory = JSON.parse(await readFile('docs/migration/pages.json', 'utf8'));
 for (const project of ['mix', 'remix', 'naked-ui']) assert.equal(site.pages[project].length, inventory.counts[project], `${project} inventory must match the actual staged corpus`);
-console.log(`Verified ${manifest.entries.length} preview entries / ${used.size} authored source files, 30 used IDs and all 105 canonical pages.`);
+console.log(`Verified ${manifest.entries.length} preview entries / ${used.size} authored source files, ${site.mix.previewIds.length} used IDs (${LANDING_PREVIEW_IDS.length} on landings) and all 105 canonical pages.`);

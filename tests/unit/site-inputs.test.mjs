@@ -6,6 +6,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { gzipSync } from 'node:zlib';
 import { rewriteUpstreamUrl, docsSlugFor, legacyDocsUrl } from '../../lib/projects.mjs';
+import { HOME_FEATURE_IDS, LANDING_PREVIEW_IDS, MIX_FEATURES } from '../../lib/landing-previews.mjs';
 import { releaseCoordinates, validateLock } from '../../scripts/site-inputs/lock.mjs';
 import {
   collectPendingRedirects, extractInput, extractLinks, extractPreviewIds, obtainArtifact, stageDocsSnapshot, verifyMixPreviews,
@@ -166,13 +167,50 @@ test('preview IDs must be literal and resolve to a bundled source', async () => 
     'sources/lib/region.dart': '// #docregion main\nclass R {}\n// #enddocregion main',
   });
   await writeTree(content, { 'page.mdx': '<FlutterPreview previewId="ok.0" />\n<FlutterPreview previewId="region.0" />' });
-  assert.deepEqual(await verifyMixPreviews(content, bundle), ['ok.0', 'region.0']);
+  assert.deepEqual(await verifyMixPreviews(content, bundle, undefined, []), { used: ['ok.0', 'region.0'], landing: {} });
   await writeTree(content, { 'bad.mdx': '<FlutterPreview previewId="missing.0" />\n<FlutterPreview previewId="gone.0" />' });
-  await assert.rejects(verifyMixPreviews(content, bundle), error => {
+  await assert.rejects(verifyMixPreviews(content, bundle, undefined, []), error => {
     assert.match(error.message, /"missing\.0" is not in the locked Mix manifest/);
     assert.match(error.message, /source for "gone\.0" is missing/);
     return true;
   });
+});
+
+test('landing previews resolve to locked, renderable manifest entries', async () => {
+  const root = await tempDir();
+  const content = path.join(root, 'content');
+  const bundle = path.join(root, 'bundle');
+  await writeTree(bundle, {
+    'previews-manifest.json': JSON.stringify({ entries: [
+      { previewId: 'hero.0', sourcePath: 'lib/hero.dart', snippetRegion: 'style', renderable: true },
+      { previewId: 'snippet-only.0', sourcePath: 'lib/hero.dart', renderable: false },
+    ] }),
+    'sources/lib/hero.dart': '// #docregion style\nfinal style = 1;\n// #enddocregion style',
+  });
+  await writeTree(content, { 'page.mdx': 'no previews here' });
+
+  // A landing ID contributes its locked source coordinates, so the page can
+  // show the exact bytes that were compiled.
+  assert.deepEqual(await verifyMixPreviews(content, bundle, undefined, ['hero.0']), {
+    used: ['hero.0'],
+    landing: { 'hero.0': { sourcePath: 'lib/hero.dart', snippetRegion: 'style' } },
+  });
+
+  // A landing cannot mount an unknown ID, a snippet-only entry, or a region
+  // that the locked source does not define.
+  await assert.rejects(verifyMixPreviews(content, bundle, undefined, ['nope.0']), /"nope\.0" is not in the locked Mix manifest/);
+  await assert.rejects(verifyMixPreviews(content, bundle, undefined, ['snippet-only.0']), /snippet-only and cannot be mounted/);
+  await writeTree(bundle, { 'sources/lib/hero.dart': 'final style = 1;' });
+  await assert.rejects(verifyMixPreviews(content, bundle, undefined, ['hero.0']), /region "style" for "hero\.0" is missing/);
+});
+
+test('every landing preview is a real ID in the locked manifest', async () => {
+  // Guards the actual lists the pages render, not a fixture: the staged bundle
+  // is the one the build will serve.
+  const manifest = JSON.parse(await readFile('.site-inputs/extracted/mix-previews/bundle/previews-manifest.json', 'utf8'));
+  const renderable = new Set(manifest.entries.filter(entry => entry.renderable).map(entry => entry.previewId));
+  assert.deepEqual(LANDING_PREVIEW_IDS.filter(id => !renderable.has(id)), []);
+  assert.deepEqual(HOME_FEATURE_IDS.filter(id => !MIX_FEATURES.some(feature => feature.previewId === id)), []);
 });
 
 test('upstream Remix links map onto the site', () => {
@@ -242,9 +280,9 @@ test('prebuild refuses a preview archive after its canonical Dart source changes
       ['bundle/sources/'+relative]: 'class Example {}',
     });
     await writeFile(path.join(root,'bundle/build-inputs.json'), JSON.stringify(await mixBuildInputs(root)));
-    assert.deepEqual(await verifyMixPreviews(path.join(root,'content'),path.join(root,'bundle'),root),['example.0']);
+    assert.deepEqual(await verifyMixPreviews(path.join(root,'content'),path.join(root,'bundle'),root,[]),{used:['example.0'],landing:{}});
     await writeFile(path.join(root,relative),'class ChangedExample {}');
-    await assert.rejects(verifyMixPreviews(path.join(root,'content'),path.join(root,'bundle'),root), /Stale Flutter build inputs/);
+    await assert.rejects(verifyMixPreviews(path.join(root,'content'),path.join(root,'bundle'),root,[]), /Stale Flutter build inputs/);
   } finally { await rm(root,{recursive:true}); }
 });
 

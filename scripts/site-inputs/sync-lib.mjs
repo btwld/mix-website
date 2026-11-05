@@ -13,6 +13,7 @@ import { existsSync } from 'node:fs';
 import { cp, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { PROJECTS, PROJECT_IDS, docsSlugFor, legacyDocsUrl, rewriteUpstreamUrl } from '../../lib/projects.mjs';
+import { LANDING_PREVIEW_IDS } from '../../lib/landing-previews.mjs';
 import { validateLock, validateSiteInputMetadata } from './lock.mjs';
 import { readArchive, sha256, writeEntries } from './tar.mjs';
 
@@ -138,13 +139,36 @@ function hasRegion(source, region) {
   });
 }
 
-/** Resolve every Mix preview ID against the locked manifest and bundled sources. */
-export async function verifyMixPreviews(contentDir, bundleDir, authoringRoot) {
+/**
+ * Resolve every Mix preview ID against the locked manifest and bundled sources.
+ *
+ * Both callers of a preview are covered: the IDs written in Mix MDX, and the
+ * IDs the landing pages mount from `lib/landing-previews.mjs`. A landing that
+ * names a renamed or removed preview fails the build here instead of rendering
+ * an empty frame, exactly like a docs page would.
+ */
+export async function verifyMixPreviews(contentDir, bundleDir, authoringRoot, landingIds = LANDING_PREVIEW_IDS) {
   if (authoringRoot) await verifyMixBuildInputs(authoringRoot, bundleDir);
   const manifest = JSON.parse(await readFile(path.join(bundleDir, 'previews-manifest.json'), 'utf8'));
   const byId = new Map(manifest.entries.map(entry => [entry.previewId, entry]));
   const problems = [];
   const used = [];
+  const landing = {};
+  for (const id of landingIds) {
+    used.push(id);
+    const entry = byId.get(id);
+    if (!entry) { problems.push(`landing-previews: previewId "${id}" is not in the locked Mix manifest`); continue; }
+    if (!entry.renderable) { problems.push(`landing-previews: "${id}" is snippet-only and cannot be mounted on a landing`); continue; }
+    const sourceFile = path.join(bundleDir, 'sources', entry.sourcePath);
+    if (!existsSync(sourceFile)) { problems.push(`landing-previews: source for "${id}" is missing (${entry.sourcePath})`); continue; }
+    if (entry.snippetRegion && !hasRegion(await readFile(sourceFile, 'utf8'), entry.snippetRegion)) {
+      problems.push(`landing-previews: region "${entry.snippetRegion}" for "${id}" is missing from ${entry.sourcePath}`);
+      continue;
+    }
+    // Landings show the locked source beside the compiled widget, so they need
+    // the same coordinates the docs resolve from the manifest at runtime.
+    landing[id] = { sourcePath: entry.sourcePath, snippetRegion: entry.snippetRegion ?? null };
+  }
   if (authoringRoot) {
     for (const entry of manifest.entries) {
       if (!entry.sourcePath.startsWith('packages/mix_docs_preview/')) throw new Error(`Unexpected Mix source path: ${entry.sourcePath}`);
@@ -166,7 +190,7 @@ export async function verifyMixPreviews(contentDir, bundleDir, authoringRoot) {
     }
   }
   if (problems.length) throw new Error(`Unresolved Mix previews:\n  ${problems.join('\n  ')}`);
-  return used;
+  return { used, landing };
 }
 
 function parseLinkEntry(item) {
@@ -312,7 +336,7 @@ export async function syncSiteInputs({ root, offline = false, fetchImpl, log = c
   await rm(p.publicPreviews, { recursive: true, force: true });
   await mkdir(path.join(p.publicPreviews, 'mix'), { recursive: true });
   await cp(path.join(p.extracted, 'mix-previews/bundle'), path.join(p.publicPreviews, 'mix', previewId), { recursive: true });
-  const usedPreviews = await verifyMixPreviews(p.mixContent, path.join(p.publicPreviews, 'mix', previewId), root);
+  const { used: usedPreviews, landing: landingPreviews } = await verifyMixPreviews(p.mixContent, path.join(p.publicPreviews, 'mix', previewId), root);
 
   // Docs snapshots: only the scoped pages and their navigation.
   const projects = [];
@@ -338,7 +362,9 @@ export async function syncSiteInputs({ root, offline = false, fetchImpl, log = c
 
   const { redirects, assets } = await collectPendingRedirects(projects);
   // Copy only the assets the published pages reference, plus the wordmarks.
-  const wanted = new Set([...assets, '/remix/assets/logo_light.png', '/remix/assets/logo_dark.png', '/remix/assets/favicon.png']);
+  // Wordmarks, the favicon and the Remix landing's catalog still shot are
+  // required even if no published page happens to reference them.
+  const wanted = new Set([...assets, '/remix/assets/logo_light.png', '/remix/assets/logo_dark.png', '/remix/assets/favicon.png', '/remix/assets/fortal-catalog.png']);
   for (const url of wanted) {
     const relative = url.slice('/remix/assets/'.length).split(/[?#]/)[0];
     const from = path.join(remixDir, 'assets', relative);
@@ -351,7 +377,7 @@ export async function syncSiteInputs({ root, offline = false, fetchImpl, log = c
   const site = {
     ...summary,
     source: buildIdentity(root),
-    mix: { previewsBase, sourcesBase: `${previewsBase}/sources`, previewIds: usedPreviews },
+    mix: { previewsBase, sourcesBase: `${previewsBase}/sources`, previewIds: usedPreviews, landingPreviews },
     remix: { catalogPath: PROJECTS.remix.catalogPath },
     pages: Object.fromEntries(projects.map(item => [item.projectId, [...item.published].sort()])),
   };

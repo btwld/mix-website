@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { RevealScript } from '@/components/landing/reveal-script';
 import { SiteProvider } from '@/components/site-provider';
 import { SITE_DESCRIPTION, SITE_NAME, indexing, siteUrl } from '@/lib/site';
 import './global.css';
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return <html lang="en" className="concepta-docs" suppressHydrationWarning>
+    <head><RevealScript /></head>
     <body className="flex min-h-screen flex-col">
       <SiteProvider>{children}</SiteProvider>
     </body>

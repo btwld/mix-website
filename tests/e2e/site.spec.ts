@@ -49,8 +49,10 @@ async function changesAfter(host: Locator, action: () => Promise<void>) {
 
 test.describe('direct loads', () => {
   for (const [path, heading] of [
-    ['/', 'Build Flutter interfaces with Mix, Remix, and Naked UI'],
-    ['/mix/', 'Mix'], ['/remix/', 'Remix'], ['/naked-ui/', 'Naked UI'],
+    // The landings carry their restored editorial headings; /mix/ and
+    // /naked-ui/ stay named after their project.
+    ['/', 'Flutter styling without the boilerplate.'],
+    ['/mix/', 'Mix'], ['/remix/', 'The behavior is built in. Style Flutter your way.'], ['/naked-ui/', 'Naked UI'],
     ['/mix/docs/widgets/box/', 'Box'], ['/mix/docs/guides/animations/', 'Animations'],
     ['/remix/docs/components/button/', 'Button'], ['/naked-ui/docs/widget/button/', 'NakedButton'],
   ]) {

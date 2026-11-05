@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/preset.css';
 @import '@concepta/docs-theme/theme.css';
+@import './landing.css';
 
 /* Project identity. The theme resolves --color-fd-primary at the root, so
    each project scope sets it directly. Each clears WCAG AA (4.5:1) on the
