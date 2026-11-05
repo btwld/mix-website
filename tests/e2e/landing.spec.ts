@@ -101,6 +101,26 @@ test.describe('dark is the only site theme', () => {
     }
   });
 
+  test('Remix controls wait for hydration before accepting a selection', async ({ page }) => {
+    let releaseScripts!: () => void;
+    const scripts = new Promise<void>(resolve => { releaseScripts = resolve; });
+    await page.route('**/_next/static/**/*.js', async route => {
+      await scripts;
+      await route.continue();
+    });
+    try {
+      await page.goto('/remix/docs/components/button/', { waitUntil: 'commit' });
+      await expect(page.getByLabel('Example theme')).toBeDisabled();
+      await expect(page.getByRole('button', { name: 'Reset example' })).toBeDisabled();
+    } finally {
+      releaseScripts();
+    }
+    await expect(page.getByLabel('Example theme')).toBeEnabled();
+    await page.getByLabel('Example theme').selectOption('light');
+    await expect(page.getByLabel('Example theme')).toHaveValue('light');
+    await expect(page.locator('.remix-preview-stage iframe')).toHaveAttribute('src', /light/);
+  });
+
   test('a Remix example can still be switched to its own light styling', async ({ page }) => {
     await page.goto('/remix/docs/components/button/');
     const select = page.getByLabel('Example theme');

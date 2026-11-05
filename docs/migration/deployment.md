@@ -1,3 +1,9 @@
+# Deployment record
+
+For the current automation contract and activation status, see
+[Deployment automation](../deployment-automation.md). The dated rollout notes
+below are historical; their unverified/cutover statements describe those releases.
+
 # Staging and review delivery
 
 Updated 2026-11-04. The public branch and exact locked input archives are

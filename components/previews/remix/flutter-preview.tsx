@@ -51,14 +51,14 @@ export function FlutterPreview({ title, cases }: {
 
   return <div className="not-prose remix-preview">
     <div className="remix-preview-toolbar">
-      <PreviewSelect label="Example" id={`${id}-case`} value={path} onChange={event => setPath(event.target.value)}>
+      <PreviewSelect disabled={!mounted} label="Example" id={`${id}-case`} value={path} onChange={event => setPath(event.target.value)}>
         {cases.map(item => <option key={item.path} value={item.path}>{item.name}</option>)}
       </PreviewSelect>
-      <PreviewSelect label="Theme" aria-label="Example theme" id={`${id}-theme`} value={mode} onChange={event => setMode(event.target.value)}>
+      <PreviewSelect disabled={!mounted} label="Theme" aria-label="Example theme" id={`${id}-theme`} value={mode} onChange={event => setMode(event.target.value)}>
         <option value="light">Light</option><option value="dark">Dark</option>
       </PreviewSelect>
       <div className="remix-preview-actions">
-        <button type="button" className="remix-preview-reset" onClick={() => {
+        <button type="button" disabled={!mounted} className="remix-preview-reset" onClick={() => {
           setPath(cases[0].path);
           setMode('dark');
           setAttempt(value => value + 1);
