@@ -1,0 +1,22 @@
+{
+  "$comment": "Landing media restored from the pinned migration checkpoint. Imported bytes are unmodified; verify with scripts/audit/repository.mjs.",
+  "repository": "btwld/website",
+  "commit": "509c4a9ddb698b86f26a51291fa6540087461614",
+  "assets": {
+    "concepta-hero-poster.jpg": {
+      "path": "public/assets/concepta-hero-poster.jpg",
+      "sha256": "080e44f21042e2fb52b51b18cb62d6b4b0d98fac52030d9bfb61f0a0076f7281",
+      "bytes": 132437
+    },
+    "concepta-hero.mp4": {
+      "path": "public/assets/concepta-hero.mp4",
+      "sha256": "541c5642bdae3c6dfcc64c907a6d93d6c3f9fe23d5eb8272b942dcb6274d0f64",
+      "bytes": 1943737
+    },
+    "icon_logo.svg": {
+      "path": "public/assets/icon_logo.svg",
+      "sha256": "295b6d9fb6c7488c944f243d82f46eb96ae50998c26287016bb9a2c068dea407",
+      "bytes": 5525
+    }
+  }
+}

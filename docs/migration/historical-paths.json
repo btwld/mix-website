@@ -1,0 +1,1093 @@
+{
+  "paths": [
+    {
+      "oldPath": "/",
+      "classification": "migrated",
+      "destination": "/",
+      "suggestedCurrentGuide": null,
+      "reason": "Current route retained."
+    },
+    {
+      "oldPath": "/docs/getting-started/concepts",
+      "classification": "unresolved",
+      "destination": "/mix/docs/overview/introduction/",
+      "suggestedCurrentGuide": "/mix/docs/overview/introduction/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/concepts/attributes-and-utilities",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/styling/",
+      "suggestedCurrentGuide": "/mix/docs/guides/styling/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/concepts/decorators",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/widget-modifiers/",
+      "suggestedCurrentGuide": "/mix/docs/guides/widget-modifiers/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/concepts/mixable-widgets",
+      "classification": "unresolved",
+      "destination": "/mix/docs/widgets/stylewidgets/",
+      "suggestedCurrentGuide": "/mix/docs/widgets/stylewidgets/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/concepts/mixing",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/styling/",
+      "suggestedCurrentGuide": "/mix/docs/guides/styling/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/concepts/variants",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/dynamic-styling/",
+      "suggestedCurrentGuide": "/mix/docs/guides/dynamic-styling/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/introduction/getting-started",
+      "classification": "unresolved",
+      "destination": "/mix/docs/overview/getting-started/",
+      "suggestedCurrentGuide": "/mix/docs/overview/getting-started/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/introduction/installation",
+      "classification": "unresolved",
+      "destination": "/mix/docs/overview/getting-started/",
+      "suggestedCurrentGuide": "/mix/docs/overview/getting-started/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/theme/design-tokens",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/design-token/",
+      "suggestedCurrentGuide": "/mix/docs/guides/design-token/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/theme/mix-theme",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/design-token/",
+      "suggestedCurrentGuide": "/mix/docs/guides/design-token/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/theme/space-tokens",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/design-token/",
+      "suggestedCurrentGuide": "/mix/docs/guides/design-token/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/headless-widgets/alert-dialog",
+      "classification": "unresolved",
+      "destination": "/remix/docs/components/dialog/",
+      "suggestedCurrentGuide": "/remix/docs/components/dialog/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/headless-widgets/card",
+      "classification": "unresolved",
+      "destination": "/remix/docs/components/card/",
+      "suggestedCurrentGuide": "/remix/docs/components/card/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/headless-widgets/checkbox",
+      "classification": "unresolved",
+      "destination": "/remix/docs/components/checkbox/",
+      "suggestedCurrentGuide": "/remix/docs/components/checkbox/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/headless-widgets/chip",
+      "classification": "unresolved",
+      "destination": "/remix/docs/",
+      "suggestedCurrentGuide": "/remix/docs/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/headless-widgets/introduction",
+      "classification": "unresolved",
+      "destination": "/remix/docs/",
+      "suggestedCurrentGuide": "/remix/docs/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/headless-widgets/radio-button",
+      "classification": "unresolved",
+      "destination": "/remix/docs/components/radio/",
+      "suggestedCurrentGuide": "/remix/docs/components/radio/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/headless-widgets/switch",
+      "classification": "unresolved",
+      "destination": "/remix/docs/components/switch/",
+      "suggestedCurrentGuide": "/remix/docs/components/switch/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/faq",
+      "classification": "unresolved",
+      "destination": "/mix/docs/overview/introduction/",
+      "suggestedCurrentGuide": "/mix/docs/overview/introduction/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/overview",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/introduction/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/docs/overview/best-practices",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/common-patterns/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/docs/overview/comparison",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/comparison/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/docs/overview/faq",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/introduction/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/docs/overview/getting-started",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/getting-started/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/docs/overview/migration",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/migration/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/docs/overview/utility-first",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/utility-first/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/docs/guides/animations",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/animations/",
+      "suggestedCurrentGuide": "/mix/docs/guides/animations/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/guides/decorators",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/widget-modifiers/",
+      "suggestedCurrentGuide": "/mix/docs/guides/widget-modifiers/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/guides/design-token",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/design-token/",
+      "suggestedCurrentGuide": "/mix/docs/guides/design-token/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/guides/design-tokens",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/design-token/",
+      "suggestedCurrentGuide": "/mix/docs/guides/design-token/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/guides/directives",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/directives/",
+      "suggestedCurrentGuide": "/mix/docs/guides/directives/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/guides/styling",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/styling/",
+      "suggestedCurrentGuide": "/mix/docs/guides/styling/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/guides/supporting-new-widgets",
+      "classification": "unresolved",
+      "destination": "/mix/docs/tutorials/creating-a-widget/",
+      "suggestedCurrentGuide": "/mix/docs/tutorials/creating-a-widget/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/guides/theming",
+      "classification": "unresolved",
+      "destination": "/mix/docs/tutorials/theming/",
+      "suggestedCurrentGuide": "/mix/docs/tutorials/theming/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/guides/variants",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/dynamic-styling/",
+      "suggestedCurrentGuide": "/mix/docs/guides/dynamic-styling/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/guides/widget-modifiers",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/widget-modifiers/",
+      "suggestedCurrentGuide": "/mix/docs/guides/widget-modifiers/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/widgets/box",
+      "classification": "unresolved",
+      "destination": "/mix/docs/widgets/box/",
+      "suggestedCurrentGuide": "/mix/docs/widgets/box/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/widgets/flex",
+      "classification": "unresolved",
+      "destination": "/mix/docs/widgets/flexbox/",
+      "suggestedCurrentGuide": "/mix/docs/widgets/flexbox/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/widgets/icon",
+      "classification": "unresolved",
+      "destination": "/mix/docs/widgets/icon/",
+      "suggestedCurrentGuide": "/mix/docs/widgets/icon/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/widgets/image",
+      "classification": "unresolved",
+      "destination": "/mix/docs/widgets/image/",
+      "suggestedCurrentGuide": "/mix/docs/widgets/image/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/widgets/introduction",
+      "classification": "unresolved",
+      "destination": "/mix/docs/widgets/stylewidgets/",
+      "suggestedCurrentGuide": "/mix/docs/widgets/stylewidgets/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/widgets/pressable-box",
+      "classification": "unresolved",
+      "destination": "/mix/docs/widgets/pressable/",
+      "suggestedCurrentGuide": "/mix/docs/widgets/pressable/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/widgets/stack",
+      "classification": "unresolved",
+      "destination": "/mix/docs/widgets/stack/",
+      "suggestedCurrentGuide": "/mix/docs/widgets/stack/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/widgets/text",
+      "classification": "unresolved",
+      "destination": "/mix/docs/widgets/text/",
+      "suggestedCurrentGuide": "/mix/docs/widgets/text/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/tutorials/%23b",
+      "classification": "unresolved",
+      "destination": "/mix/docs/tutorials/",
+      "suggestedCurrentGuide": "/mix/docs/tutorials/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/tutorials/controlling-widget-state",
+      "classification": "unresolved",
+      "destination": "/mix/docs/tutorials/controlling-widget-state/",
+      "suggestedCurrentGuide": "/mix/docs/tutorials/controlling-widget-state/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/tutorials/creating-a-widget",
+      "classification": "unresolved",
+      "destination": "/mix/docs/tutorials/creating-a-widget/",
+      "suggestedCurrentGuide": "/mix/docs/tutorials/creating-a-widget/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/tutorials/creating-context-variants",
+      "classification": "unresolved",
+      "destination": "/mix/docs/tutorials/creating-context-variants/",
+      "suggestedCurrentGuide": "/mix/docs/tutorials/creating-context-variants/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/tutorials/custom-component",
+      "classification": "unresolved",
+      "destination": "/mix/docs/tutorials/creating-a-widget/",
+      "suggestedCurrentGuide": "/mix/docs/tutorials/creating-a-widget/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/tutorials/extending-utilities",
+      "classification": "unresolved",
+      "destination": "/mix/docs/tutorials/creating-custom-tokens/",
+      "suggestedCurrentGuide": "/mix/docs/tutorials/creating-custom-tokens/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/tutorials/supporting-new-widgets",
+      "classification": "unresolved",
+      "destination": "/mix/docs/tutorials/creating-a-widget/",
+      "suggestedCurrentGuide": "/mix/docs/tutorials/creating-a-widget/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/tutorials/theming",
+      "classification": "unresolved",
+      "destination": "/mix/docs/tutorials/theming/",
+      "suggestedCurrentGuide": "/mix/docs/tutorials/theming/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/utilities/box-utilities",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/styling/",
+      "suggestedCurrentGuide": "/mix/docs/guides/styling/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/utilities/text-utilities",
+      "classification": "unresolved",
+      "destination": "/mix/docs/guides/styling/",
+      "suggestedCurrentGuide": "/mix/docs/guides/styling/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/tools/generator",
+      "classification": "unresolved",
+      "destination": "/mix/docs/ecosystem/mix-generator/",
+      "suggestedCurrentGuide": "/mix/docs/ecosystem/mix-generator/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/tools/lint",
+      "classification": "unresolved",
+      "destination": "/mix/docs/ecosystem/mix-lint/",
+      "suggestedCurrentGuide": "/mix/docs/ecosystem/mix-lint/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/docs/remix/checkbox",
+      "classification": "unresolved",
+      "destination": "/remix/docs/components/checkbox/",
+      "suggestedCurrentGuide": "/remix/docs/components/checkbox/",
+      "reason": "Historical API differs; do not equate its content with current API docs."
+    },
+    {
+      "oldPath": "/documentation/ecosystem/mix-generator",
+      "classification": "redirected",
+      "destination": "/mix/docs/ecosystem/mix-generator/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/ecosystem/mix-lint",
+      "classification": "redirected",
+      "destination": "/mix/docs/ecosystem/mix-lint/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/ecosystem/mix-schema",
+      "classification": "redirected",
+      "destination": "/mix/docs/ecosystem/mix-schema/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/ecosystem/mix-tailwinds",
+      "classification": "redirected",
+      "destination": "/mix/docs/ecosystem/mix-winds/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/guides/animations",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/animations/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/guides/common-patterns",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/common-patterns/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/guides/design-token",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/design-token/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/guides/directives",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/directives/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/guides/dynamic-styling",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/dynamic-styling/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/guides/styling",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/styling/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/guides/widget-modifiers",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/widget-modifiers/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/overview",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/introduction/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/overview/best-practices",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/common-patterns/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/overview/comparison",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/comparison/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/overview/faq",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/introduction/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/overview/getting-started",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/getting-started/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/overview/introduction",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/introduction/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/overview/migration",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/migration/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/overview/utility-first",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/utility-first/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/tutorials/controlling-widget-state",
+      "classification": "redirected",
+      "destination": "/mix/docs/tutorials/controlling-widget-state/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/tutorials/creating-a-widget",
+      "classification": "redirected",
+      "destination": "/mix/docs/tutorials/creating-a-widget/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/tutorials/creating-context-variants",
+      "classification": "redirected",
+      "destination": "/mix/docs/tutorials/creating-context-variants/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/tutorials/creating-custom-tokens",
+      "classification": "redirected",
+      "destination": "/mix/docs/tutorials/creating-custom-tokens/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/tutorials/extending-utilities",
+      "classification": "redirected",
+      "destination": "/mix/docs/tutorials/creating-custom-tokens/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/tutorials/theming",
+      "classification": "redirected",
+      "destination": "/mix/docs/tutorials/theming/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/utilities/box-utilities",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/styling/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/utilities/text-utilities",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/styling/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/widgets/box",
+      "classification": "redirected",
+      "destination": "/mix/docs/widgets/box/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/widgets/flexbox",
+      "classification": "redirected",
+      "destination": "/mix/docs/widgets/flexbox/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/widgets/icon",
+      "classification": "redirected",
+      "destination": "/mix/docs/widgets/icon/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/widgets/image",
+      "classification": "redirected",
+      "destination": "/mix/docs/widgets/image/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/widgets/pressable",
+      "classification": "redirected",
+      "destination": "/mix/docs/widgets/pressable/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/widgets/stack",
+      "classification": "redirected",
+      "destination": "/mix/docs/widgets/stack/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/widgets/stylewidgets",
+      "classification": "redirected",
+      "destination": "/mix/docs/widgets/stylewidgets/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/widgets/text",
+      "classification": "redirected",
+      "destination": "/mix/docs/widgets/text/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/ecosystem/mix-generator",
+      "classification": "redirected",
+      "destination": "/mix/docs/ecosystem/mix-generator/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/ecosystem/mix-lint",
+      "classification": "redirected",
+      "destination": "/mix/docs/ecosystem/mix-lint/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/ecosystem/mix-schema",
+      "classification": "redirected",
+      "destination": "/mix/docs/ecosystem/mix-schema/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/ecosystem/mix-tailwinds",
+      "classification": "redirected",
+      "destination": "/mix/docs/ecosystem/mix-winds/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/guides/animations",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/animations/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/guides/common-patterns",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/common-patterns/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/guides/design-token",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/design-token/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/guides/directives",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/directives/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/guides/dynamic-styling",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/dynamic-styling/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/guides/styling",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/styling/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/guides/widget-modifiers",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/widget-modifiers/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/overview/comparison",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/comparison/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/overview/getting-started",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/getting-started/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/overview/introduction",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/introduction/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/overview/migration",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/migration/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/overview/utility-first",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/utility-first/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/tutorials/controlling-widget-state",
+      "classification": "redirected",
+      "destination": "/mix/docs/tutorials/controlling-widget-state/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/tutorials/creating-a-widget",
+      "classification": "redirected",
+      "destination": "/mix/docs/tutorials/creating-a-widget/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/tutorials/creating-context-variants",
+      "classification": "redirected",
+      "destination": "/mix/docs/tutorials/creating-context-variants/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/tutorials/creating-custom-tokens",
+      "classification": "redirected",
+      "destination": "/mix/docs/tutorials/creating-custom-tokens/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/tutorials/theming",
+      "classification": "redirected",
+      "destination": "/mix/docs/tutorials/theming/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/widgets/box",
+      "classification": "redirected",
+      "destination": "/mix/docs/widgets/box/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/widgets/flexbox",
+      "classification": "redirected",
+      "destination": "/mix/docs/widgets/flexbox/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/widgets/icon",
+      "classification": "redirected",
+      "destination": "/mix/docs/widgets/icon/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/widgets/image",
+      "classification": "redirected",
+      "destination": "/mix/docs/widgets/image/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/widgets/pressable",
+      "classification": "redirected",
+      "destination": "/mix/docs/widgets/pressable/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/widgets/stack",
+      "classification": "redirected",
+      "destination": "/mix/docs/widgets/stack/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/widgets/stylewidgets",
+      "classification": "redirected",
+      "destination": "/mix/docs/widgets/stylewidgets/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/mix/widgets/text",
+      "classification": "redirected",
+      "destination": "/mix/docs/widgets/text/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix",
+      "classification": "redirected",
+      "destination": "/remix/docs/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/accordion",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/accordion/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/avatar",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/avatar/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/badge",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/badge/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/button",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/button/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/callout",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/callout/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/card",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/card/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/checkbox",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/checkbox/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/divider",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/divider/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/icon_button",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/icon_button/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/menu",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/menu/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/progress",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/progress/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/radio",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/radio/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/select",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/select/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/slider",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/slider/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/spinner",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/spinner/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/switch",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/switch/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/tabs",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/tabs/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/textfield",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/textfield/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/components/tooltip",
+      "classification": "redirected",
+      "destination": "/remix/docs/components/tooltip/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/documentation/remix/fortal",
+      "classification": "redirected",
+      "destination": "/remix/docs/fortal/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/remix",
+      "classification": "redirected",
+      "destination": "/remix/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/examples/tailwind-plan-card",
+      "classification": "unresolved",
+      "destination": null,
+      "suggestedCurrentGuide": null,
+      "reason": "Requires archive or explicit scope decision."
+    },
+    {
+      "oldPath": "/getting-started",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/getting-started/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/faq",
+      "classification": "redirected",
+      "destination": "/mix/docs/overview/getting-started/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/lints/lints/avoid_empty_style",
+      "classification": "redirected",
+      "destination": "/mix/docs/ecosystem/mix-lint/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/lints/lints/order_attributes_in_style",
+      "classification": "redirected",
+      "destination": "/mix/docs/ecosystem/mix-lint/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/apis/mixing",
+      "classification": "redirected",
+      "destination": "/mix/docs/guides/styling/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    },
+    {
+      "oldPath": "/btwld/naked_ui",
+      "classification": "redirected",
+      "destination": "/naked-ui/docs/",
+      "suggestedCurrentGuide": null,
+      "reason": "Exact current route mapping prepared."
+    }
+  ],
+  "nonPagePatterns": [
+    {
+      "pattern": "/previews/*",
+      "classification": "intentionally-excluded",
+      "reason": "Mix FlutterPreview bundle assets/sources; no redirect needed if the new app serves its own bundle; old sources/*.dart paths can 404.",
+      "delivery": "Original evidence is historical; do not redirect worker/script URLs to HTML."
+    },
+    {
+      "pattern": "/api/og?title=*",
+      "classification": "intentionally-excluded",
+      "reason": "OG image endpoint; let 404 or provide new OG route.",
+      "delivery": "Original evidence is historical; do not redirect worker/script URLs to HTML."
+    },
+    {
+      "pattern": "static assets (/_next, /assets, favicons, manifests, feeds)",
+      "classification": "intentionally-excluded",
+      "reason": "Build assets; no redirects.",
+      "delivery": "Original evidence is historical; do not redirect worker/script URLs to HTML."
+    },
+    {
+      "pattern": "crawler artifacts (/Utility-First, /%0A, /.well-known/*, /feed/ ...)",
+      "classification": "intentionally-excluded",
+      "reason": "Junk captures (heading text, probes). No action or 301 to / for the heading-like ones.",
+      "delivery": "Original evidence is historical; do not redirect worker/script URLs to HTML."
+    },
+    {
+      "pattern": "mix-docs-gosljkd74-fluttertools.vercel.app/docs/*",
+      "classification": "intentionally-excluded",
+      "reason": "Separate Vercel deployment that held Mix v1 docs; returns 410 (x-vercel-error: GONE) on 2026-11-03 but is still linked as \"Mix v1\" from the Concepta version menu. Paths mirror the /docs/* v1 tree. Wayback copies are the only remaining v1 docs.",
+      "delivery": "Original evidence is historical; do not redirect worker/script URLs to HTML."
+    }
+  ]
+}

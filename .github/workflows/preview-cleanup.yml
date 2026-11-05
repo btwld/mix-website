@@ -1,0 +1,83 @@
+# No PR checkout: closed-event and scheduled jobs use only default-branch code.
+name: Clean review previews
+on:
+  pull_request_target:
+    types: [closed]
+  schedule:
+    - cron: '23 4 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  plan:
+    if: github.repository_id == '1444465253' && github.repository_owner_id == '83911646' && vars.PREVIEW_WORKLOAD_IDENTITY_PROVIDER != '' && vars.PREVIEW_HOSTING_SITE != ''
+    runs-on: ubuntu-24.04
+    environment: preview
+    permissions:
+      contents: read
+      pull-requests: read
+      id-token: write
+    outputs:
+      numbers: ${{ steps.plan.outputs.numbers }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version-file: .node-version
+      - id: auth
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093
+        with:
+          workload_identity_provider: ${{ vars.PREVIEW_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.PREVIEW_DEPLOY_SERVICE_ACCOUNT }}
+          project_id: bitwild-oss
+          token_format: access_token
+          create_credentials_file: false
+      - id: plan
+        run: node scripts/deploy/preview.mjs cleanup-plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GOOGLE_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          GOOGLE_CLOUD_PROJECT: bitwild-oss
+          PREVIEW_HOSTING_SITE: ${{ vars.PREVIEW_HOSTING_SITE }}
+  cleanup:
+    needs: plan
+    if: needs.plan.outputs.numbers != '[]'
+    strategy:
+      matrix:
+        pr: ${{ fromJSON(needs.plan.outputs.numbers) }}
+    runs-on: ubuntu-24.04
+    environment: preview
+    concurrency:
+      group: review-preview-${{ matrix.pr }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      pull-requests: read
+      deployments: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version-file: .node-version
+      - id: auth
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093
+        with:
+          workload_identity_provider: ${{ vars.PREVIEW_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.PREVIEW_DEPLOY_SERVICE_ACCOUNT }}
+          project_id: bitwild-oss
+          token_format: access_token
+          create_credentials_file: false
+      - run: node scripts/deploy/preview.mjs cleanup
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GOOGLE_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          GOOGLE_CLOUD_PROJECT: bitwild-oss
+          PREVIEW_HOSTING_SITE: ${{ vars.PREVIEW_HOSTING_SITE }}
+          PR_NUMBER: ${{ matrix.pr }}

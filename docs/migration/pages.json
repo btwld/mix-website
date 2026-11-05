@@ -1,0 +1,677 @@
+{
+  "definition": "Canonical MDX pages at the exact input revisions; generated folder indexes and product landings are counted separately.",
+  "counts": {
+    "mix": 29,
+    "remix": 53,
+    "naked-ui": 23
+  },
+  "pages": {
+    "mix": [
+      {
+        "path": "/mix/docs/ecosystem/mix-generator/",
+        "source": "content/mix/ecosystem/mix-generator.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/ecosystem/mix-lint/",
+        "source": "content/mix/ecosystem/mix-lint.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/ecosystem/mix-schema/",
+        "source": "content/mix/ecosystem/mix-schema.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/ecosystem/mix-winds/",
+        "source": "content/mix/ecosystem/mix-winds.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/guides/animations/",
+        "source": "content/mix/guides/animations.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/guides/common-patterns/",
+        "source": "content/mix/guides/common-patterns.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/guides/design-token/",
+        "source": "content/mix/guides/design-token.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/guides/directives/",
+        "source": "content/mix/guides/directives.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/guides/dynamic-styling/",
+        "source": "content/mix/guides/dynamic-styling.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/guides/styling/",
+        "source": "content/mix/guides/styling.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/guides/widget-modifiers/",
+        "source": "content/mix/guides/widget-modifiers.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/overview/comparison/",
+        "source": "content/mix/overview/comparison.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/overview/getting-started/",
+        "source": "content/mix/overview/getting-started.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/overview/introduction/",
+        "source": "content/mix/overview/introduction.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/overview/migration/",
+        "source": "content/mix/overview/migration.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/overview/utility-first/",
+        "source": "content/mix/overview/utility-first.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/tutorials/controlling-widget-state/",
+        "source": "content/mix/tutorials/controlling-widget-state.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/tutorials/creating-a-widget/",
+        "source": "content/mix/tutorials/creating-a-widget.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/tutorials/creating-context-variants/",
+        "source": "content/mix/tutorials/creating-context-variants.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/tutorials/creating-custom-tokens/",
+        "source": "content/mix/tutorials/creating-custom-tokens.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/tutorials/theming/",
+        "source": "content/mix/tutorials/theming.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/widgets/box/",
+        "source": "content/mix/widgets/box.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/widgets/flexbox/",
+        "source": "content/mix/widgets/flexbox.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/widgets/icon/",
+        "source": "content/mix/widgets/icon.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/widgets/image/",
+        "source": "content/mix/widgets/image.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/widgets/pressable/",
+        "source": "content/mix/widgets/pressable.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/widgets/stack/",
+        "source": "content/mix/widgets/stack.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/widgets/stylewidgets/",
+        "source": "content/mix/widgets/stylewidgets.mdx",
+        "owner": "btwld/mix-website"
+      },
+      {
+        "path": "/mix/docs/widgets/text/",
+        "source": "content/mix/widgets/text.mdx",
+        "owner": "btwld/mix-website"
+      }
+    ],
+    "remix": [
+      {
+        "path": "/remix/docs/agent/activity/",
+        "source": "docs/agent/activity.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/agent/answer/",
+        "source": "docs/agent/answer.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/agent/composer/",
+        "source": "docs/agent/composer.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/agent/execution/",
+        "source": "docs/agent/execution.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/agent/message/",
+        "source": "docs/agent/message.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/agent/permission/",
+        "source": "docs/agent/permission.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/agent/plan/",
+        "source": "docs/agent/plan.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/agent/transcript/",
+        "source": "docs/agent/transcript.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/accordion/",
+        "source": "docs/components/accordion.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/app_bar/",
+        "source": "docs/components/app_bar.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/avatar/",
+        "source": "docs/components/avatar.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/badge/",
+        "source": "docs/components/badge.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/button/",
+        "source": "docs/components/button.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/callout/",
+        "source": "docs/components/callout.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/card/",
+        "source": "docs/components/card.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/checkbox/",
+        "source": "docs/components/checkbox.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/checkbox_group/",
+        "source": "docs/components/checkbox_group.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/data_list/",
+        "source": "docs/components/data_list.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/data_table/",
+        "source": "docs/components/data_table.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/dialog/",
+        "source": "docs/components/dialog.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/disclosure/",
+        "source": "docs/components/disclosure.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/divider/",
+        "source": "docs/components/divider.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/icon_button/",
+        "source": "docs/components/icon_button.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/link/",
+        "source": "docs/components/link.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/menu/",
+        "source": "docs/components/menu.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/popover/",
+        "source": "docs/components/popover.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/progress/",
+        "source": "docs/components/progress.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/radio/",
+        "source": "docs/components/radio.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/segmented_control/",
+        "source": "docs/components/segmented_control.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/select/",
+        "source": "docs/components/select.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/sidebar/",
+        "source": "docs/components/sidebar.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/skeleton/",
+        "source": "docs/components/skeleton.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/slider/",
+        "source": "docs/components/slider.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/spinner/",
+        "source": "docs/components/spinner.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/switch/",
+        "source": "docs/components/switch.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/tabs/",
+        "source": "docs/components/tabs.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/textarea/",
+        "source": "docs/components/textarea.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/textfield/",
+        "source": "docs/components/textfield.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/toast/",
+        "source": "docs/components/toast.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/toggle/",
+        "source": "docs/components/toggle.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/toggle_group/",
+        "source": "docs/components/toggle_group.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/tooltip/",
+        "source": "docs/components/tooltip.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/fortal/catalog/",
+        "source": "docs/fortal/catalog.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/fortal/typography/",
+        "source": "docs/fortal/typography.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/fortal/",
+        "source": "docs/fortal.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/getting-started/",
+        "source": "docs/getting-started.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/guides/icons/",
+        "source": "docs/guides/icons.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/guides/registries/",
+        "source": "docs/guides/registries.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/guides/styling-components/",
+        "source": "docs/guides/styling-components.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/",
+        "source": "docs/index.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/open-code/",
+        "source": "docs/open-code.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/styler-api/",
+        "source": "docs/styler-api.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/tutorials/settings-screen/",
+        "source": "docs/tutorials/settings-screen.mdx",
+        "owner": "btwld/remix"
+      }
+    ],
+    "naked-ui": [
+      {
+        "path": "/naked-ui/docs/",
+        "source": "naked_ui_docs/index.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/accordion/",
+        "source": "naked_ui_docs/widget/accordion.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/button/",
+        "source": "naked_ui_docs/widget/button.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/checkbox/",
+        "source": "naked_ui_docs/widget/checkbox.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/combobox/",
+        "source": "naked_ui_docs/widget/combobox.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/dialog/",
+        "source": "naked_ui_docs/widget/dialog.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/disclosure/",
+        "source": "naked_ui_docs/widget/disclosure.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/link/",
+        "source": "naked_ui_docs/widget/link.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/menu/",
+        "source": "naked_ui_docs/widget/menu.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/menubar/",
+        "source": "naked_ui_docs/widget/menubar.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/popover/",
+        "source": "naked_ui_docs/widget/popover.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/radio/",
+        "source": "naked_ui_docs/widget/radio.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/scrollbar/",
+        "source": "naked_ui_docs/widget/scrollbar.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/select/",
+        "source": "naked_ui_docs/widget/select.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/slider/",
+        "source": "naked_ui_docs/widget/slider.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/switch/",
+        "source": "naked_ui_docs/widget/switch.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/tabs/",
+        "source": "naked_ui_docs/widget/tabs.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/text-magnifier/",
+        "source": "naked_ui_docs/widget/text-magnifier.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/textfield/",
+        "source": "naked_ui_docs/widget/textfield.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/toast/",
+        "source": "naked_ui_docs/widget/toast.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/toggle-group/",
+        "source": "naked_ui_docs/widget/toggle-group.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/toggle/",
+        "source": "naked_ui_docs/widget/toggle.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/naked-ui/docs/widget/tooltip/",
+        "source": "naked_ui_docs/widget/tooltip.mdx",
+        "owner": "btwld/remix"
+      }
+    ]
+  },
+  "siteRoutes": [
+    "/",
+    "/mix/",
+    "/mix/docs/",
+    "/mix/docs/ecosystem/",
+    "/mix/docs/ecosystem/mix-generator/",
+    "/mix/docs/ecosystem/mix-lint/",
+    "/mix/docs/ecosystem/mix-schema/",
+    "/mix/docs/ecosystem/mix-winds/",
+    "/mix/docs/guides/",
+    "/mix/docs/guides/animations/",
+    "/mix/docs/guides/common-patterns/",
+    "/mix/docs/guides/design-token/",
+    "/mix/docs/guides/directives/",
+    "/mix/docs/guides/dynamic-styling/",
+    "/mix/docs/guides/styling/",
+    "/mix/docs/guides/widget-modifiers/",
+    "/mix/docs/overview/",
+    "/mix/docs/overview/comparison/",
+    "/mix/docs/overview/getting-started/",
+    "/mix/docs/overview/introduction/",
+    "/mix/docs/overview/migration/",
+    "/mix/docs/overview/utility-first/",
+    "/mix/docs/tutorials/",
+    "/mix/docs/tutorials/controlling-widget-state/",
+    "/mix/docs/tutorials/creating-a-widget/",
+    "/mix/docs/tutorials/creating-context-variants/",
+    "/mix/docs/tutorials/creating-custom-tokens/",
+    "/mix/docs/tutorials/theming/",
+    "/mix/docs/widgets/",
+    "/mix/docs/widgets/box/",
+    "/mix/docs/widgets/flexbox/",
+    "/mix/docs/widgets/icon/",
+    "/mix/docs/widgets/image/",
+    "/mix/docs/widgets/pressable/",
+    "/mix/docs/widgets/stack/",
+    "/mix/docs/widgets/stylewidgets/",
+    "/mix/docs/widgets/text/",
+    "/naked-ui/",
+    "/naked-ui/docs/",
+    "/naked-ui/docs/widget/",
+    "/naked-ui/docs/widget/accordion/",
+    "/naked-ui/docs/widget/button/",
+    "/naked-ui/docs/widget/checkbox/",
+    "/naked-ui/docs/widget/combobox/",
+    "/naked-ui/docs/widget/dialog/",
+    "/naked-ui/docs/widget/disclosure/",
+    "/naked-ui/docs/widget/link/",
+    "/naked-ui/docs/widget/menu/",
+    "/naked-ui/docs/widget/menubar/",
+    "/naked-ui/docs/widget/popover/",
+    "/naked-ui/docs/widget/radio/",
+    "/naked-ui/docs/widget/scrollbar/",
+    "/naked-ui/docs/widget/select/",
+    "/naked-ui/docs/widget/slider/",
+    "/naked-ui/docs/widget/switch/",
+    "/naked-ui/docs/widget/tabs/",
+    "/naked-ui/docs/widget/text-magnifier/",
+    "/naked-ui/docs/widget/textfield/",
+    "/naked-ui/docs/widget/toast/",
+    "/naked-ui/docs/widget/toggle-group/",
+    "/naked-ui/docs/widget/toggle/",
+    "/naked-ui/docs/widget/tooltip/",
+    "/remix/",
+    "/remix/docs/",
+    "/remix/docs/agent/",
+    "/remix/docs/agent/activity/",
+    "/remix/docs/agent/answer/",
+    "/remix/docs/agent/composer/",
+    "/remix/docs/agent/execution/",
+    "/remix/docs/agent/message/",
+    "/remix/docs/agent/permission/",
+    "/remix/docs/agent/plan/",
+    "/remix/docs/agent/transcript/",
+    "/remix/docs/components/",
+    "/remix/docs/components/accordion/",
+    "/remix/docs/components/app_bar/",
+    "/remix/docs/components/avatar/",
+    "/remix/docs/components/badge/",
+    "/remix/docs/components/button/",
+    "/remix/docs/components/callout/",
+    "/remix/docs/components/card/",
+    "/remix/docs/components/checkbox/",
+    "/remix/docs/components/checkbox_group/",
+    "/remix/docs/components/data_list/",
+    "/remix/docs/components/data_table/",
+    "/remix/docs/components/dialog/",
+    "/remix/docs/components/disclosure/",
+    "/remix/docs/components/divider/",
+    "/remix/docs/components/icon_button/",
+    "/remix/docs/components/link/",
+    "/remix/docs/components/menu/",
+    "/remix/docs/components/popover/",
+    "/remix/docs/components/progress/",
+    "/remix/docs/components/radio/",
+    "/remix/docs/components/segmented_control/",
+    "/remix/docs/components/select/",
+    "/remix/docs/components/sidebar/",
+    "/remix/docs/components/skeleton/",
+    "/remix/docs/components/slider/",
+    "/remix/docs/components/spinner/",
+    "/remix/docs/components/switch/",
+    "/remix/docs/components/tabs/",
+    "/remix/docs/components/textarea/",
+    "/remix/docs/components/textfield/",
+    "/remix/docs/components/toast/",
+    "/remix/docs/components/toggle/",
+    "/remix/docs/components/toggle_group/",
+    "/remix/docs/components/tooltip/",
+    "/remix/docs/fortal/",
+    "/remix/docs/fortal/catalog/",
+    "/remix/docs/fortal/typography/",
+    "/remix/docs/getting-started/",
+    "/remix/docs/guides/",
+    "/remix/docs/guides/icons/",
+    "/remix/docs/guides/registries/",
+    "/remix/docs/guides/styling-components/",
+    "/remix/docs/open-code/",
+    "/remix/docs/styler-api/",
+    "/remix/docs/tutorials/",
+    "/remix/docs/tutorials/settings-screen/"
+  ],
+  "sources": {
+    "mix-previews": {
+      "repository": "btwld/mix-website",
+      "commit": "07f167db8124ce0870ad5736b54512506c0f0df2"
+    },
+    "naked-ui-docs": {
+      "repository": "btwld/remix",
+      "commit": "15df6302de02b6543e72b43b02880cc110398c48"
+    },
+    "remix-docs": {
+      "repository": "btwld/remix",
+      "commit": "ba450dc72223d3ebacee0282b989d4ee2823828f"
+    }
+  }
+}

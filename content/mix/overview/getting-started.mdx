@@ -1,0 +1,98 @@
+---
+title: Getting Started
+og_image: getting-started-og.png
+description: "Install Mix 2 and build your first styled widget with the fluent Styler API."
+---
+
+This guide walks you through installing Mix and building your first styled widget.
+
+## Prerequisites
+
+Before installing Mix, ensure you have:
+
+- **Dart SDK**: 3.12.0 or higher (below 4.0.0)
+- **Flutter**: 3.44.0 or higher
+
+<Steps>
+
+### Installation
+
+Install the latest version:
+
+```bash
+flutter pub add mix
+```
+
+Or pin explicitly in `pubspec.yaml`:
+
+```yaml
+dependencies:
+  mix: ^2.3.1
+```
+
+Import it where you use it:
+
+```dart
+import 'package:mix/mix.dart';
+```
+
+### Your first Mix widget
+
+Build a blue card with "Hello Mix" text. The `BoxStyler` and `TextStyler` classes define styles with a fluent API, and calling them directly creates the corresponding widget:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:mix/mix.dart';
+
+class Example extends StatelessWidget {
+  const Example({super.key});
+
+  BoxStyler get _box => BoxStyler()
+      .size(240, 100)
+      .color(Colors.blue)
+      .alignment(.center)
+      .borderRadius(.circular(12))
+      .border(
+        .color(Colors.black)
+        .width(1)
+        .style(.solid),
+      );
+
+  TextStyler get _text => TextStyler().color(Colors.white).fontSize(18);
+
+  @override
+  Widget build(BuildContext context) {
+    return _box(child: _text('Hello Mix'));
+  }
+}
+```
+
+<FlutterPreview previewId="overview/getting-started.0" height={220} />
+
+### Reuse the style
+
+Extract styles into top-level variables and reuse them across widgets. You can also pass styles via the `style` parameter using Mix's widget classes like `Box` and `StyledText`, and override individual properties by chaining:
+
+```dart
+final primaryCard = BoxStyler()
+    .color(Colors.blue)
+    .borderRadius(.circular(12));
+
+final box = Box(style: primaryCard, child: StyledText('Primary'));
+
+final box2 = Box(
+  style: primaryCard.color(Colors.green),
+  child: StyledText('Success'),
+);
+```
+
+### What's next
+
+- [Dynamic Styling](/mix/docs/guides/dynamic-styling/) — adapt styles for hover, press, dark mode, and breakpoints
+- [Animations Guide](/mix/docs/guides/animations/) — implicit, phase, and keyframe animations
+- [Design Tokens and Theming](/mix/docs/guides/design-token/) — reusable tokens for colors, spacing, and radii
+- [Widget Reference](/mix/docs/widgets/stylewidgets/) — all available Mix widgets (Box, FlexBox, Text, Icon, and more)
+- [Widget Modifiers](/mix/docs/guides/widget-modifiers/) — opacity, clipping, visibility, and other widget wrappers
+- [mix_winds Ecosystem Package](/mix/docs/ecosystem/mix-winds/) — utility-first styling inspired by Tailwind CSS
+
+</Steps>

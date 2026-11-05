@@ -1,0 +1,49 @@
+name: mix_docs_preview
+description: Flutter preview widgets and manifest for the Mix documentation site.
+publish_to: none
+version: 1.0.0
+
+environment:
+  sdk: ">=3.12.0 <4.0.0"
+  flutter: ">=3.44.0"
+
+dependencies:
+  cupertino_icons: ^1.0.8
+  flutter:
+    sdk: flutter
+  mix: ^2.1.0
+  # The mix_winds name on pub.dev still resolves to a placeholder package, so
+  # the preview is pinned to the rename commit. Switch to a compatible hosted
+  # release once one is published. This package is publish_to: none, so the git
+  # pin only affects the docs preview build.
+  mix_winds:
+    git:
+      url: https://github.com/btwld/mix.git
+      path: packages/mix_winds
+      ref: e3133c3565e0c788b3f05f889ed75cb83f8acecb
+  remix:
+    git:
+      url: https://github.com/btwld/remix.git
+      path: packages/remix
+      ref: bc95c45d5e5ddd269c83c3ede2c30a900882bf0e
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  dart_code_metrics_presets: ^2.24.0
+  flutter_lints: ^6.0.0
+
+# mix_winds uses Mix APIs (onFocusVisible, Pressable.semanticsLabel) that exist
+# in the monorepo but not in any published mix release, and remix pins mix from
+# pub.dev, so the two sources cannot be reconciled by version solving alone.
+# Overriding mix onto the same commit keeps the whole preview build on one Mix.
+# Remove this once a mix prerelease ships those APIs.
+dependency_overrides:
+  mix:
+    git:
+      url: https://github.com/btwld/mix.git
+      path: packages/mix
+      ref: e3133c3565e0c788b3f05f889ed75cb83f8acecb
+
+flutter:
+  uses-material-design: true

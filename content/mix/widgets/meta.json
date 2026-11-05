@@ -1,0 +1,13 @@
+{
+  "title": "Widgets",
+  "pages": [
+    "stylewidgets",
+    "box",
+    "flexbox",
+    "text",
+    "icon",
+    "image",
+    "pressable",
+    "stack"
+  ]
+}

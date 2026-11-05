@@ -1,0 +1,25 @@
+node_modules/
+.next/
+.source/
+.generated/
+.site-inputs/
+next-env.d.ts
+*.tsbuildinfo
+# Staged from pinned site inputs by scripts/site-inputs/sync.mjs
+public/previews/
+public/remix/
+# Playwright
+test-results/
+playwright-report/
+.apphosting/
+# Local evidence, scratch, and Flutter outputs
+.context/
+.dart_tool/
+**/.dart_tool/
+**/build/
+
+.next-*/
+out/
+public/__site.json
+.firebase/
+*-debug.log

@@ -1,0 +1,13 @@
+{
+  "$comment": "Full canonical docs snapshot; additions at the pinned revision are included.",
+  "remix": {
+    "pages": [
+      "*"
+    ]
+  },
+  "naked-ui": {
+    "pages": [
+      "*"
+    ]
+  }
+}

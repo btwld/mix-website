@@ -1,0 +1,12 @@
+{
+  "title": "Guides",
+  "pages": [
+    "styling",
+    "design-token",
+    "dynamic-styling",
+    "widget-modifiers",
+    "animations",
+    "directives",
+    "common-patterns"
+  ]
+}

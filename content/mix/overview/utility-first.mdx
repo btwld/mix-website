@@ -1,0 +1,81 @@
+---
+title: "Utility-First Approach"
+description: "Understand Mix's utility-first styling model and composable Styler patterns."
+---
+
+Mix embraces a **utility-first styling model** through the **Styler API**.
+A *styler* (such as `BoxStyler`) provides small, composable utilities — like `color`, `border`, `borderRadius`, or `padding` — that you combine to express the style you need.
+
+This approach promotes:
+
+- **Composability** — combine, conditionally apply, or reuse utilities across contexts
+- **Efficiency** — chainable methods reduce boilerplate compared to nested widget trees
+- **Flexibility** — build modular UIs without being locked into rigid abstractions
+- **Readability** — styles read top-to-bottom as a list of properties
+
+## Building Styles
+
+`Styler` methods are descriptive, predictable, and easy to chain:
+
+```dart
+final boxStyle = BoxStyler()
+    .color(Colors.red)
+    .size(100, 100)
+    .borderRadius(.circular(10));
+```
+
+Each method adds a style property and returns the styler, so you can chain as many as you need.
+
+<FlutterPreview previewId="overview/utility-first.0" height={200} />
+
+## Intuitive and Familiar API
+
+Method names follow Flutter's own conventions, so the API feels familiar:
+
+```dart
+// Explicit alignment
+BoxStyler().alignment(.centerRight);
+
+// Spacing helpers
+BoxStyler().padding(.all(16));
+BoxStyler().padding(.horizontal(12).vertical(8));
+BoxStyler().padding(.left(12).top(8));
+```
+
+## Built-in Border Helpers
+
+Direct border methods are available on the styler:
+
+```dart
+// Red border on all sides
+BoxStyler().border(.color(Colors.red));
+
+// Top border only with custom width
+BoxStyler().border(.top(color: Colors.red, width: 2));
+```
+
+## Custom Helpers
+
+You can create your own shorthand by defining helper functions or extending `BoxStyler` with extension methods:
+
+```dart
+// Custom helper function
+BoxStyler accentBorder(Color color) =>
+    BoxStyler().border(.top(color: color, width: 2));
+
+// Use the helper
+accentBorder(Colors.red);
+
+// Extension method
+extension on BoxStyler {
+  BoxStyler borderRedTop() => border(.top(color: Colors.red));
+}
+
+// Use the extension method
+BoxStyler().borderRedTop();
+```
+
+## Next Steps
+
+- [Styling Guide](/mix/docs/guides/styling/) — the full Styler and Spec pattern in depth
+- [Dynamic Styling](/mix/docs/guides/dynamic-styling/) — variants for hover, dark mode, and breakpoints

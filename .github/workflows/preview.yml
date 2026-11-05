@@ -1,0 +1,80 @@
+# The privileged workflow is loaded from the default branch, never the PR head.
+name: Deploy review preview
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+permissions:
+  contents: read
+jobs:
+  validate:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.head_repository.id == 1444465253 && github.event.workflow_run.conclusion == 'success' && github.repository_id == '1444465253' && github.repository_owner_id == '83911646'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    outputs:
+      pr: ${{ steps.gate.outputs.pr }}
+      sha: ${{ steps.gate.outputs.sha }}
+      artifact: ${{ steps.gate.outputs.artifact }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .node-version
+      - id: gate
+        run: node scripts/deploy/preview.mjs inspect
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+  deploy:
+    needs: validate
+    if: vars.PREVIEW_WORKLOAD_IDENTITY_PROVIDER != '' && vars.PREVIEW_DEPLOY_SERVICE_ACCOUNT != '' && vars.PREVIEW_HOSTING_SITE != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: preview
+    concurrency:
+      group: review-preview-${{ needs.validate.outputs.pr }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+      deployments: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .node-version
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          artifact-ids: ${{ needs.validate.outputs.artifact }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: preview-data
+          merge-multiple: true
+      - id: auth
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ vars.PREVIEW_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.PREVIEW_DEPLOY_SERVICE_ACCOUNT }}
+          project_id: bitwild-oss
+          token_format: access_token
+          create_credentials_file: false
+      - name: Validate data, upload, recheck PR head, release and verify served SHA
+        run: node scripts/deploy/preview.mjs deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GOOGLE_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          GOOGLE_CLOUD_PROJECT: bitwild-oss
+          PREVIEW_HOSTING_SITE: ${{ vars.PREVIEW_HOSTING_SITE }}
+          PR_NUMBER: ${{ needs.validate.outputs.pr }}
+          PREVIEW_SHA: ${{ needs.validate.outputs.sha }}

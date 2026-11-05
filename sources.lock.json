@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "inputs": {
+    "mix-previews": {
+      "source": {
+        "repository": "btwld/mix-website",
+        "commit": "23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7"
+      },
+      "artifact": {
+        "url": "https://github.com/btwld/mix-website/releases/download/site-input-mix-previews-23a73c6c0dda/mix-previews-23a73c6c0dda.tar.gz",
+        "sha256": "ba0a0926fab14633193e48df60dc13df9513dd415deb6adce8cdc87a2ded85e5",
+        "size": 1931761
+      },
+      "toolchain": {
+        "flutter": "3.44.0",
+        "flutterRevision": "559ffa3f75e7402d65a8def9c28389a9b2e6fe42",
+        "dart": "3.12.0",
+        "engineRevision": "4c525dac5ebe5971c5708ef73558ed8edcf4a362"
+      },
+      "producer": {
+        "repository": "btwld/mix-website",
+        "script": "scripts/site-inputs/produce/mix-previews.sh",
+        "commit": "23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7"
+      }
+    },
+    "naked-ui-docs": {
+      "source": {
+        "repository": "btwld/remix",
+        "commit": "99c6da876de43f54d039bdb097fe5c7b74dce709"
+      },
+      "artifact": {
+        "url": "https://github.com/btwld/mix-website/releases/download/site-input-naked-ui-docs-99c6da876de4/naked-ui-docs-99c6da876de4.tar.gz",
+        "sha256": "5f48d696d21c6ba265039d56a3f1d730ba248a4c211cff7a31cbe6818f158af1",
+        "size": 40353
+      },
+      "toolchain": {
+        "flutter": "3.44.0",
+        "flutterRevision": "559ffa3f75e7402d65a8def9c28389a9b2e6fe42",
+        "dart": "3.12.0"
+      },
+      "producer": {
+        "repository": "btwld/mix-website",
+        "script": "scripts/site-inputs/produce/naked-ui-docs.sh",
+        "commit": "4230ceeed0c0526dbc72769c35cf020b0e803015"
+      }
+    },
+    "remix-docs": {
+      "source": {
+        "repository": "btwld/remix",
+        "commit": "ba450dc72223d3ebacee0282b989d4ee2823828f"
+      },
+      "artifact": {
+        "url": "https://github.com/btwld/mix-website/releases/download/site-input-remix-docs-ba450dc72223/remix-docs-ba450dc72223.tar.gz",
+        "sha256": "0e93f8f70911f818820e050ea370bbace8ace3cef5293760c5b6570a119e9622",
+        "size": 18500647
+      },
+      "toolchain": {
+        "flutter": "3.44.0",
+        "flutterRevision": "559ffa3f75e7402d65a8def9c28389a9b2e6fe42",
+        "dart": "3.12.0",
+        "engineRevision": "4c525dac5ebe5971c5708ef73558ed8edcf4a362"
+      },
+      "producer": {
+        "repository": "btwld/mix-website",
+        "script": "scripts/site-inputs/produce/remix-docs.sh",
+        "commit": "4230ceeed0c0526dbc72769c35cf020b0e803015"
+      }
+    }
+  }
+}

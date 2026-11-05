@@ -1,0 +1,9 @@
+{
+  "title": "Ecosystem",
+  "pages": [
+    "mix-winds",
+    "mix-schema",
+    "mix-lint",
+    "mix-generator"
+  ]
+}
