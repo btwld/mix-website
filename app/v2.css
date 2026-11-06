@@ -1,0 +1,147 @@
+/* Version 2 prototype: the page is a guided tour of one running Flutter app. */
+/* The floating nav's shadow would otherwise smudge a light look on the stage. */
+body:has(.v2) .site-nav-bar { box-shadow: none; }
+.v2 {
+  --v2-layer: 167 139 250;
+  --v2-gutter: clamp(20px, 3vw, 48px);
+  padding-bottom: 0;
+}
+.v2[data-layer='remix'] { --v2-layer: 34 230 110; }
+.v2[data-layer='naked'] { --v2-layer: 125 190 255; }
+.v2[data-layer='blocks'] { --v2-layer: 232 232 240; }
+.v2 [data-layer='mix'] .v2-tag { color: rgb(167 139 250); }
+.v2 [data-layer='remix'] .v2-tag { color: rgb(34 230 110); }
+.v2 [data-layer='naked'] .v2-tag { color: rgb(125 190 255); }
+.v2 [data-layer='blocks'] .v2-tag { color: rgb(232 232 240); }
+
+.v2-tour {
+  display: grid;
+  grid-template-columns: minmax(340px, 30rem) minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  column-gap: clamp(32px, 4vw, 72px);
+  max-width: 112rem;
+  margin-inline: auto;
+  padding-inline: var(--v2-gutter);
+}
+.v2-hero { grid-column: 1; grid-row: 1; min-height: calc(100svh - 88px); padding-top: 112px; }
+.v2-hero img { display: block; margin-bottom: 28px; }
+.v2-hero h1 { font-size: clamp(40px, 3.7vw, 60px); line-height: 1.04; letter-spacing: -.035em; font-weight: 700; }
+.v2-lead { margin-top: 20px; font-size: 19px; line-height: 1.5; color: var(--lx-ink-dim); }
+.v2-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.v2-hint { margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--lx-line); font-size: 15px; line-height: 1.6; color: var(--lx-ink-dim); }
+.v2-hint strong { color: var(--lx-ink); font-weight: 600; }
+
+.v2-stage-column {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  position: sticky;
+  top: 84px;
+  align-self: start;
+  display: grid;
+  gap: 12px;
+  height: calc(100svh - 104px);
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+.v2-stage {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #07060c;
+  box-shadow: 0 0 0 1px rgb(var(--v2-layer) / 28%), 0 30px 80px -30px rgb(var(--v2-layer) / 34%);
+  transition: box-shadow .5s ease;
+}
+/* Flutter claims every touch. Vertical drags must stay with the page, or the
+   pinned app would stop phones scrolling. Taps and sideways drags reach it. */
+.v2-host { position: absolute; inset: 0; }
+.v2-host flutter-view { touch-action: pan-y !important; }
+.v2-missing { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; font-size: 15px; color: var(--lx-ink-dim); }
+.v2-poster { position: absolute; inset: 0; pointer-events: none; transition: opacity .5s ease .1s; }
+.v2-poster img { width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+.v2-stage[data-ready='true'] .v2-poster { opacity: 0; }
+
+/* One slim progress bar: a dash per chapter, grouped by project. */
+.v2-steps { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.v2-step { display: flex; flex-direction: column; justify-content: flex-end; gap: 7px; min-height: 34px; font-size: 12.5px; font-weight: 500; color: var(--lx-ink-dim); transition: color .3s; }
+.v2-step i { display: block; height: 3px; border-radius: 2px; background: var(--lx-line); transition: background .3s; }
+.v2-step[data-state='done'] i { background: rgb(255 255 255 / 42%); }
+.v2-step[data-state='current'] i { background: rgb(var(--v2-layer)); }
+.v2-step[data-group-on='true'] { color: var(--lx-ink); }
+.v2-step:hover i { background: rgb(255 255 255 / 70%); }
+.v2-step:focus-visible { outline: 2px solid rgb(var(--v2-layer)); outline-offset: 3px; border-radius: 4px; }
+
+/* A review tool, kept apart from the product. It goes once a subject is chosen. */
+.v2-prototype { position: fixed; z-index: 60; top: 22px; right: 24px; display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11.5px; color: var(--lx-ink-dim); }
+.v2-prototype select { padding: 5px 8px; border: 1px solid var(--lx-line); border-radius: 8px; background: rgb(13 11 20 / 80%); color: var(--lx-ink); font: inherit; cursor: pointer; }
+
+.v2-rail { grid-column: 1; grid-row: 2; }
+.v2-chapter { display: flex; align-items: center; min-height: 96svh; padding-block: 48px; opacity: .34; transition: opacity .35s ease; }
+.v2-chapter[data-active='true'] { opacity: 1; }
+.v2-chapter-body { width: 100%; }
+/* Long enough that scrolling through it walks the app through every look. */
+.v2-chapter[data-chapter='looks'] { align-items: flex-start; min-height: 340svh; }
+.v2-chapter[data-chapter='looks'] .v2-chapter-body { position: sticky; top: 140px; }
+.v2-tag { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .04em; margin-bottom: 14px; }
+.v2-chapter h2 { font-size: clamp(30px, 2.6vw, 42px); line-height: 1.08; letter-spacing: -.03em; font-weight: 700; }
+.v2-chapter h2 + p { margin-top: 16px; }
+.v2-chapter p:not(.v2-tag) { font-size: 17px; line-height: 1.6; color: var(--lx-ink-dim); }
+.v2-chapter p code { font-family: var(--font-mono); font-size: .9em; color: var(--lx-ink); }
+
+.v2-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.v2-chips button { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--lx-line); font-size: 14.5px; font-weight: 500; color: var(--lx-ink-dim); cursor: pointer; transition: border-color .2s, color .2s, background .2s; }
+.v2-chips button:hover { color: var(--lx-ink); }
+.v2-chips button[aria-pressed='true'] { color: var(--lx-ink); border-color: rgb(var(--v2-layer)); background: rgb(var(--v2-layer) / 10%); }
+.v2-swatch { width: 16px; height: 16px; border-radius: 5px; box-shadow: 0 0 0 1px rgb(255 255 255 / 20%); }
+
+.v2-code { margin-top: 22px; border: 1px solid var(--lx-line); border-radius: 12px; background: var(--lx-surface); overflow: hidden; }
+.v2-code figcaption { padding: 9px 14px; border-bottom: 1px solid var(--lx-line); font-family: var(--font-mono); font-size: 11.5px; color: var(--lx-ink-dim); }
+.v2-code pre { margin: 0; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere; background: transparent !important; font-size: 12.5px; line-height: 1.6; }
+.v2-code pre code { white-space: inherit; }
+
+.v2-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 18px; font-size: 15px; font-weight: 600; white-space: nowrap; color: var(--lx-ink); cursor: pointer; }
+.v2-link svg { flex: none; width: 15px; height: 15px; }
+
+.v2-widgets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 22px; }
+.v2-widgets a { display: block; padding: 6px 11px; border-radius: 8px; border: 1px solid var(--lx-line); font-size: 13.5px; color: var(--lx-ink-dim); }
+.v2-widgets a:hover { color: var(--lx-ink); border-color: rgb(var(--v2-layer) / 60%); }
+
+.v2-blocks { display: grid; gap: 8px; margin-top: 22px; }
+.v2-blocks button { display: grid; gap: 3px; padding: 13px 15px; border-radius: 12px; border: 1px solid var(--lx-line); text-align: left; cursor: pointer; transition: border-color .2s, background .2s; }
+.v2-blocks button[aria-pressed='true'] { border-color: rgb(var(--v2-layer)); background: rgb(var(--v2-layer) / 9%); }
+.v2-blocks strong { font-size: 15.5px; font-weight: 600; }
+.v2-blocks span { font-size: 14px; line-height: 1.5; color: var(--lx-ink-dim); }
+
+.v2-end { max-width: 112rem; margin-inline: auto; padding: clamp(72px, 10vw, 140px) var(--v2-gutter); }
+.v2-end h2 { font-size: clamp(32px, 3.4vw, 52px); letter-spacing: -.03em; font-weight: 700; }
+.v2-end-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 36px; }
+.v2-end article { padding: 24px; border-radius: 16px; border: 1px solid var(--lx-line); background: var(--lx-surface); }
+.v2-end h3 { font-size: 20px; font-weight: 600; }
+.v2-end article p { margin-top: 6px; font-size: 15.5px; color: var(--lx-ink-dim); }
+.v2-end code { display: block; margin-top: 18px; padding: 10px 12px; border-radius: 9px; background: rgb(0 0 0 / 35%); font-family: var(--font-mono); font-size: 13.5px; }
+
+@media (max-width: 62rem) {
+  .v2-tour { display: flex; flex-direction: column; }
+  .v2-hero { min-height: 0; padding-top: 104px; padding-bottom: 28px; }
+  .v2-hero h1 { font-size: clamp(34px, 9vw, 44px); }
+  .v2-hint { display: none; }
+  .v2-stage-column { position: sticky; top: 72px; z-index: 2; align-self: stretch; height: calc(52svh + 28px); grid-template-rows: minmax(0, 1fr) auto; gap: 4px; }
+  .v2-prototype { display: none; }
+  /* Dashes only on a phone: the chapter title names where you are. */
+  .v2-steps { grid-template-columns: repeat(6, 1fr); gap: 4px; }
+  .v2-step { min-height: 24px; justify-content: center; }
+  .v2-step span { display: none; }
+  .v2-step[data-step='adapt'] { display: none; }
+  .v2-stage { border-radius: 16px; }
+  .v2-chapter { min-height: 72svh; align-items: flex-start; padding-block: 40px; }
+  .v2-chapter[data-chapter='adapt'] { display: none; }
+  .v2-chapter[data-chapter='looks'] { min-height: 300svh; padding-top: 28px; }
+  .v2-chapter[data-chapter='looks'] .v2-chapter-body { top: calc(72px + 52svh + 12px); }
+  .v2-chapter[data-chapter='looks'] :is(.v2-code, .v2-link), .v2-chapter[data-chapter='looks'] p:not(.v2-tag) { display: none; }
+  .v2-chapter[data-chapter='looks'] h2 { font-size: 24px; }
+  .v2-end-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v2-chapter, .v2-poster, .v2-stage { transition: none; }
+  .v2-chapter[data-chapter='looks'] { min-height: 96svh; }
+  .v2-chapter[data-chapter='looks'] .v2-chapter-body { position: static; }
+}

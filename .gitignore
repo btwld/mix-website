@@ -23,3 +23,4 @@ out/
 public/__site.json
 .firebase/
 *-debug.log
+public/v2-flutter/
