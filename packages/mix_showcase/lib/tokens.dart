@@ -4,7 +4,7 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/widgets.dart';
 import 'package:remix/remix.dart';
 
-// #docregion tokens
+// #docregion token-colors
 const $canvas = ColorToken('canvas');
 const $surface = ColorToken('surface');
 const $raised = ColorToken('raised');
@@ -14,16 +14,60 @@ const $muted = ColorToken('muted');
 const $accent = ColorToken('accent');
 const $onAccent = ColorToken('onAccent');
 const $art = ColorToken('art');
-
-// #enddocregion tokens
+// #enddocregion token-colors
 
 /// Mix tokens can hold any value, so a shape is a token like a color. A look
 /// can change every corner in the app without touching a widget.
-class ShapeToken extends MixToken<ShapeBorder> {
+class ShapeToken extends MixToken<OutlinedBorder> {
   const ShapeToken(super.name);
+
+  /// Showcase-specific adapter for `.shape()`, including custom [CutCorners].
+  ShapeBorderMix<OutlinedBorder> mix() => _TokenShapeMix(this);
 }
 
-// #docregion tokens-rest
+/// Mix 2.3.1 has no built-in shape-token reference. Resolve our complete shape
+/// through its public Mix extension point instead of exposing Prop plumbing in
+/// the styles. A later shape replaces the earlier shape as a whole.
+final class _TokenShapeMix extends OutlinedBorderMix<OutlinedBorder> {
+  const _TokenShapeMix(this.token);
+
+  final ShapeToken token;
+
+  @override
+  OutlinedBorder resolve(BuildContext context) => token.resolve(context);
+
+  @override
+  _TokenShapeMix merge(_TokenShapeMix? other) => other ?? this;
+
+  @override
+  List<Object?> get props => [token];
+}
+
+/// Every look has at most one shadow. Mix 2.3.1's `BoxShadowToken` holds a list
+/// that `.shadow()` and `.shadows()` cannot accept, so this token holds one
+/// shadow and gives it the same `.mix()` as the other tokens.
+class LiftToken extends MixToken<BoxShadow> {
+  const LiftToken(super.name);
+
+  /// Showcase-specific adapter for `.shadow()`.
+  BoxShadowMix mix() => _TokenShadowMix(this);
+}
+
+final class _TokenShadowMix extends BoxShadowMix {
+  const _TokenShadowMix(this.token) : super.create();
+
+  final LiftToken token;
+
+  @override
+  BoxShadow resolve(BuildContext context) => token.resolve(context);
+
+  @override
+  BoxShadowMix merge(BoxShadowMix? other) => other ?? this;
+
+  @override
+  List<Object?> get props => [token];
+}
+
 const $cardShape = ShapeToken('card');
 const $artShape = ShapeToken('art');
 const $controlShape = ShapeToken('control');
@@ -31,18 +75,18 @@ const $solidShape = ShapeToken('solid');
 const $tinyShape = ShapeToken('tiny');
 const $checkShape = ShapeToken('check');
 const $focusShape = ShapeToken('focus');
-const $stroke = DoubleToken('stroke');
-const $lift = BoxShadowToken('lift');
+const $checkFocusShape = ShapeToken('checkFocus');
+const $cardRing = ShapeToken('cardRing');
+const $swatchShape = ShapeToken('swatch');
+const $swatchRing = ShapeToken('swatchRing');
+const $lift = LiftToken('lift');
 
-const $display = TextStyleToken('display');
 const $title = TextStyleToken('title');
 const $stat = TextStyleToken('stat');
 const $body = TextStyleToken('body');
 const $small = TextStyleToken('small');
 const $lead = TextStyleToken('lead');
-// #enddocregion tokens-rest
 
-// #docregion cut-corners
 /// Flat cuts on the top-left and bottom-right, each with a bright edge piece.
 class CutCorners extends OutlinedBorder {
   const CutCorners({required this.cut, super.side, this.edge});
@@ -73,30 +117,47 @@ class CutCorners extends OutlinedBorder {
     final piece = Paint()
       ..color = color.withValues(alpha: color.a * 0.7)
       ..strokeWidth = 1.5;
-    canvas.drawLine(rect.topLeft.translate(0, size), rect.topLeft.translate(size, 0), piece);
-    canvas.drawLine(rect.bottomRight.translate(-size, 0), rect.bottomRight.translate(0, -size), piece);
+    canvas.drawLine(
+      rect.topLeft.translate(0, size),
+      rect.topLeft.translate(size, 0),
+      piece,
+    );
+    canvas.drawLine(
+      rect.bottomRight.translate(-size, 0),
+      rect.bottomRight.translate(0, -size),
+      piece,
+    );
   }
-  // #enddocregion cut-corners
 
   @override
   Path getOuterPath(Rect rect, {TextDirection? textDirection}) => _path(rect);
 
   @override
-  Path getInnerPath(Rect rect, {TextDirection? textDirection}) => _path(rect.deflate(side.strokeInset));
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
+      _path(rect.deflate(side.strokeInset));
 
   @override
-  void paintInterior(Canvas canvas, Rect rect, Paint paint, {TextDirection? textDirection}) =>
-      canvas.drawPath(_path(rect), paint);
+  void paintInterior(
+    Canvas canvas,
+    Rect rect,
+    Paint paint, {
+    TextDirection? textDirection,
+  }) => canvas.drawPath(_path(rect), paint);
 
   @override
   bool get preferPaintInterior => true;
 
   @override
   CutCorners copyWith({BorderSide? side, double? cut, Color? edge}) =>
-      CutCorners(cut: cut ?? this.cut, side: side ?? this.side, edge: edge ?? this.edge);
+      CutCorners(
+        cut: cut ?? this.cut,
+        side: side ?? this.side,
+        edge: edge ?? this.edge,
+      );
 
   @override
-  ShapeBorder scale(double t) => CutCorners(cut: cut * t, side: side.scale(t), edge: edge);
+  ShapeBorder scale(double t) =>
+      CutCorners(cut: cut * t, side: side.scale(t), edge: edge);
 
   @override
   ShapeBorder? lerpFrom(ShapeBorder? a, double t) {
@@ -112,7 +173,10 @@ class CutCorners extends OutlinedBorder {
 
   @override
   bool operator ==(Object other) =>
-      other is CutCorners && other.cut == cut && other.side == side && other.edge == edge;
+      other is CutCorners &&
+      other.cut == cut &&
+      other.side == side &&
+      other.edge == edge;
 
   @override
   int get hashCode => Object.hash(cut, side, edge);
@@ -136,13 +200,11 @@ class Look {
     required this.control,
     required this.card,
     required this.stroke,
-    required this.lift,
+    this.lift,
     required this.bodyFont,
     required this.displayFont,
     this.displayWeight = FontWeight.w700,
-    this.displaySize = 30,
     this.displayTracking = -0.6,
-    this.shout = false,
     this.cut = false,
   });
 
@@ -162,15 +224,14 @@ class Look {
   final double control;
   final double card;
   final double stroke;
-  final List<BoxShadow> lift;
+
+  /// Paper has no shadow at all, so its switch in Make it yours is disabled.
+  final BoxShadow? lift;
+
   final String bodyFont;
   final String displayFont;
   final FontWeight displayWeight;
-  final double displaySize;
   final double displayTracking;
-
-  /// Pop sets its headings in capitals with Mix's text directive.
-  final bool shout;
 
   /// Whether corners are cut flat instead of rounded.
   final bool cut;
@@ -194,7 +255,11 @@ const midnight = Look(
   onAccent: Color(0xFFFFFFFF),
   art: Color(0xFFF0619A),
   card: 16,
-  lift: [BoxShadow(color: Color(0x66000000), blurRadius: 32, offset: Offset(0, 16))],
+  lift: BoxShadow(
+    color: Color(0x66000000),
+    blurRadius: 32,
+    offset: Offset(0, 16),
+  ),
   bodyFont: 'Geist',
 );
 
@@ -216,10 +281,8 @@ const paper = Look(
   onAccent: Color(0xFFFFFAF2),
   art: Color(0xFFE3B261),
   card: 3,
-  lift: [],
   bodyFont: 'LibreFranklin',
   displayWeight: FontWeight.w400,
-  displaySize: 38,
   displayTracking: 0,
 );
 
@@ -241,12 +304,10 @@ const pop = Look(
   onAccent: Color(0xFFFFFFFF),
   art: Color(0xFFFF4D8D),
   card: 0,
-  lift: [BoxShadow(color: Color(0xFF111111), offset: Offset(6, 6))],
+  lift: BoxShadow(color: Color(0xFF111111), offset: Offset(6, 6)),
   bodyFont: 'Montserrat',
   displayWeight: FontWeight.w700,
-  displaySize: 28,
   displayTracking: -0.4,
-  shout: true,
 );
 
 // #docregion look-cyber
@@ -268,10 +329,9 @@ const cyber = Look(
   onAccent: Color(0xFF04120B),
   art: Color(0xFF0C5C34),
   card: 20,
-  lift: [BoxShadow(color: Color(0x3322FF88), blurRadius: 40)],
+  lift: BoxShadow(color: Color(0x3322FF88), blurRadius: 40),
   bodyFont: 'GeistMono',
   displayWeight: FontWeight.w500,
-  displaySize: 26,
   displayTracking: -0.8,
 );
 
@@ -291,27 +351,39 @@ const bare = Look(
   control: 0,
   card: 0,
   stroke: 1,
-  lift: [],
   bodyFont: 'GeistMono',
   displayFont: 'GeistMono',
   displayWeight: FontWeight.w500,
-  displaySize: 24,
 );
 
 const looks = [midnight, paper, pop, cyber];
 
-ShapeBorder _shape(Look look, double size, {BorderSide side = BorderSide.none, Color? edge}) => look.cut
+OutlinedBorder _shape(
+  Look look,
+  double size, {
+  BorderSide side = BorderSide.none,
+  Color? edge,
+}) => look.cut
     ? CutCorners(cut: size, side: side, edge: edge)
     : RoundedRectangleBorder(borderRadius: .circular(size), side: side);
 
-// #docregion scope
 /// Every look is one call to this function. No widget knows which is active.
-Widget lookScope(Look look, {Color? accent, double? corner, bool flat = false, required Widget child}) {
+Widget lookScope(
+  Look look, {
+  Color? accent,
+  double? corner,
+  bool flat = false,
+  required Widget child,
+}) {
   final tint = accent ?? look.accent;
   final control = corner ?? look.control;
   final card = corner == null ? look.card : corner * 1.5;
   final tiny = math.min(control, look.cut ? 4.0 : 5.0);
   final line = BorderSide(color: look.line, width: look.stroke);
+  // Ink, not the accent: a focus ring has to read on an accent fill as well.
+  final focus = BorderSide(color: look.ink, width: math.max(look.stroke, 1.5));
+  final ring = BorderSide(color: look.ink, width: 1.5);
+  // #docregion look-scope
   return MixScope(
     colors: {
       $canvas: look.canvas,
@@ -324,6 +396,7 @@ Widget lookScope(Look look, {Color? accent, double? corner, bool flat = false, r
       $onAccent: look.onAccent,
       $art: look.art,
     },
+    // #enddocregion look-scope
     tokens: {
       $cardShape: _shape(look, card, side: line, edge: look.cut ? tint : null),
       $artShape: _shape(look, look.cut ? card : card * 0.7),
@@ -331,20 +404,31 @@ Widget lookScope(Look look, {Color? accent, double? corner, bool flat = false, r
       $solidShape: _shape(look, control),
       $tinyShape: _shape(look, tiny),
       // A checkbox stays square-ish in every look: a circle reads as a radio.
-      $checkShape: _shape(look, tiny, side: BorderSide(color: look.muted, width: look.stroke)),
-      $focusShape: _shape(look, control, side: BorderSide(color: tint, width: math.max(look.stroke, 1.5))),
-    },
-    doubles: {$stroke: look.stroke},
-    boxShadows: {$lift: flat ? const [] : look.lift},
-    // #enddocregion scope
-    textStyles: {
-      $display: TextStyle(
-        fontFamily: look.displayFont,
-        fontSize: look.displaySize,
-        fontWeight: look.displayWeight,
-        letterSpacing: look.displayTracking,
-        height: 1.15,
+      $checkShape: _shape(
+        look,
+        tiny,
+        side: BorderSide(color: look.muted, width: look.stroke),
       ),
+      $focusShape: _shape(look, control, side: focus),
+      $checkFocusShape: _shape(look, tiny, side: focus),
+      $cardRing: _shape(
+        look,
+        card,
+        side: BorderSide(color: look.ink, width: 2),
+        edge: look.cut ? tint : null,
+      ),
+      // The same side width either way, so selecting a swatch cannot shift it.
+      $swatchShape: _shape(
+        look,
+        control,
+        side: ring.copyWith(color: const Color(0x00000000)),
+      ),
+      $swatchRing: _shape(look, control, side: ring),
+      $lift:
+          (flat ? null : look.lift) ??
+          const BoxShadow(color: Color(0x00000000)),
+    },
+    textStyles: {
       $stat: TextStyle(
         fontFamily: look.displayFont,
         fontSize: 32,
@@ -359,9 +443,24 @@ Widget lookScope(Look look, {Color? accent, double? corner, bool flat = false, r
         letterSpacing: look.displayTracking / 3,
         height: 1.2,
       ),
-      $title: TextStyle(fontFamily: look.bodyFont, fontSize: 14.5, fontWeight: FontWeight.w600, height: 1.3),
-      $body: TextStyle(fontFamily: look.bodyFont, fontSize: 14, fontWeight: FontWeight.w400, height: 1.4),
-      $small: TextStyle(fontFamily: look.bodyFont, fontSize: 12, fontWeight: FontWeight.w500, height: 1.3),
+      $title: TextStyle(
+        fontFamily: look.bodyFont,
+        fontSize: 14.5,
+        fontWeight: FontWeight.w600,
+        height: 1.3,
+      ),
+      $body: TextStyle(
+        fontFamily: look.bodyFont,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        height: 1.4,
+      ),
+      $small: TextStyle(
+        fontFamily: look.bodyFont,
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        height: 1.3,
+      ),
     },
     child: child,
   );

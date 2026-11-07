@@ -10,9 +10,14 @@ import 'showcase.dart';
 import 'styles.dart';
 import 'tokens.dart';
 
-/// Marks the block the tour is pointing at, without making the rest look off.
+/// Rings the block the tour is pointing at.
 class Block extends StatelessWidget {
-  const Block(this.id, {super.key, required this.child, this.nakedFocus = false});
+  const Block(
+    this.id, {
+    super.key,
+    required this.child,
+    this.nakedFocus = false,
+  });
 
   final String id;
   final Widget child;
@@ -23,32 +28,20 @@ class Block extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final showcase = ShowcaseScope.of(context);
-    final highlight = showcase.highlight;
-    final selected = highlight == id;
-    return AnimatedOpacity(
-      duration: const Duration(milliseconds: 320),
-      opacity: highlight == null || selected ? 1 : 0.78,
-      child: Stack(
-        fit: .passthrough,
-        children: [
-          ExcludeFocus(excluding: showcase.naked && !nakedFocus, child: child),
-          Positioned.fill(
-            child: IgnorePointer(
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 320),
-                opacity: selected ? 1 : 0,
-                child: DecoratedBox(
-                  decoration: ShapeDecoration(
-                    shape: ($cardShape.resolve(context) as OutlinedBorder).copyWith(
-                      side: BorderSide(color: $ink.resolve(context), width: 2),
-                    ),
-                  ),
-                ),
-              ),
+    return Stack(
+      fit: .passthrough,
+      children: [
+        ExcludeFocus(excluding: showcase.naked && !nakedFocus, child: child),
+        Positioned.fill(
+          child: IgnorePointer(
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 320),
+              opacity: showcase.highlight == id ? 1 : 0,
+              child: Box(style: BoxStyler().shape($cardRing.mix())),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -60,9 +53,20 @@ class CardDeck extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final showcase = ShowcaseScope.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth < 640) return _CompactDeck(height: constraints.maxHeight);
+        if (showcase.highlight case final selected?) {
+          return _FocusedBlock(id: selected, height: constraints.maxHeight);
+        }
+        if (showcase.naked && constraints.maxHeight < 548) {
+          return _FocusedBlock(id: 'today', height: constraints.maxHeight);
+        }
+        // #docregion responsive-deck
+        if (constraints.maxWidth < 640) {
+          return _CompactDeck(height: constraints.maxHeight);
+        }
+        // #enddocregion responsive-deck
         final height = math.min(constraints.maxHeight, 790.0);
         final room = height - 48;
         return Center(
@@ -79,8 +83,19 @@ class CardDeck extends StatelessWidget {
                       crossAxisAlignment: .stretch,
                       spacing: 14,
                       children: [
-                        const Expanded(child: Block('player', nakedFocus: true, child: NowPlaying(fill: true))),
-                        if (room >= 500) const Block('today', nakedFocus: true, child: Today()),
+                        const Expanded(
+                          child: Block(
+                            'player',
+                            nakedFocus: true,
+                            child: NowPlaying(fill: true),
+                          ),
+                        ),
+                        if (room >= 500)
+                          const Block(
+                            'today',
+                            nakedFocus: true,
+                            child: Today(),
+                          ),
                       ],
                     ),
                   ),
@@ -94,8 +109,11 @@ class CardDeck extends StatelessWidget {
                           Block('appearance', child: MakeItYours()),
                           Expanded(child: Block('team', child: Team())),
                         ] else ...[
-                          const Expanded(child: Block('spending', child: Spending())),
-                          if (room >= 390) const Block('appearance', child: MakeItYours()),
+                          const Expanded(
+                            child: Block('spending', child: Spending()),
+                          ),
+                          if (room >= 390)
+                            const Block('appearance', child: MakeItYours()),
                         ],
                       ],
                     ),
@@ -106,6 +124,55 @@ class CardDeck extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// Blocks remain reachable on a small stage: selection gives the actual card
+/// room to breathe instead of pointing at a card the overview could not fit.
+class _FocusedBlock extends StatelessWidget {
+  const _FocusedBlock({required this.id, required this.height});
+
+  final String id;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    final reduceMotion = ShowcaseScope.of(context).reduceMotion;
+    final Widget card = switch (id) {
+      'today' => const Today(),
+      'spending' => Spending(
+        chartHeight: (height - (MediaQuery.widthOf(context) < 320 ? 208 : 172))
+            .clamp(40, 144),
+      ),
+      'appearance' => const MakeItYours(),
+      'team' => const Team(),
+      _ => SizedBox(
+        height: height >= 390 ? (height - 32).clamp(200, 540) : 216,
+        child: NowPlaying(fill: height >= 390),
+      ),
+    };
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 460),
+          child: SizedBox(
+            width: double.infinity,
+            child: AnimatedSwitcher(
+              duration: reduceMotion
+                  ? Duration.zero
+                  : const Duration(milliseconds: 320),
+              child: Block(
+                id,
+                key: ValueKey(id),
+                nakedFocus: true,
+                child: card,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -128,7 +195,10 @@ class _CompactDeck extends StatelessWidget {
   Widget build(BuildContext context) {
     var room = height - 2 * _gap;
     final shown = <Widget>[];
-    for (final (blockHeight, block) in _blocks) {
+    final blocks = ShowcaseScope.of(context).naked
+        ? [_blocks[1], _blocks[0], ..._blocks.skip(2)]
+        : _blocks;
+    for (final (blockHeight, block) in blocks) {
       final cost = blockHeight + (shown.isEmpty ? 0 : _gap);
       if (cost > room) break;
       room -= cost;
@@ -137,36 +207,11 @@ class _CompactDeck extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(_gap),
-        child: Column(mainAxisSize: .min, crossAxisAlignment: .stretch, spacing: _gap, children: shown),
-      ),
-    );
-  }
-}
-
-/// One object with air around it.
-class SingleCard extends StatelessWidget {
-  const SingleCard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420, maxHeight: 640),
-          child: LayoutBuilder(
-            builder: (context, constraints) => Box(
-              style: cardPad,
-              child: Column(
-                crossAxisAlignment: .stretch,
-                spacing: 14,
-                children: [
-                  Expanded(child: _Player(fill: constraints.maxHeight >= 330)),
-                  if (constraints.maxHeight >= 520) const _Queue(),
-                ],
-              ),
-            ),
-          ),
+        child: Column(
+          mainAxisSize: .min,
+          crossAxisAlignment: .stretch,
+          spacing: _gap,
+          children: shown,
         ),
       ),
     );
@@ -179,7 +224,10 @@ class NowPlaying extends StatelessWidget {
   final bool fill;
 
   @override
-  Widget build(BuildContext context) => Box(style: cardPad, child: _Player(fill: fill));
+  Widget build(BuildContext context) => Box(
+    style: cardPad,
+    child: _Player(fill: fill),
+  );
 }
 
 /// Generated cover art: a grid of styled boxes. It needs no imagery, and every
@@ -191,18 +239,43 @@ class CoverArt extends StatelessWidget {
   final int columns;
 
   // Corner each tile rounds off: 0 none, 1 to 4 top-left clockwise, 5 all.
-  static const _corners = [3, 0, 2, 5, 1, 4, 0, 4, 1, 3, 2, 0, 5, 2, 4, 3, 0, 1, 2, 5, 4, 0, 3, 1];
+  static const _corners = [
+    3,
+    0,
+    2,
+    5,
+    1,
+    4,
+    0,
+    4,
+    1,
+    3,
+    2,
+    0,
+    5,
+    2,
+    4,
+    3,
+    0,
+    1,
+    2,
+    5,
+    4,
+    0,
+    3,
+    1,
+  ];
   static const _inks = [$accent, $art, $ink, $accent, $line, $art, $accent];
 
-  BorderRadiusGeometry _radius(int corner, double size) {
+  BorderRadiusMix _radius(int corner, double size) {
     final round = Radius.circular(size);
     return switch (corner) {
-      1 => BorderRadius.only(topLeft: round),
-      2 => BorderRadius.only(topRight: round),
-      3 => BorderRadius.only(bottomRight: round),
-      4 => BorderRadius.only(bottomLeft: round),
-      5 => BorderRadius.all(Radius.circular(size / 2)),
-      _ => BorderRadius.zero,
+      1 => .topLeft(round),
+      2 => .topRight(round),
+      3 => .bottomRight(round),
+      4 => .bottomLeft(round),
+      5 => .circular(size / 2),
+      _ => .circular(0),
     };
   }
 
@@ -211,48 +284,59 @@ class CoverArt extends StatelessWidget {
     final showcase = ShowcaseScope.of(context);
     final cut = showcase.activeLook.cut;
     return Box(
-      style: BoxStyler().color($raised()).decoration(shape($artShape)).clipBehavior(.antiAlias).animate(motion),
+      style: BoxStyler()
+          .color($raised())
+          .shape($artShape.mix())
+          .clipBehavior(.antiAlias)
+          .animate(motion),
       // With styling off there is nothing to draw, only the space it holds.
-      child: showcase.naked ? null : LayoutBuilder(
-        builder: (context, constraints) {
-          // Whole-pixel tiles leave no seams. The clip trims the last row and column.
-          final size = (constraints.maxWidth / columns).ceilToDouble();
-          final rows = (constraints.maxHeight / size).ceil();
-          return ClipRect(
-            child: OverflowBox(
-              alignment: .topLeft,
-              maxWidth: double.infinity,
-              maxHeight: double.infinity,
-              child: Column(
-                mainAxisSize: .min,
-                children: [
-                  for (var row = 0; row < rows; row++)
-                    Row(
+      child: showcase.naked
+          ? null
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                // Whole-pixel tiles leave no seams. The clip trims the last row and column.
+                final size = (constraints.maxWidth / columns).ceilToDouble();
+                final rows = (constraints.maxHeight / size).ceil();
+                return ClipRect(
+                  child: OverflowBox(
+                    alignment: .topLeft,
+                    maxWidth: double.infinity,
+                    maxHeight: double.infinity,
+                    child: Column(
                       mainAxisSize: .min,
                       children: [
-                        for (var column = 0; column < columns; column++)
-                          _tile(row * columns + column + seed * 5, size, cut),
+                        for (var row = 0; row < rows; row++)
+                          Row(
+                            mainAxisSize: .min,
+                            children: [
+                              for (var column = 0; column < columns; column++)
+                                _tile(
+                                  row * columns + column + seed * 5,
+                                  size,
+                                  cut,
+                                ),
+                            ],
+                          ),
                       ],
                     ),
-                ],
-              ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 
   Widget _tile(int index, double size, bool cut) {
     final radius = _radius(_corners[index % _corners.length], size);
-    final ShapeBorderMix border = cut
-        ? BeveledRectangleBorderMix.value(BeveledRectangleBorder(borderRadius: radius))
-        : RoundedRectangleBorderMix.value(RoundedRectangleBorder(borderRadius: radius));
     return Box(
       style: BoxStyler()
           .size(size, size)
           .color(_inks[(index * 5 + seed) % _inks.length]())
-          .decoration(ShapeDecorationMix(shape: border))
+          .shape(
+            cut
+                ? .beveledRectangle(borderRadius: radius)
+                : .roundedRectangle(borderRadius: radius),
+          )
           .animate(motion),
     );
   }
@@ -282,12 +366,20 @@ class _Player extends StatelessWidget {
       children: [
         if (fill) ...[
           Expanded(child: CoverArt(seed: showcase.current, columns: 7)),
-          Row(children: [Expanded(child: titles), const Equalizer()]),
+          Row(
+            children: [
+              Expanded(child: titles),
+              const Equalizer(),
+            ],
+          ),
         ] else
           Row(
             spacing: 12,
             children: [
-              SizedBox.square(dimension: 60, child: CoverArt(seed: showcase.current, columns: 3)),
+              SizedBox.square(
+                dimension: 60,
+                child: CoverArt(seed: showcase.current, columns: 3),
+              ),
               Expanded(child: titles),
               const Equalizer(),
             ],
@@ -323,7 +415,9 @@ class _Transport extends StatelessWidget {
           'RemixIconButton',
           below: true,
           child: RemixIconButton(
-            icon: showcase.playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+            icon: showcase.playing
+                ? Icons.pause_rounded
+                : Icons.play_arrow_rounded,
             semanticLabel: showcase.playing ? 'Pause' : 'Play',
             onPressed: () => showcase.setPlaying(!showcase.playing),
             style: playButton,
@@ -355,7 +449,10 @@ class _Timeline extends StatelessWidget {
       builder: (context, position, _) => Row(
         spacing: 10,
         children: [
-          StyledText(formatTime((position * showcase.track.seconds).round()), style: text($small, $muted)),
+          StyledText(
+            formatTime((position * showcase.track.seconds).round()),
+            style: text($small, $muted),
+          ),
           Expanded(
             child: Xray(
               'RemixSlider',
@@ -379,7 +476,13 @@ class _Timeline extends StatelessWidget {
 class Equalizer extends StatelessWidget {
   const Equalizer({super.key});
 
-  static const _bars = [(16.0, 310, 9.0), (24.0, 240, 15.0), (12.0, 380, 7.0), (22.0, 270, 13.0), (15.0, 340, 10.0)];
+  static const _bars = [
+    (16.0, 310, 9.0),
+    (24.0, 240, 15.0),
+    (12.0, 380, 7.0),
+    (22.0, 270, 13.0),
+    (15.0, 340, 10.0),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -420,12 +523,13 @@ class Today extends StatelessWidget {
       // Rows carry their own 6px so their hover fill can extend past the text.
       style: cardStyle.padding(.horizontal(12)).padding(.vertical(18)),
       child: Column(
+        mainAxisSize: .min,
         crossAxisAlignment: .stretch,
         spacing: 6,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: CardHeader('Today', meta: '$done of ${tasks.length}'),
+            child: CardHeader('Today', meta: '$done of ${tasks.length} done'),
           ),
           for (final task in tasks)
             if (showcase.naked)
@@ -490,9 +594,11 @@ class _TodayRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final showcase = ShowcaseScope.of(context);
-    return PressableBox(
+    return listRow.pressable(
+      // The checkbox is the row's one keyboard stop and its one semantic control.
+      canRequestFocus: false,
+      excludeFromSemantics: true,
       onPress: () => showcase.toggle(task),
-      style: listRow,
       child: Row(
         spacing: 10,
         children: [
@@ -500,6 +606,7 @@ class _TodayRow extends StatelessWidget {
             'RemixCheckbox',
             named: last,
             below: true,
+            // #docregion remix-checkbox
             child: RemixCheckbox(
               selected: task.done,
               semanticLabel: task.title,
@@ -507,12 +614,18 @@ class _TodayRow extends StatelessWidget {
               onChanged: (_) => showcase.toggle(task),
               style: checkbox,
             ),
+            // #enddocregion remix-checkbox
           ),
           Expanded(
             child: StyledText(
               task.title,
               style: oneLine(
-                task.done ? text($body, $muted).decoration(.lineThrough).decorationColor($muted()) : text($body),
+                task.done
+                    ? text(
+                        $body,
+                        $muted,
+                      ).decoration(.lineThrough).decorationColor($muted())
+                    : text($body),
               ),
             ),
           ),
@@ -538,7 +651,15 @@ class Spending extends StatelessWidget {
   final double? chartHeight;
 
   static const _days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-  static const _dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  static const _dayNames = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ];
   static const _thisWeek = [132, 228, 96, 284, 164, 312, 68];
   static const _lastWeek = [204, 88, 176, 120, 252, 84, 38];
 
@@ -559,14 +680,25 @@ class Spending extends StatelessWidget {
         onChanged: showcase.setRange,
         style: segments,
         items: const [
-          RemixSegmentedControlItem(value: SpendRange.thisWeek, label: 'This week'),
-          RemixSegmentedControlItem(value: SpendRange.lastWeek, label: 'Last'),
+          RemixSegmentedControlItem(
+            value: SpendRange.thisWeek,
+            label: 'This week',
+          ),
+          RemixSegmentedControlItem(
+            value: SpendRange.lastWeek,
+            label: 'Last week',
+          ),
         ],
       ),
     );
-    final figure = StyledText('\$${day == null ? _withComma(total) : values[day]}', style: oneLine(text($stat)));
+    final figure = StyledText(
+      '\$${day == null ? _withComma(total) : values[day]}',
+      style: oneLine(text($stat)),
+    );
     final note = StyledText(
-      day == null ? (thisWeek ? '+33% vs last week' : '-12% vs the week before') : _dayNames[day],
+      day == null
+          ? (thisWeek ? '+33% vs last week' : 'Weekly total')
+          : _dayNames[day],
       style: oneLine(text($small, $muted)),
     );
     if (compact) {
@@ -576,7 +708,11 @@ class Spending extends StatelessWidget {
           spacing: 10,
           children: [
             Expanded(
-              child: Column(crossAxisAlignment: .start, mainAxisSize: .min, children: [figure, note]),
+              child: Column(
+                mainAxisSize: .min,
+                crossAxisAlignment: .start,
+                children: [figure, note],
+              ),
             ),
             range,
           ],
@@ -586,7 +722,11 @@ class Spending extends StatelessWidget {
     final chart = LayoutBuilder(
       builder: (context, constraints) {
         // Leaves room for the value above the bar and the day below it.
-        final tallest = math.max(constraints.maxHeight - 46, 12.0);
+        final showValues = constraints.maxHeight >= 80;
+        final tallest = math.max(
+          constraints.maxHeight - (showValues ? 46 : 24),
+          12.0,
+        );
         return Row(
           crossAxisAlignment: .end,
           spacing: 6,
@@ -596,22 +736,33 @@ class Spending extends StatelessWidget {
                 child: MouseRegion(
                   onEnter: (_) => showcase.setSpendDay(index),
                   onExit: (_) => showcase.setSpendDay(null),
-                  child: Column(
-                    mainAxisAlignment: .end,
-                    spacing: 6,
-                    children: [
-                      if (day == null ? value == peak : day == index)
-                        StyledText('\$$value', style: text($small)),
-                      Box(
-                        style: barStyle(
-                          context,
-                          height: tallest * value / peak,
-                          active: day == null ? value == peak : day == index,
+                  child: BoxStyler()
+                      .onFocusVisible(.shape($focusShape.mix()))
+                      .pressable(
+                        onPress: () => showcase.setSpendDay(index),
+                        semanticsLabel: '${_dayNames[index]}, \$$value spent',
+                        child: Column(
+                          mainAxisAlignment: .end,
+                          spacing: 6,
+                          children: [
+                            if (showValues &&
+                                (day == null ? value == peak : day == index))
+                              StyledText('\$$value', style: text($small)),
+                            Box(
+                              style: barStyle(
+                                height: tallest * value / peak,
+                                active: day == null
+                                    ? value == peak
+                                    : day == index,
+                              ),
+                            ),
+                            StyledText(
+                              _days[index],
+                              style: text($small, $muted),
+                            ),
+                          ],
                         ),
                       ),
-                      StyledText(_days[index], style: text($small, $muted)),
-                    ],
-                  ),
                 ),
               ),
           ],
@@ -621,25 +772,46 @@ class Spending extends StatelessWidget {
     return Box(
       style: cardPad,
       child: Column(
+        mainAxisSize: .min,
         crossAxisAlignment: .stretch,
         spacing: 10,
         children: [
-          Row(
-            children: [
-              Expanded(child: StyledText('Spending', style: oneLine(text($title)))),
-              range,
-            ],
+          if (MediaQuery.widthOf(context) < 320)
+            Column(
+              crossAxisAlignment: .start,
+              spacing: 8,
+              children: [
+                StyledText('Spending', style: text($title)),
+                range,
+              ],
+            )
+          else
+            Row(
+              children: [
+                Expanded(
+                  child: StyledText('Spending', style: oneLine(text($title))),
+                ),
+                range,
+              ],
+            ),
+          Column(
+            crossAxisAlignment: .start,
+            spacing: 1,
+            children: [figure, note],
           ),
-          Column(crossAxisAlignment: .start, spacing: 1, children: [figure, note]),
-          if (chartHeight case final height?) SizedBox(height: height, child: chart) else Expanded(child: chart),
+          if (chartHeight case final height?)
+            SizedBox(height: height, child: chart)
+          else
+            Expanded(child: chart),
         ],
       ),
     );
   }
 }
 
-String _withComma(int value) =>
-    value >= 1000 ? '${value ~/ 1000},${(value % 1000).toString().padLeft(3, '0')}' : '$value';
+String _withComma(int value) => value >= 1000
+    ? '${value ~/ 1000},${(value % 1000).toString().padLeft(3, '0')}'
+    : '$value';
 
 /// Edits the tokens the whole stage reads, as you drag.
 class MakeItYours extends StatelessWidget {
@@ -665,27 +837,41 @@ class MakeItYours extends StatelessWidget {
   Widget build(BuildContext context) {
     final showcase = ShowcaseScope.of(context);
     final corner = showcase.corner ?? showcase.look.control;
+    final hasShadows = showcase.look.lift != null;
     final own = showcase.look.accent;
     final current = showcase.accent ?? own;
-    final swatches = [own, ..._accents.where((color) => _hueGap(color, own) > 30)].take(5);
+    final swatches = [
+      own,
+      ..._accents.where((color) => _hueGap(color, own) > 30),
+    ].take(5);
     return Box(
       style: cardPad,
       child: Column(
+        mainAxisSize: .min,
         crossAxisAlignment: .stretch,
         spacing: 12,
         children: [
-          Row(
+          Wrap(
+            alignment: .spaceBetween,
+            crossAxisAlignment: .center,
+            spacing: 12,
+            runSpacing: 10,
             children: [
-              Expanded(child: StyledText('Make it yours', style: oneLine(text($title)))),
-              for (final color in swatches)
-                Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: _Swatch(
-                    color: showcase.naked ? const Color(0xFF3A3A44) : color,
-                    selected: color == current,
-                    onPress: () => showcase.setAccent(color),
-                  ),
-                ),
+              StyledText('Make it yours', style: oneLine(text($title))),
+              Row(
+                mainAxisSize: .min,
+                children: [
+                  for (final color in swatches)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: _Swatch(
+                        color: showcase.naked ? const Color(0xFF3A3A44) : color,
+                        selected: color == current,
+                        onPress: () => showcase.setAccent(color),
+                      ),
+                    ),
+                ],
+              ),
             ],
           ),
           Row(
@@ -703,19 +889,28 @@ class MakeItYours extends StatelessWidget {
               ),
               SizedBox(
                 width: 34,
-                child: StyledText('${corner.round()}px', style: text($small, $muted).textAlign(.right)),
+                child: StyledText(
+                  '${corner.round()}px',
+                  style: text($small, $muted).textAlign(.right),
+                ),
               ),
             ],
           ),
           Row(
             children: [
-              Expanded(child: StyledText('Shadows', style: text($body, $muted))),
+              Expanded(
+                child: StyledText(
+                  hasShadows ? 'Shadows' : 'Shadows · none',
+                  style: text($body, $muted),
+                ),
+              ),
               Xray(
                 'RemixSwitch',
                 right: true,
                 below: true,
                 child: RemixSwitch(
-                  selected: !showcase.flat,
+                  selected: hasShadows && !showcase.flat,
+                  enabled: hasShadows,
                   semanticLabel: 'Shadows',
                   onChanged: (on) => showcase.setFlat(!on),
                   style: quietSwitch,
@@ -729,8 +924,23 @@ class MakeItYours extends StatelessWidget {
   }
 }
 
+String _colorName(Color color) => switch (color.toARGB32()) {
+  0xFF8B5CF6 => 'violet',
+  0xFF2BB673 => 'green',
+  0xFFE5484D => 'red',
+  0xFF2540FF => 'blue',
+  0xFFF59E0B => 'amber',
+  0xFF06B6D4 => 'cyan',
+  0xFFEC4899 => 'pink',
+  _ => 'original',
+};
+
 class _Swatch extends StatelessWidget {
-  const _Swatch({required this.color, required this.selected, required this.onPress});
+  const _Swatch({
+    required this.color,
+    required this.selected,
+    required this.onPress,
+  });
 
   final Color color;
   final bool selected;
@@ -738,25 +948,22 @@ class _Swatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final solid = $solidShape.resolve(context) as OutlinedBorder;
-    final ring = $ink.resolve(context);
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      padding: const EdgeInsets.all(2),
-      decoration: ShapeDecoration(
-        shape: solid.copyWith(side: BorderSide(color: selected ? ring : const Color(0x00000000), width: 1.5)),
-      ),
-      child: PressableBox(
-        onPress: onPress,
-        semanticsLabel: 'Use accent color',
-        style: BoxStyler()
-            .size(20, 20)
-            .color(color)
-            .decoration(shape($tinyShape))
-            .onHovered(.scale(1.14))
-            .animate(motion),
-        child: const SizedBox.shrink(),
-      ),
+    return Box(
+      style: BoxStyler()
+          .padding(.all(2))
+          .shape(selected ? $swatchRing.mix() : $swatchShape.mix())
+          .animate(.easeOut(200.ms)),
+      child: BoxStyler()
+          .size(20, 20)
+          .color(color)
+          .shape($tinyShape.mix())
+          .onHovered(.scale(1.14))
+          .animate(motion)
+          .pressable(
+            onPress: onPress,
+            semanticsLabel: 'Use ${_colorName(color)} accent',
+            child: const SizedBox.shrink(),
+          ),
     );
   }
 }
@@ -775,7 +982,8 @@ class CardHeader extends StatelessWidget {
       mainAxisAlignment: .spaceBetween,
       children: [
         StyledText(title, style: oneLine(text($title))),
-        if (detail != null) StyledText(detail, style: oneLine(text($small, $muted))),
+        if (detail != null)
+          StyledText(detail, style: oneLine(text($small, $muted))),
       ],
     );
   }
@@ -790,11 +998,16 @@ class Team extends StatelessWidget {
     return Box(
       style: cardPad,
       child: Column(
+        mainAxisSize: .min,
         mainAxisAlignment: .spaceBetween,
         crossAxisAlignment: .stretch,
         spacing: 10,
         children: [
-          CardHeader('Team', meta: '${showcase.people.where((person) => person.invited).length} invited'),
+          CardHeader(
+            'Team',
+            meta:
+                '${showcase.people.where((person) => person.invited).length} invited',
+          ),
           for (final person in showcase.people)
             Row(
               spacing: 10,
@@ -809,7 +1022,10 @@ class Team extends StatelessWidget {
                     crossAxisAlignment: .start,
                     children: [
                       StyledText(person.name, style: oneLine(text($body))),
-                      StyledText(person.job, style: oneLine(text($small, $muted))),
+                      StyledText(
+                        person.job,
+                        style: oneLine(text($small, $muted)),
+                      ),
                     ],
                   ),
                 ),
@@ -820,6 +1036,9 @@ class Team extends StatelessWidget {
                   below: true,
                   child: RemixButton(
                     label: person.invited ? 'Invited' : 'Invite',
+                    semanticLabel: person.invited
+                        ? 'Undo invite to ${person.name}'
+                        : 'Invite ${person.name}',
                     leadingIcon: person.invited ? Icons.check : null,
                     onPressed: () => showcase.invitePerson(person),
                     style: person.invited ? doneButton : quietButton,
@@ -829,61 +1048,6 @@ class Team extends StatelessWidget {
             ),
         ],
       ),
-    );
-  }
-}
-
-/// The queue for the single-card option. Each track has its own cover.
-class _Queue extends StatelessWidget {
-  const _Queue();
-
-  @override
-  Widget build(BuildContext context) {
-    final showcase = ShowcaseScope.of(context);
-    return Column(
-      crossAxisAlignment: .stretch,
-      children: [
-        for (final (index, track) in showcase.tracks.indexed)
-          if (index != showcase.current)
-            PressableBox(
-              onPress: () {
-                showcase.current = index;
-                showcase.seek(0);
-                showcase.setPlaying(true);
-              },
-              style: listRow,
-              child: Row(
-                spacing: 10,
-                children: [
-                  SizedBox.square(dimension: 32, child: CoverArt(seed: index, columns: 2)),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: .start,
-                      children: [
-                        StyledText(track.title, style: oneLine(text($body))),
-                        StyledText(track.artist, style: oneLine(text($small, $muted))),
-                      ],
-                    ),
-                  ),
-                  StyledText(track.length, style: text($small, $muted)),
-                  Xray(
-                    'RemixCheckbox',
-                    named: index == (showcase.current == 0 ? 1 : 0),
-                    below: true,
-                    child: RemixCheckbox(
-                      selected: track.liked,
-                      checkedIcon: Icons.favorite,
-                      uncheckedIcon: Icons.favorite_border,
-                      semanticLabel: 'Like ${track.title}',
-                      minimumTapTargetSize: Size.zero,
-                      onChanged: (_) => showcase.like(track),
-                      style: likeStyle,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-      ],
     );
   }
 }
@@ -902,8 +1066,12 @@ class _NakedTransport extends StatelessWidget {
         style: TextStyle(
           fontFamily: 'GeistMono',
           fontSize: 13,
-          decoration: state.isFocused ? TextDecoration.underline : TextDecoration.none,
-          color: state.isHovered || state.isFocused ? const Color(0xFFFFFFFF) : const Color(0xFFA0A0AC),
+          decoration: state.isFocused
+              ? TextDecoration.underline
+              : TextDecoration.none,
+          color: state.isHovered || state.isFocused
+              ? const Color(0xFFFFFFFF)
+              : const Color(0xFFA0A0AC),
         ),
       ),
     );
@@ -912,7 +1080,10 @@ class _NakedTransport extends StatelessWidget {
       spacing: 14,
       children: [
         button('prev', () => showcase.skip(-1)),
-        button(showcase.playing ? 'pause' : 'play', () => showcase.setPlaying(!showcase.playing)),
+        button(
+          showcase.playing ? 'pause' : 'play',
+          () => showcase.setPlaying(!showcase.playing),
+        ),
         button('next', () => showcase.skip(1)),
       ],
     );
@@ -941,7 +1112,10 @@ class _NakedRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       decoration: BoxDecoration(
         border: Border(
-          left: BorderSide(color: focused ? const Color(0xFFFFFFFF) : const Color(0x00000000), width: 2),
+          left: BorderSide(
+            color: focused ? const Color(0xFFFFFFFF) : const Color(0x00000000),
+            width: 2,
+          ),
         ),
       ),
       child: Row(
@@ -955,45 +1129,6 @@ class _NakedRow extends StatelessWidget {
             NakedFlag('press', on: pressed),
           ],
         ],
-      ),
-    );
-  }
-}
-
-/// The same tracks, rendered with Naked UI's unstyled widgets.
-class NakedQueue extends StatelessWidget {
-  const NakedQueue({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final showcase = ShowcaseScope.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 520),
-          child: Column(
-            mainAxisSize: .min,
-            crossAxisAlignment: .stretch,
-            spacing: 6,
-            children: [
-              StyledText('Up next', style: text($title)),
-              for (final track in showcase.tracks)
-                NakedCheckbox(
-                  value: track.liked,
-                  semanticLabel: 'Like ${track.title}',
-                  onChanged: (_) => showcase.like(track),
-                  builder: (context, state, child) => _NakedRow(
-                    title: track.title,
-                    done: track.liked,
-                    hovered: state.isHovered,
-                    focused: state.isFocused,
-                    pressed: state.isPressed,
-                  ),
-                ),
-            ],
-          ),
-        ),
       ),
     );
   }

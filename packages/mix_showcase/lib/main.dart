@@ -7,7 +7,7 @@ import 'tokens.dart';
 
 void main() {
   prepareHost();
-  final showcase = Showcase(onEvent: sendEvent);
+  final showcase = Showcase();
   runApp(ShowcaseApp(showcase: showcase));
   connectBridge(showcase.apply);
 }
@@ -32,9 +32,9 @@ class ShowcaseApp extends StatelessWidget {
         ),
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Launchpad',
+          title: 'Mix — Flutter UI, your way',
           color: const Color(0xFF0D0B14),
-          // Overlays such as the role menu sit under this too.
+          // There is no Material ancestor, so Flutter would underline all text.
           builder: (context, child) => DefaultTextStyle(
             style: const TextStyle(decoration: TextDecoration.none),
             child: child!,

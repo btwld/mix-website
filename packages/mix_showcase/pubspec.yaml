@@ -13,12 +13,8 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   mix: 2.3.1
-  naked_ui: 1.5.0
-  remix:
-    git:
-      url: https://github.com/btwld/remix.git
-      path: packages/remix
-      ref: ba450dc72223d3ebacee0282b989d4ee2823828f
+  naked_ui: 2.0.0-beta.1
+  remix: 1.0.0-beta.17
 
 dev_dependencies:
   flutter_test:

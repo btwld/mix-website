@@ -1,11 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowRight } from '@/components/landing/icons';
-import { LandingButton } from '@/components/landing/ui';
-import type { ShowcaseCode } from '@/lib/showcase-source';
+import { CopyCommand } from '@/components/landing/copy-command';
+import type { ShowcaseCode, ShowcasePackage } from '@/lib/showcase-source';
 import { Stage, useShowcase } from './stage';
+import { CodeExample } from './code-example';
+import { Features, motionDocs, type FeaturePreview, type MotionMode } from './features';
 
 const LOOKS = [
   { id: 'midnight', name: 'Midnight', swatch: ['#0d0b14', '#8b5cf6'] },
@@ -13,82 +15,59 @@ const LOOKS = [
   { id: 'pop', name: 'Pop', swatch: ['#ffd83d', '#2540ff'] },
   { id: 'cyber', name: 'Cyber', swatch: ['#04120b', '#2bff88'] },
 ];
-
-const SCREENS = [
-  { id: 'tasks', name: 'Task list', note: 'Add, complete, filter and reset. Handles the empty state.' },
-  { id: 'team', name: 'Team access', note: 'Invite with validation, change a role, remove a person.' },
-  { id: 'settings', name: 'Settings', note: 'A real form, and its Accent and Corners controls rewrite this app’s tokens as you drag.' },
-];
-
-const WIDGETS = [
-  ['Button', 'button'], ['Icon button', 'icon_button'], ['Checkbox', 'checkbox'], ['Slider', 'slider'],
-  ['Switch', 'switch'], ['Segmented control', 'segmented_control'], ['Avatar', 'avatar'], ['Badge', 'badge'],
-];
-
-/** Scrolling through the first chapter walks the app through every look. */
 const TOUR_LOOKS = ['paper', 'pop', 'cyber', 'midnight'];
-
-/** Options under review. The switch below the stage flips between them live. */
-const SUBJECTS = [
-  { id: 'deck', name: 'Cards' },
-  { id: 'single', name: 'Single card' },
-  { id: 'phone', name: 'Phone' },
-  { id: 'app', name: 'Full app' },
+const WIDGETS = [
+  ['Button', 'button'], ['Icon button', 'icon_button'], ['Checkbox', 'checkbox'],
+  ['Slider', 'slider'], ['Switch', 'switch'], ['Segmented control', 'segmented_control'],
+  ['Avatar', 'avatar'], ['Badge', 'badge'],
 ];
-
 const BLOCKS = [
-  { id: 'player', name: 'Now playing', note: 'Transport, a live timeline and a keyframed equalizer.' },
-  { id: 'today', name: 'Today', note: 'A simple list with hover and press states.' },
-  { id: 'spending', name: 'Spending', note: 'A stat and a chart that springs between ranges.' },
-  { id: 'appearance', name: 'Make it yours', note: 'Accent, corners and shadows rewrite this page’s tokens as you drag.' },
-  { id: 'team', name: 'Team', note: 'Avatars, secondary text and an invite toggle.' },
+  { id: 'player', name: 'Now playing', note: 'Play, pause, skip, and seek through a simulated track.' },
+  { id: 'today', name: 'Today', note: 'Check off a task. Its state stays with you through every look.' },
+  { id: 'spending', name: 'Spending', note: 'Compare two weeks and explore the daily totals.' },
+  { id: 'appearance', name: 'Appearance', note: 'Change the cards’ accent, corners, and shadows.' },
+  { id: 'team', name: 'Team', note: 'Try an invite interaction with local sample data.' },
+];
+const MOTION: { id: MotionMode; name: string; description: string; instruction: string }[] = [
+  { id: 'transitions', name: 'Transitions', description: 'A new look changes the target values. One .animate() call lets the cards’ surface and shape flow into place.', instruction: 'Choose a look to see the transition.' },
+  { id: 'springs', name: 'Springs', description: 'The same animation API can use spring motion. Spending’s bars settle into their new heights when the data changes.', instruction: 'Switch This week and Last week in the card.' },
+  { id: 'keyframes', name: 'Keyframes', description: 'For a repeating sequence, define a timeline. The player’s equalizer moves through height keyframes, all within its style.', instruction: 'Use Play and Pause in the card. No audio is played; the equalizer stays still with reduced motion.' },
 ];
 
 type Chapter = 'hero' | 'looks' | 'states' | 'adapt' | 'motion' | 'remix' | 'naked' | 'blocks';
-
-/** What the live app should show for a chapter, given the subject under review. */
-function stateFor(chapter: Chapter, subject: string, block: string) {
-  const isApp = subject === 'app';
-  const base: Record<string, unknown> = { subject, xray: false, naked: false, phone: false, highlight: null };
-  switch (chapter) {
-    case 'adapt': return { ...base, phone: true };
-    case 'motion': return { ...base, play: isApp ? 'complete' : 'music', ...(isApp && { screen: 'tasks' }) };
-    case 'remix': return { ...base, xray: true, ...(isApp && { screen: 'tasks' }) };
-    case 'naked': return { ...base, naked: true };
-    case 'blocks': return isApp ? base : { ...base, subject: 'deck', highlight: block };
-    default: return base;
-  }
-}
-
 const LAYER: Record<Chapter, 'mix' | 'remix' | 'naked' | 'blocks'> = {
   hero: 'mix', looks: 'mix', states: 'mix', adapt: 'mix', motion: 'mix', remix: 'remix', naked: 'naked', blocks: 'blocks',
 };
-
-/** One step per chapter, grouped by project, so the bar shows real progress. */
-const STEPS: { id: Chapter; group: string; name: string }[] = [
-  { id: 'looks', group: 'Mix', name: 'Tokens' },
-  { id: 'states', group: 'Mix', name: 'Variants' },
-  { id: 'adapt', group: 'Mix', name: 'Context' },
-  { id: 'motion', group: 'Mix', name: 'Animation' },
-  { id: 'remix', group: 'Remix', name: 'Widgets' },
-  { id: 'naked', group: 'Naked UI', name: 'Behavior' },
-  { id: 'blocks', group: 'Blocks', name: 'Blocks' },
+const STEPS: { id: Chapter; group: string; name: string; short: string }[] = [
+  { id: 'looks', group: 'Mix', name: 'Design tokens', short: 'Looks' },
+  { id: 'states', group: 'Mix', name: 'Interaction states', short: 'States' },
+  { id: 'adapt', group: 'Mix', name: 'Responsive layout', short: 'Layout' },
+  { id: 'motion', group: 'Mix', name: 'Animation', short: 'Motion' },
+  { id: 'remix', group: 'Remix', name: 'Composable components', short: 'Remix' },
+  { id: 'naked', group: 'Naked UI', name: 'Headless behavior', short: 'Naked UI' },
+  { id: 'blocks', group: 'Examples', name: 'Explore the cards', short: 'Examples' },
 ];
 
-function Code({ entry }: { entry: ShowcaseCode[string] }) {
-  return <figure className="v2-code">
-    <figcaption>Excerpt · {entry.file}</figcaption>
-    <div dangerouslySetInnerHTML={{ __html: entry.html }} />
-  </figure>;
+function stateFor(chapter: Chapter, block: string, motion: MotionMode, compact: boolean) {
+  const base: Record<string, unknown> = { xray: false, naked: false, phone: false, highlight: null };
+  switch (chapter) {
+    case 'states': return { ...base, highlight: 'today' };
+    case 'adapt': return { ...base, phone: true };
+    case 'motion': return { ...base, highlight: motion === 'springs' ? 'spending' : motion === 'keyframes' ? 'player' : null };
+    case 'remix': return { ...base, xray: true, highlight: compact ? 'today' : null };
+    case 'naked': return { ...base, naked: true };
+    case 'blocks': return { ...base, highlight: block };
+    default: return base;
+  }
 }
 
 function Section({ id, active, tag, title, doc, children }: {
   id: Chapter; active: Chapter; tag: string; title: string; doc: { href: string; label: string }; children: ReactNode;
 }) {
-  return <section className="v2-chapter" id={`v2-${id}`} data-chapter={id} data-active={active === id} data-layer={LAYER[id]}>
+  return <section className="v2-chapter" id={`v2-${id}`} data-chapter={id} data-active={active === id} data-layer={LAYER[id]} aria-labelledby={`v2-title-${id}`}>
     <div className="v2-chapter-body">
       <p className="v2-tag">{tag}</p>
-      <h2>{title}</h2>
+      <h2 id={`v2-title-${id}`} tabIndex={-1}>{title}</h2>
       {children}
       <Link className="v2-link" href={doc.href}>{doc.label} <ArrowRight /></Link>
     </div>
@@ -97,195 +76,217 @@ function Section({ id, active, tag, title, doc, children }: {
 
 function Steps({ active, onStep }: { active: Chapter; onStep: (chapter: Chapter) => void }) {
   const current = STEPS.findIndex(step => step.id === active);
-  return <nav className="v2-steps" aria-label="Tour steps">
-    {STEPS.map((step, index) => {
-      const opensGroup = index === 0 || STEPS[index - 1].group !== step.group;
-      return <a
-        key={step.id}
-        className="v2-step"
-        href={`#v2-${step.id}`}
-        title={step.name}
-        data-step={step.id}
-        data-state={index === current ? 'current' : index < current ? 'done' : 'next'}
-        data-group-on={current >= 0 && STEPS[current].group === step.group}
-        aria-current={index === current ? 'step' : undefined}
-        aria-label={`Step ${index + 1} of ${STEPS.length}: ${step.group}, ${step.name}`}
-        onClick={event => { event.preventDefault(); onStep(step.id); }}
-      ><span>{opensGroup ? step.group : ''}</span><i /></a>;
-    })}
+  return <nav className="v2-steps" aria-label="Showcase chapters">
+    {STEPS.map((step, index) => <a key={step.id} className="v2-step" href={`#v2-${step.id}`}
+      title={`${step.group}: ${step.name}`} data-step={step.id}
+      data-state={index === current ? 'current' : index < current ? 'done' : 'next'}
+      aria-current={index === current ? 'step' : undefined}
+      aria-label={`${step.group}: ${step.name}`}
+      onClick={event => { event.preventDefault(); onStep(step.id); }}>
+      <i /><span>{step.short}</span>
+    </a>)}
   </nav>;
 }
 
-export function Tour({ code }: { code: ShowcaseCode }) {
+export function Tour({ code, packages }: { code: ShowcaseCode; packages: ShowcasePackage }) {
   const [active, setActive] = useState<Chapter>('hero');
   const [look, setLook] = useState('midnight');
-  const [screen, setScreen] = useState('tasks');
-  const [subject, setSubject] = useState('deck');
   const [block, setBlock] = useState('player');
+  const [motion, setMotion] = useState<MotionMode>('transitions');
   const root = useRef<HTMLDivElement>(null);
   const picked = useRef(false);
-  const { ready, missing, mount, send } = useShowcase(event => {
-    if (typeof event.screen === 'string') setScreen(event.screen);
-  });
+  const { ready, missing, mount, send } = useShowcase();
 
-  useEffect(() => {
+  const goTo = useCallback((chapter: Chapter) => {
     const compact = matchMedia('(max-width: 62rem)').matches;
-    const observer = new IntersectionObserver(entries => {
-      for (const entry of entries) if (entry.isIntersecting) setActive((entry.target as HTMLElement).dataset.chapter as Chapter);
-    }, { rootMargin: compact ? '-74% 0px -22% 0px' : '-46% 0px -46% 0px' });
-    root.current?.querySelectorAll('[data-chapter]').forEach(element => observer.observe(element));
-    return () => observer.disconnect();
+    if (compact && chapter === 'adapt') chapter = 'looks';
+    const target = root.current?.querySelector<HTMLElement>(`[data-chapter="${chapter}"]`);
+    if (!target) return;
+    const stage = root.current?.querySelector('.v2-stage-column')?.getBoundingClientRect();
+    const offset = chapter === 'hero' ? 0 : compact ? innerHeight <= 600 ? 88 : (stage?.height ?? 0) + 88 : chapter === 'looks' ? 116 : innerHeight / 2 - target.offsetHeight / 2;
+    scrollTo({ top: Math.max(0, scrollY + target.getBoundingClientRect().top - offset), behavior: 'instant' });
+    setActive(chapter);
   }, []);
 
+  // Follow a reading line below the pinned demo on compact screens. Recalculate
+  // on resize as well as scroll, so rotating a device cannot strand the chapter.
   useEffect(() => {
-    const requested = new URLSearchParams(location.search).get('subject');
-    if (SUBJECTS.some(item => item.id === requested)) setSubject(requested!);
-  }, []);
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const compact = matchMedia('(max-width: 62rem)').matches;
+      const stage = root.current?.querySelector('.v2-stage-column')?.getBoundingClientRect();
+      const line = compact && innerHeight > 600 ? Math.min(innerHeight - 40, (stage?.bottom ?? 0) + 64) : innerHeight * .5;
+      const chapters = [...(root.current?.querySelectorAll<HTMLElement>('[data-chapter]') ?? [])].filter(item => item.offsetHeight > 0);
+      let next: Chapter = 'hero';
+      for (const chapter of chapters) if (chapter.getBoundingClientRect().top <= line) next = chapter.dataset.chapter as Chapter;
+      setActive(next);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    const requested = location.hash.replace('#v2-', '');
+    if (STEPS.some(step => step.id === requested)) goTo(requested as Chapter);
+    schedule();
+    addEventListener('scroll', schedule, { passive: true });
+    addEventListener('resize', schedule);
+    return () => { cancelAnimationFrame(frame); removeEventListener('scroll', schedule); removeEventListener('resize', schedule); };
+  }, [goTo]);
 
   useEffect(() => {
     if (!ready) return;
-    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const { play, ...state } = stateFor(active, subject, block);
-    send({ ...state, reduceMotion, ...(!reduceMotion && play ? { play } : {}) });
-  }, [active, ready, subject, block]); // eslint-disable-line react-hooks/exhaustive-deps
+    const media = matchMedia('(prefers-reduced-motion: reduce)');
+    const compact = matchMedia('(max-width: 62rem)');
+    const apply = () => {
+      send({ ...stateFor(active, block, motion, compact.matches), reduceMotion: media.matches });
+    };
+    apply();
+    media.addEventListener('change', apply);
+    compact.addEventListener('change', apply);
+    return () => { media.removeEventListener('change', apply); compact.removeEventListener('change', apply); };
+  }, [active, ready, block, motion]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // The address always names the chapter on screen, so a copied link lands there.
+  // Keep a look picked during startup: the bridge does not exist until ready.
+  // Sending only when the look changes also preserves custom accents between chapters.
+  useEffect(() => {
+    if (ready) send({ look });
+  }, [look, ready]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     if (!ready) return;
+    const end = document.getElementById('v2-features');
+    if (end && end.getBoundingClientRect().top < innerHeight / 2) return;
     const hash = active === 'hero' ? '' : `#v2-${active}`;
     if (location.hash !== hash) history.replaceState(history.state, '', `${location.pathname}${location.search}${hash}`);
   }, [active, ready]);
 
-  // A chip click hands control to the reader until they leave the chapter.
   useEffect(() => {
-    if (active !== 'looks') { picked.current = false; return; }
-    if (!ready || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (active !== 'looks' || !ready) return;
+    const media = matchMedia('(prefers-reduced-motion: reduce)');
     const chapter = root.current?.querySelector<HTMLElement>('[data-chapter="looks"]');
     if (!chapter) return;
     const follow = () => {
-      if (picked.current) return;
+      if (picked.current || media.matches) return;
       const { top, height } = chapter.getBoundingClientRect();
-      const progress = Math.min(0.999, Math.max(0, -top / (height - innerHeight)));
+      const progress = Math.min(.999, Math.max(0, (120 - top) / Math.max(1, height - innerHeight)));
       const next = TOUR_LOOKS[Math.floor(progress * TOUR_LOOKS.length)];
-      setLook(current => { if (current !== next) send({ look: next }); return next; });
+      setLook(next);
     };
     follow();
     addEventListener('scroll', follow, { passive: true });
     return () => removeEventListener('scroll', follow);
   }, [active, ready]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const chooseLook = (id: string) => { picked.current = true; setLook(id); send({ look: id }); };
-  const chooseScreen = (id: string) => { setScreen(id); send({ screen: id }); };
-  const layer = LAYER[active];
-
-  /** Jumps straight there: gliding past each chapter would flash every state. */
-  const goTo = (chapter: Chapter) => {
-    const target = root.current?.querySelector<HTMLElement>(`[data-chapter="${chapter}"]`);
-    if (!target) return;
-    const { top, height } = target.getBoundingClientRect();
-    const compact = matchMedia('(max-width: 62rem)').matches;
-    const stage = root.current!.querySelector('.v2-stage-column')!.getBoundingClientRect();
-    const offset = compact ? stage.height + 84 : chapter === 'looks' ? 0 : innerHeight / 2 - height / 2;
-    scrollTo({ top: scrollY + top - offset, behavior: 'instant' });
+  // A choice stays made: scrolling back through Looks must not replace it.
+  const chooseLook = (id: string) => { picked.current = true; setLook(id); };
+  const previewFeature = ({ chapter, motion, look }: FeaturePreview) => {
+    if (motion) setMotion(motion);
+    if (look) chooseLook(look);
+    goTo(chapter);
+    const target = chapter === 'adapt' && matchMedia('(max-width: 62rem)').matches ? 'looks' : chapter;
+    root.current?.querySelector<HTMLElement>(`#v2-title-${target}`)?.focus({ preventScroll: true });
   };
+  const chapter = STEPS.find(step => step.id === active);
+  const motionExample = MOTION.find(item => item.id === motion)!;
 
-  return <div className="lx project-mix v2" data-layer={layer} ref={root}>
-    <label className="v2-prototype">
-      <span>Prototype</span>
-      <select value={subject} onChange={event => setSubject(event.target.value)} aria-label="Choose what the stage shows">
-        {SUBJECTS.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
-      </select>
-    </label>
+  return <div className="lx project-mix v2" data-layer={LAYER[active]} ref={root} id="v2-content">
     <div className="v2-tour">
       <header className="v2-hero" data-chapter="hero">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/assets/icon_logo.svg" alt="Mix" width={58} height={64} />
-        <h1>An Expressive Styling System for Flutter</h1>
-        <p className="v2-lead">Effortlessly style your widgets and build design systems.</p>
+        <h1>Flutter UI,<br />your way.</h1>
+        <p className="v2-lead">Style with Mix. Compose with Remix. Build on Naked UI. Three open-source libraries, one expressive Flutter stack.</p>
         <div className="v2-cta">
-          <LandingButton href="/mix/docs/overview/getting-started/" arrow>Get started</LandingButton>
-          <LandingButton href="/mix/docs/" variant="secondary">Read the docs</LandingButton>
+          <button className="lx-btn lx-btn-primary" type="button" onClick={() => goTo('looks')}>Explore the showcase <ArrowRight /></button>
+          <a className="lx-btn lx-btn-secondary" href="#v2-features">Features &amp; code</a>
         </div>
-        <p className="v2-hint"><strong>That’s real Flutter</strong>, running in this page. Try it, then scroll: we’ll take it apart.</p>
+        <div className="v2-stack" aria-label="The Flutter UI stack">
+          <a href="#v2-looks" onClick={event => { event.preventDefault(); goTo('looks'); }}><strong>Mix</strong><span>Define the style</span><ArrowRight /></a>
+          <a href="#v2-remix" onClick={event => { event.preventDefault(); goTo('remix'); }}><strong>Remix</strong><span>Compose the interface</span><ArrowRight /></a>
+          <a href="#v2-naked" onClick={event => { event.preventDefault(); goTo('naked'); }}><strong>Naked UI</strong><span>Start with behavior</span><ArrowRight /></a>
+        </div>
+        <p className="v2-hint">Real Flutter, running right here.<br />Try the controls, then scroll to see how it’s built.</p>
       </header>
 
       <div className="v2-stage-column">
+        <div className="v2-stage-caption"><span>{chapter ? `${chapter.group} / ${chapter.name}` : 'Interactive Flutter showcase'}</span><span>{active === 'naked' ? 'Unstyled' : LOOKS.find(item => item.id === look)?.name}</span></div>
         <Stage mount={mount} ready={ready} missing={missing} />
         <Steps active={active} onStep={goTo} />
       </div>
 
       <div className="v2-rail">
-        <Section id="looks" active={active} doc={{ href: "/mix/docs/guides/design-token/", label: "Design tokens guide" }} tag="Mix · Tokens" title="One app. Any look.">
-          <p>Keep scrolling. Every screen reads the same tokens, so changing their values changes color, shape, type and depth at once. No widget knows which look is on.</p>
+        <Section id="looks" active={active} doc={{ href: '/mix/docs/guides/design-token/#mixscope', label: 'Explore design tokens' }} tag="Mix / Design tokens" title="Same widgets. A whole new feel.">
+          <p>Color, typography, shape, and depth — one set of tokens changes them together. Scroll through four looks, or pick your own.</p>
           <div className="v2-chips" role="group" aria-label="Choose a look">
             {LOOKS.map(item => <button key={item.id} type="button" aria-pressed={look === item.id} onClick={() => chooseLook(item.id)}>
               <span className="v2-swatch" style={{ background: `linear-gradient(135deg, ${item.swatch[0]} 50%, ${item.swatch[1]} 50%)` }} />{item.name}
             </button>)}
           </div>
-          <Code entry={code[look]} />
+          <CodeExample entry={code[look]} collapsible />
         </Section>
-
-        <Section id="states" active={active} doc={{ href: "/mix/docs/guides/dynamic-styling/", label: "Variants guide" }} tag="Mix · Variants" title="States are styles.">
-          <p>Hover or press a row. There’s no listener and no conditional: each state is part of the style.</p>
-          <Code entry={code.states} />
+        <Section id="states" active={active} doc={{ href: '/mix/docs/guides/dynamic-styling/#interaction', label: 'Explore state variants' }} tag="Mix / Interaction states" title="Style the interaction, too.">
+          <p>Hover, focus, or press a task. Mix keeps the visual response in the style, alongside its resting appearance.</p>
+          <CodeExample entry={code.states} collapsible />
         </Section>
-
-        <Section id="adapt" active={active} doc={{ href: "/mix/docs/guides/dynamic-styling/", label: "Context variants guide" }} tag="Mix · Context" title={subject === 'phone' ? 'Same app, wider screen.' : 'Same app, narrower screen.'}>
-          <p>It just reflowed. There’s no second layout file: the same widgets respond to the width they’re given, and a breakpoint style tightens the spacing.</p>
-          <Code entry={code.adapt} />
+        <Section id="adapt" active={active} doc={{ href: '/mix/docs/guides/dynamic-styling/#breakpoint', label: 'Explore breakpoints' }} tag="Same styles / Responsive layout" title="Less room. Still your design.">
+          <p>Flutter’s <code>LayoutBuilder</code> switches the deck when space gets tight. A Mix breakpoint tightens the shared card padding.</p>
+          <CodeExample entry={code.adapt} collapsible />
         </Section>
-
-        <Section id="motion" active={active} doc={{ href: "/mix/docs/guides/animations/", label: "Animation guide" }} tag="Mix · Animation" title="Motion lives in the style.">
-          <p>Every look change you saw animates because each style ends in <code>.animate()</code>. The equalizer goes further: its bounce is a keyframe timeline inside the style, with no controller.</p>
-          <Code entry={code.motion} />
+        <Section id="motion" active={active} doc={{ href: motionDocs[motion], label: 'Explore animation' }} tag="Mix / Animation" title="Give your styles a little life.">
+          <div className="v2-motion-options" role="group" aria-label="Choose an animation">
+            {MOTION.map(item => <button type="button" key={item.id} aria-pressed={motion === item.id} aria-controls="v2-motion-example" onClick={() => setMotion(item.id)}>{item.name}</button>)}
+          </div>
+          <div id="v2-motion-example">
+            <p>{motionExample.description}</p>
+            {motion === 'transitions' && <div className="v2-motion-looks" role="group" aria-label="Change the animated look">
+              {LOOKS.map(item => <button type="button" key={item.id} aria-label={`Animate to ${item.name}`} aria-pressed={look === item.id} onClick={() => chooseLook(item.id)}><span className="v2-swatch" style={{ background: `linear-gradient(135deg, ${item.swatch[0]} 50%, ${item.swatch[1]} 50%)` }} />{item.name}</button>)}
+            </div>}
+            <p className="v2-note">{motionExample.instruction}</p>
+            <CodeExample entry={code[motion]} collapsible />
+          </div>
         </Section>
-
-        <Section id="remix" active={active} doc={{ href: "/remix/docs/guides/styling-components/", label: "Styling components guide" }} tag="Remix" title="Build your interfaces with widgets you can make your own.">
-          <p>Everything outlined is a Remix widget. The behavior comes with it; the appearance is the Mix style you just saw. Remix doesn’t bring a theme of its own.</p>
-          <ul className="v2-widgets">
+        <Section id="remix" active={active} doc={{ href: '/remix/docs/styler-api/#variants-and-selected-state', label: 'Build with Remix' }} tag="Remix / Components" title="Your components. Your design language.">
+          <p>The outlines reveal Remix widgets. They combine Naked UI behavior with Mix styling, so buttons, sliders, and checkboxes can speak the same visual language.</p>
+          <ul className="v2-widgets" aria-label="Explore Remix components">
             {WIDGETS.map(([name, slug]) => <li key={slug}><Link href={`/remix/docs/components/${slug}/`}>{name}</Link></li>)}
           </ul>
+          <CodeExample entry={code.remix} collapsible />
         </Section>
-
-        <Section id="naked" active={active} doc={{ href: "/naked-ui/docs/", label: "Naked UI documentation" }} tag="Naked UI" title="Underneath, it’s just behavior.">
-          <p>Styling off, same layout. The Today rows and the player controls are now Naked UI’s widgets with nothing added. Hover or press a row and watch its state. On a keyboard, click one, then use Tab and Space.</p>
-          <Code entry={code.naked} />
+        <Section id="naked" active={active} doc={{ href: '/naked-ui/docs/widget/checkbox/#basic-implementation', label: 'Build with Naked UI' }} tag="Naked UI / Behavior" title="Take away the style. Keep the interaction.">
+          <p>The task rows and player buttons now use Naked UI directly. It handles interaction and state while you decide what to render.</p>
+          <p className="v2-note">Try a task, or focus it and press Space. Its checked state stays the same when the styling returns.</p>
+          <CodeExample entry={code.naked} collapsible />
         </Section>
-
-        <Section id="blocks" active={active} doc={{ href: "/remix/docs/open-code/", label: "Editable recipes guide" }} tag="Blocks" title={subject === 'app' ? 'Start from a screen, not a blank page.' : 'Every card is a block.'}>
-          <p>{subject === 'app' ? 'Each screen in this app is a complete block with its own state, validation and reset. Try one.' : 'Each one is a small, finished piece with its own state. Pick one.'}</p>
-          <div className="v2-blocks" role="group" aria-label="Choose a block">
-            {subject === 'app'
-              ? SCREENS.map(item => <button key={item.id} type="button" aria-pressed={screen === item.id} onClick={() => chooseScreen(item.id)}>
-                <strong>{item.name}</strong><span>{item.note}</span>
-              </button>)
-              : BLOCKS.map(item => <button key={item.id} type="button" aria-pressed={block === item.id} onClick={() => setBlock(item.id)}>
-                <strong>{item.name}</strong><span>{item.note}</span>
-              </button>)}
+        <Section id="blocks" active={active} doc={{ href: '/v2/source/', label: 'Explore the showcase source' }} tag="The stack, together" title="Small pieces. Real possibilities.">
+          <p>Explore each card on its own. These examples share the same tokens, styles, and local state.</p>
+          <div className="v2-blocks" role="group" aria-label="Choose an example">
+            {BLOCKS.map(item => <button key={item.id} type="button" aria-pressed={block === item.id} onClick={() => setBlock(item.id)}>
+              <span><strong>{item.name}</strong><span>{item.note}</span></span><ArrowRight />
+            </button>)}
           </div>
+          <p className="v2-note">Demo data only. Nothing is sent or saved to a server.</p>
         </Section>
       </div>
     </div>
 
+    <Features code={code} onPreview={previewFeature} />
+
     <section className="v2-end" aria-labelledby="v2-start">
-      <h2 id="v2-start">Start at the layer you need.</h2>
+      <div className="v2-end-intro"><h2 id="v2-start">One stack.<br />Start where you need.</h2><p>Use Mix to style your widgets, Remix for ready-to-style components, or Naked UI when you want to build from behavior up.</p><p>{packages.requirements}</p></div>
       <div className="v2-end-grid">
         <article>
-          <h3>Mix</h3><p>Style anything, build a design system.</p>
-          <code>flutter pub add mix</code>
-          <Link className="v2-link" href="/mix/docs/overview/getting-started/">Get started <ArrowRight /></Link>
+          <p className="v2-library-role">Styling</p><h3>Mix</h3><p>Tokens, variants, and animation.<br />One expressive styling language.</p>
+          <CopyCommand command={packages.libraries.mix.command} />
+          <Link className="v2-link" href="/mix/docs/overview/getting-started/#installation">Start with Mix <ArrowRight /></Link>
         </article>
         <article>
-          <h3>Remix</h3><p>Finished widgets you style with Mix.</p>
-          <code>flutter pub add remix</code>
-          <Link className="v2-link" href="/remix/docs/getting-started/">Get started <ArrowRight /></Link>
+          <p className="v2-library-role">Components</p><h3>Remix</h3><p>Remix brings Mix and Naked UI with it.<br />Style the components your way.</p>
+          <CopyCommand command={packages.libraries.remix.command} />
+          <Link className="v2-link" href="/remix/docs/getting-started/#installation">Start with Remix <ArrowRight /></Link>
         </article>
         <article>
-          <h3>Naked UI</h3><p>Behavior only. Every pixel is yours.</p>
-          <code>flutter pub add naked_ui</code>
-          <Link className="v2-link" href="/naked-ui/docs/">Get started <ArrowRight /></Link>
+          <p className="v2-library-role">Behavior</p><h3>Naked UI</h3><p>Headless, interactive primitives.<br />Your widgets. Your visual choices.</p>
+          <CopyCommand command={packages.libraries.naked_ui.command} />
+          <Link className="v2-link" href="/naked-ui/docs/#installation">Start with Naked UI <ArrowRight /></Link>
         </article>
       </div>
+      <footer className="v2-footer"><span>Built with Mix, Remix, and Naked UI.</span><a href="https://github.com/btwld">Open source on GitHub <ArrowRight /></a></footer>
     </section>
   </div>;
 }
