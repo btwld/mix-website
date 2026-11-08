@@ -20,6 +20,7 @@ const WIDGETS = [
   ['Button', 'button'], ['Icon button', 'icon_button'], ['Checkbox', 'checkbox'],
   ['Slider', 'slider'], ['Switch', 'switch'], ['Segmented control', 'segmented_control'],
   ['Avatar', 'avatar'], ['Badge', 'badge'],
+  ['Dialog', 'dialog'], ['Text field', 'textfield'], ['Toast', 'toast'],
 ];
 const REMIX_GROUPS = [
   ['Overlays', 'components/dialog'],
@@ -56,14 +57,14 @@ const STEPS: { id: Chapter; group: string; name: string; short: string }[] = [
   { id: 'blocks', group: 'Examples', name: 'Explore the cards', short: 'Examples' },
 ];
 
-function stateFor(chapter: Chapter, block: string, motion: MotionMode, compact: boolean) {
+function stateFor(chapter: Chapter, block: string, motion: MotionMode, compact: boolean, focus: string | null) {
   const base: Record<string, unknown> = { xray: false, naked: false, phone: false, highlight: null };
   switch (chapter) {
     case 'states': return { ...base, highlight: 'today' };
     case 'adapt': return { ...base, phone: true };
     case 'motion': return { ...base, highlight: motion === 'springs' ? 'spending' : motion === 'keyframes' ? 'player' : null };
-    case 'remix': return { ...base, xray: true, highlight: compact ? 'today' : null };
-    case 'naked': return { ...base, naked: true };
+    case 'remix': return { ...base, xray: true, highlight: focus ?? (compact ? 'today' : null) };
+    case 'naked': return { ...base, naked: true, highlight: focus };
     case 'blocks': return { ...base, highlight: block };
     default: return base;
   }
@@ -100,20 +101,28 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
   const [active, setActive] = useState<Chapter>('hero');
   const [look, setLook] = useState('midnight');
   const [block, setBlock] = useState('player');
+  // An explicit preview keeps its chapter's mode, including bare Naked widgets.
+  // Normal chapter navigation clears it and restores the responsive defaults.
+  const [chapterFocus, setChapterFocus] = useState<{ chapter: Chapter; block: string } | null>(null);
   const [motion, setMotion] = useState<MotionMode>('transitions');
   const root = useRef<HTMLDivElement>(null);
   const picked = useRef(false);
   const { ready, missing, mount, send } = useShowcase();
 
-  const goTo = useCallback((chapter: Chapter) => {
+  const goTo = useCallback((chapter: Chapter, focus?: string) => {
     const compact = matchMedia('(max-width: 62rem)').matches;
     if (compact && chapter === 'adapt') chapter = 'looks';
     const target = root.current?.querySelector<HTMLElement>(`[data-chapter="${chapter}"]`);
     if (!target) return;
+    setChapterFocus(focus ? { chapter, block: focus } : null);
     const stage = root.current?.querySelector('.v2-stage-column')?.getBoundingClientRect();
-    const offset = chapter === 'hero' ? 0 : compact ? innerHeight <= 600 ? 88 : (stage?.height ?? 0) + 88 : chapter === 'looks' ? 116 : innerHeight / 2 - target.offsetHeight / 2;
+    // Tall desktop chapters anchor below the fixed nav; shorter ones stay centered.
+    const offset = chapter === 'hero' ? 0 : compact ? innerHeight <= 600 ? 88 : (stage?.height ?? 0) + 88 : chapter === 'looks' ? 116 : Math.max(116, innerHeight / 2 - target.offsetHeight / 2);
     scrollTo({ top: Math.max(0, scrollY + target.getBoundingClientRect().top - offset), behavior: 'instant' });
     setActive(chapter);
+    // Explicit navigation can reselect the active chapter after browsing Features.
+    const hash = chapter === 'hero' ? '' : `#v2-${chapter}`;
+    if (location.hash !== hash) history.replaceState(history.state, '', `${location.pathname}${location.search}${hash}`);
   }, []);
 
   // Follow a reading line below the pinned demo on compact screens. Recalculate
@@ -144,13 +153,14 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
     const media = matchMedia('(prefers-reduced-motion: reduce)');
     const compact = matchMedia('(max-width: 62rem)');
     const apply = () => {
-      send({ ...stateFor(active, block, motion, compact.matches), reduceMotion: media.matches });
+      const focus = chapterFocus?.chapter === active ? chapterFocus.block : null;
+      send({ ...stateFor(active, block, motion, compact.matches, focus), reduceMotion: media.matches });
     };
     apply();
     media.addEventListener('change', apply);
     compact.addEventListener('change', apply);
     return () => { media.removeEventListener('change', apply); compact.removeEventListener('change', apply); };
-  }, [active, ready, block, motion]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [active, ready, block, motion, chapterFocus]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Keep a look picked during startup: the bridge does not exist until ready.
   // Sending only when the look changes also preserves custom accents between chapters.
@@ -185,10 +195,11 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
 
   // A choice stays made: scrolling back through Looks must not replace it.
   const chooseLook = (id: string) => { picked.current = true; setLook(id); };
-  const previewFeature = ({ chapter, motion, look }: FeaturePreview) => {
+  const previewFeature = ({ chapter, motion, look, block }: FeaturePreview) => {
     if (motion) setMotion(motion);
     if (look) chooseLook(look);
-    goTo(chapter);
+    if (block) setBlock(block);
+    goTo(chapter, block);
     const target = chapter === 'adapt' && matchMedia('(max-width: 62rem)').matches ? 'looks' : chapter;
     root.current?.querySelector<HTMLElement>(`#v2-title-${target}`)?.focus({ preventScroll: true });
   };
@@ -251,6 +262,8 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
         </Section>
         <Section id="remix" active={active} doc={{ href: '/remix/docs/styler-api/#variants-and-selected-state', label: 'Build with Remix' }} tag="Remix / Components" title="Your components. Your design language.">
           <p>The outlines reveal Remix widgets. They combine Naked UI behavior with Mix styling, so buttons, sliders, and checkboxes can speak the same visual language.</p>
+          <p>Choose Invite on the Team card to try a dialog, email field, and confirmation toast. Demo only: nothing is sent.</p>
+          <button className="v2-link" type="button" onClick={() => previewFeature({ chapter: 'remix', block: 'team' })}>Try the invite <ArrowRight /></button>
           <ul className="v2-widgets" aria-label="Explore Remix components">
             {WIDGETS.map(([name, slug]) => <li key={slug}><Link href={`/remix/docs/components/${slug}/`}>{name}</Link></li>)}
           </ul>
@@ -264,6 +277,9 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
           <p>The task rows and player buttons now use Naked UI directly. Naked UI handles interaction and its states (hover, focus, press); the app keeps the value.</p>
           <p className="v2-note">Try a task, or focus it and press Space. Its checked state stays the same when the styling returns.</p>
           <CodeExample entry={code.naked} collapsible />
+          <button className="v2-link" type="button" onClick={() => previewFeature({ chapter: 'naked', block: 'team' })}>Try the Naked invite <ArrowRight /></button>
+          <p className="v2-note">Choose Invite on Team to open the bare Naked UI dialog. Tab stays inside, Escape closes it, and focus returns to Invite. Demo only: nothing is sent.</p>
+          <CodeExample entry={code['naked-invite']} collapsible />
         </Section>
         <Section id="blocks" active={active} doc={{ href: '/v2/source/', label: 'Explore the showcase source' }} tag="The stack, together" title="Small pieces. Real possibilities.">
           <p>Explore each card on its own. These examples share the same tokens, styles, and local state.</p>

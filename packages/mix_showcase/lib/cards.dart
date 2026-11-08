@@ -6,6 +6,7 @@ import 'package:naked_ui/naked_ui.dart';
 import 'package:remix/remix.dart';
 
 import 'app.dart';
+import 'invite.dart';
 import 'showcase.dart';
 import 'styles.dart';
 import 'tokens.dart';
@@ -31,7 +32,11 @@ class Block extends StatelessWidget {
     return Stack(
       fit: .passthrough,
       children: [
-        ExcludeFocus(excluding: showcase.naked && !nakedFocus, child: child),
+        ExcludeFocus(
+          excluding: showcase.naked && !nakedFocus,
+          // Keep a card's controls together when adjacent cards overlap its rows.
+          child: FocusTraversalGroup(child: child),
+        ),
         Positioned.fill(
           child: IgnorePointer(
             child: AnimatedOpacity(
@@ -107,7 +112,13 @@ class CardDeck extends StatelessWidget {
                         if (room >= 600) ...const [
                           Block('spending', child: Spending(chartHeight: 112)),
                           Block('appearance', child: MakeItYours()),
-                          Expanded(child: Block('team', child: Team())),
+                          Expanded(
+                            child: Block(
+                              'team',
+                              nakedFocus: true,
+                              child: Team(),
+                            ),
+                          ),
                         ] else ...[
                           const Expanded(
                             child: Block('spending', child: Spending()),
@@ -1015,7 +1026,9 @@ class Team extends StatelessWidget {
                 Xray(
                   'RemixAvatar',
                   named: person == showcase.people.first,
-                  child: RemixAvatar(label: person.initials, style: avatar),
+                  child: showcase.naked
+                      ? StyledText(person.initials, style: text($small))
+                      : RemixAvatar(label: person.initials, style: avatar),
                 ),
                 Expanded(
                   child: Column(
@@ -1034,15 +1047,7 @@ class Team extends StatelessWidget {
                   named: person == showcase.people.last,
                   right: true,
                   below: true,
-                  child: RemixButton(
-                    label: person.invited ? 'Invited' : 'Invite',
-                    semanticLabel: person.invited
-                        ? 'Undo invite to ${person.name}'
-                        : 'Invite ${person.name}',
-                    leadingIcon: person.invited ? Icons.check : null,
-                    onPressed: () => showcase.invitePerson(person),
-                    style: person.invited ? doneButton : quietButton,
-                  ),
+                  child: InviteButton(key: ObjectKey(person), person: person),
                 ),
               ],
             ),

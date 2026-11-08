@@ -117,6 +117,9 @@ export async function showcaseCode(): Promise<ShowcaseCode> {
     ['springs', [['styles.dart', 'bar-style']]],
     ['keyframes', [['styles.dart', 'equalizer']]],
     ['remix', [['styles.dart', 'checkbox-style'], ['cards.dart', 'remix-checkbox']]],
+    ['invite', [['invite.dart', 'invite-dialog']]],
+    ['naked-invite', [['invite.dart', 'naked-invite']]],
+    ['material-bridge', [['styles.dart', 'material-bridge']]],
   ];
   return Object.fromEntries(await Promise.all(entries.map(async ([key, regions]) => {
     const parts = regions.map(([file, name]) => region(file, name, sources[file]));

@@ -6,12 +6,14 @@ const hasLocalShowcase = existsSync('public/v2-flutter/flutter_bootstrap.js');
 const featureExcerpts: { id: string; name: string; code: string; file: string; also?: string }[] = [
   { id: 'composition', name: 'Style composition', code: '.onBreakpoint(.maxWidth(480), .padding(.all(14)))', file: 'styles.dart' },
   { id: 'tokens', name: 'Design tokens', code: 'return MixScope(', file: 'tokens.dart' },
+  { id: 'material-bridge', name: 'Material bridge', code: 'ContextToken<Color>', file: 'styles.dart' },
   { id: 'states', name: 'Interaction states', code: 'final listRow = BoxStyler()', file: 'styles.dart' },
   { id: 'transitions', name: 'Transitions', code: 'AnimationConfig.easeOut(420.ms)', file: 'styles.dart' },
   { id: 'springs', name: 'Spring motion', code: '.animate(.spring(320.ms))', file: 'styles.dart' },
   { id: 'keyframes', name: 'Keyframe timelines', code: "KeyframeTrack<double>('height'", file: 'styles.dart' },
   { id: 'layout', name: 'Responsive layout', code: '.onBreakpoint(.maxWidth(480), .padding(.all(14)))', file: 'styles.dart', also: 'constraints.maxWidth < 640' },
   { id: 'remix', name: 'Remix components', code: 'CheckboxStyler()', file: 'styles.dart', also: 'child: RemixCheckbox(' },
+  { id: 'overlays', name: 'Overlays and feedback', code: 'RemixDialog(', file: 'invite.dart', also: 'RemixTextField(' },
   { id: 'naked', name: 'Naked UI behavior', code: 'return NakedCheckbox(', file: 'cards.dart' },
 ];
 
@@ -28,6 +30,38 @@ async function expectFeatureLanding(page: Page) {
     const navigation = document.querySelector('.v2-nav')!.getBoundingClientRect();
     return section.top >= 0 && section.top < innerHeight / 2 && title.top >= navigation.bottom && title.bottom <= innerHeight;
   })).toBe(true);
+}
+
+async function expectChapterHeadingBelowNav(page: Page, chapter: string) {
+  await expect.poll(() => page.locator(`#v2-title-${chapter}`).evaluate(heading => {
+    const title = heading.getBoundingClientRect();
+    const navigation = document.querySelector('.v2-nav')!.getBoundingClientRect();
+    return title.top >= navigation.bottom && title.bottom <= innerHeight;
+  })).toBe(true);
+}
+
+// Observe commands at the existing bridge boundary without replacing Flutter.
+async function observeShowcasePatches(page: Page, beforeReady = false) {
+  await page.evaluate(beforeReady => {
+    const observed = window as typeof window & { observedPatches?: Record<string, unknown>[] };
+    observed.observedPatches = [];
+    const observe = () => {
+      const apply = window.__mixShowcase!.apply;
+      window.__mixShowcase!.apply = json => {
+        observed.observedPatches!.push(JSON.parse(json));
+        apply(json);
+      };
+    };
+    if (beforeReady) {
+      const ready = window.__mixShowcaseReady!;
+      window.__mixShowcaseReady = () => { observe(); ready(); };
+    } else observe();
+  }, beforeReady);
+}
+
+async function lastShowcaseState(page: Page) {
+  return page.evaluate(() => (window as typeof window & { observedPatches?: Record<string, unknown>[] })
+    .observedPatches?.filter(patch => Object.hasOwn(patch, 'highlight')).at(-1));
 }
 
 test('showcase navigation is server-rendered and works on a narrow phone without JavaScript', async ({ browser }) => {
@@ -114,24 +148,27 @@ test('source files have shareable selections, history, and a usable phone layout
   await expectNoOverflow(page);
 });
 
-test('excerpt links reveal the exact highlighted source lines', async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.route('**/v2-flutter/flutter_bootstrap.js', route => route.abort());
-  await page.goto('/v2/#v2-features');
-  const panel = page.locator('.v2-feature-panel');
-  const firstLine = (await panel.locator('pre').innerText()).split('\n')[0].trim();
-  const link = panel.locator('figcaption a').first();
-  const href = (await link.getAttribute('href'))!;
-  const [start, end] = href.match(/#L(\d+)-L(\d+)$/)!.slice(1).map(Number);
-  await link.click();
-  const first = page.locator(`#L${start}`);
-  await expect(first).toContainText(firstLine);
-  await expect(page.locator('.v2-source-highlight')).toHaveCount(end - start + 1);
-  await expect(first).toHaveClass(/v2-source-highlight/);
-  await expect(first).toBeInViewport();
-  await expect.poll(() => first.evaluate(line => line.getBoundingClientRect().top >= document.querySelector('.v2-nav')!.getBoundingClientRect().bottom)).toBe(true);
-  await expect(page.getByRole('link', { name: 'View on GitHub', exact: true })).toHaveAttribute('href', new RegExp(`/lib/styles\\.dart#L${start}-L${end}$`));
-});
+for (const feature of featureExcerpts.filter(item => ['composition', 'overlays', 'material-bridge'].includes(item.id))) {
+  test(`${feature.name} excerpt links reveal the exact highlighted source lines`, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.route('**/v2-flutter/flutter_bootstrap.js', route => route.abort());
+    await page.goto('/v2/#v2-features');
+    const panel = page.locator('.v2-feature-panel');
+    await page.getByRole('group', { name: 'Choose a feature', exact: true }).getByRole('button', { name: feature.name, exact: true }).click();
+    const firstLine = (await panel.locator('pre').innerText()).split('\n')[0].trim();
+    const link = panel.locator('figcaption a').first();
+    const href = (await link.getAttribute('href'))!;
+    const [start, end] = href.match(/#L(\d+)-L(\d+)$/)!.slice(1).map(Number);
+    await link.click();
+    const first = page.locator(`#L${start}`);
+    await expect(first).toContainText(firstLine);
+    await expect(page.locator('.v2-source-highlight')).toHaveCount(end - start + 1);
+    await expect(first).toHaveClass(/v2-source-highlight/);
+    await expect(first).toBeInViewport();
+    await expect.poll(() => first.evaluate(line => line.getBoundingClientRect().top >= document.querySelector('.v2-nav')!.getBoundingClientRect().bottom)).toBe(true);
+    await expect(page.getByRole('link', { name: 'View on GitHub', exact: true })).toHaveAttribute('href', new RegExp(`/lib/${feature.file.replace('.', '\\.')}#L${start}-L${end}$`));
+  });
+}
 
 test('Uses links land on showcase declarations', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -150,14 +187,19 @@ test('Uses links land on showcase declarations', async ({ page }) => {
 test('source ranges follow hashes and clear when switching files at 320px', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/v2/source/?file=styles.dart#L22-L24,L33');
+  await page.route('**/v2-flutter/flutter_bootstrap.js', route => route.abort());
+  await page.goto('/v2/#v2-features');
+  const href = (await page.locator('.v2-feature-panel figcaption a').first().getAttribute('href'))!;
+  const [start, end] = href.match(/#L(\d+)-L(\d+)$/)!.slice(1).map(Number);
+  expect(end).toBeGreaterThan(start + 2);
+  await page.goto(`${href.split('#')[0]}#L${start}-L${start + 2},L${end}`);
   await expect(page.locator('.v2-source-highlight')).toHaveCount(4);
-  await expect(page.locator('#L22')).toBeInViewport();
-  await page.evaluate(() => { location.hash = 'L33'; });
+  await expect(page.locator(`#L${start}`)).toBeInViewport();
+  await page.evaluate(line => { location.hash = `L${line}`; }, end);
   await expect(page.locator('.v2-source-highlight')).toHaveCount(1);
-  await expect(page.locator('#L33')).toHaveClass(/v2-source-highlight/);
-  await expect(page.locator('#L33')).toBeInViewport();
-  await expect(page.getByRole('link', { name: 'View on GitHub', exact: true })).toHaveAttribute('href', /#L33$/);
+  await expect(page.locator(`#L${end}`)).toHaveClass(/v2-source-highlight/);
+  await expect(page.locator(`#L${end}`)).toBeInViewport();
+  await expect(page.getByRole('link', { name: 'View on GitHub', exact: true })).toHaveAttribute('href', new RegExp(`#L${end}$`));
   await page.getByLabel('Source file', { exact: true }).selectOption('tokens.dart');
   await expect(page).toHaveURL(/\?file=tokens\.dart$/);
   await expect(page.locator('.v2-source-highlight')).toHaveCount(0);
@@ -218,8 +260,36 @@ test('Remix breadth links reach their docs groups and preserve the live-componen
   }
   const liveComponents = remix.getByRole('list', { name: 'Explore Remix components', exact: true });
   await expect(liveComponents.getByRole('link')).toHaveText([
-    'Button', 'Icon button', 'Checkbox', 'Slider', 'Switch', 'Segmented control', 'Avatar', 'Badge',
+    'Button', 'Icon button', 'Checkbox', 'Slider', 'Switch', 'Segmented control', 'Avatar', 'Badge', 'Dialog', 'Text field', 'Toast',
   ]);
+  for (const [name, slug] of Object.entries({ Dialog: 'dialog', 'Text field': 'textfield', Toast: 'toast' })) {
+    await expect(liveComponents.getByRole('link', { name, exact: true })).toHaveAttribute('href', `/remix/docs/components/${slug}/`);
+  }
+  await expectNoOverflow(page);
+});
+
+test('the Naked invite instructions expose the real bare-widget excerpt and its source range', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.route('**/v2-flutter/flutter_bootstrap.js', route => route.abort());
+  await page.goto('/v2/#v2-naked');
+  const naked = page.locator('[data-chapter="naked"]');
+  await expect(naked.getByRole('button', { name: 'Try the Naked invite', exact: true })).toBeVisible();
+  await expect(naked).toContainText('Tab stays inside, Escape closes it, and focus returns to Invite.');
+  await expect(naked).toContainText('Demo only: nothing is sent.');
+  const excerpt = naked.locator('.v2-code').filter({ has: page.locator('figcaption a[href*="file=invite.dart"]') });
+  await excerpt.locator('summary').click();
+  await expect(excerpt.locator('pre')).toContainText('NakedDialog(');
+  await expect(excerpt.locator('pre')).toContainText('NakedTextField(');
+  const firstLine = (await excerpt.locator('pre').innerText()).split('\n')[0].trim();
+  const link = excerpt.locator('figcaption a').first();
+  const href = (await link.getAttribute('href'))!;
+  const [start, end] = href.match(/#L(\d+)-L(\d+)$/)!.slice(1).map(Number);
+  await link.click();
+  await expect(page.getByLabel('Source file', { exact: true })).toHaveValue('invite.dart');
+  await expect(page.locator('.v2-source-highlight')).toHaveCount(end - start + 1);
+  await expect(page.locator(`#L${start}`)).toContainText(firstLine);
+  await expect(page.locator(`#L${start}`)).toBeInViewport();
   await expectNoOverflow(page);
 });
 
@@ -235,7 +305,7 @@ test('docs links reach sections and follow the selected motion mode', async ({ p
     naked: '/naked-ui/docs/widget/checkbox/#basic-implementation',
   };
   for (const [chapter, href] of Object.entries(chapters)) {
-    await expect(page.locator(`[data-chapter="${chapter}"] > .v2-chapter-body > .v2-link`)).toHaveAttribute('href', href);
+    await expect(page.locator(`[data-chapter="${chapter}"] > .v2-chapter-body > a.v2-link`)).toHaveAttribute('href', href);
   }
   const motion = page.locator('[data-chapter="motion"]');
   const modes = { Transitions: 'curve-based-configs', Springs: 'spring-based-configs', Keyframes: 'keyframe-animations' };
@@ -249,6 +319,8 @@ test('docs links reach sections and follow the selected motion mode', async ({ p
     springs: '/mix/docs/guides/animations/#spring-based-configs',
     keyframes: '/mix/docs/guides/animations/#keyframe-animations',
     remix: '/remix/docs/components/checkbox/#basic-implementation', naked: chapters.naked,
+    overlays: '/remix/docs/components/dialog/',
+    'material-bridge': '/mix/docs/guides/design-token/#context-tokens',
   };
   for (const [feature, href] of Object.entries(featureDocs)) {
     await page.getByRole('group', { name: 'Choose a feature', exact: true }).getByRole('button', { name: featureExcerpts.find(item => item.id === feature)!.name, exact: true }).click();
@@ -261,6 +333,94 @@ test('docs links reach sections and follow the selected motion mode', async ({ p
 
 test.describe('live showcase', () => {
   test.skip(!hasLocalShowcase, 'Build packages/mix_showcase locally to exercise the live Flutter integration.');
+
+  for (const width of [1440, 390]) {
+    test(`invite feature previews select Team and restore chapter defaults at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+      await page.goto('/v2/');
+      await expect(page.locator('.v2-stage')).toHaveAttribute('data-ready', 'true');
+      await observeShowcasePatches(page);
+      const featureLink = page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Features & code' });
+      const remix = page.locator('[data-chapter="remix"]');
+      for (const feature of featureExcerpts.filter(item => ['overlays', 'material-bridge'].includes(item.id))) {
+        await featureLink.click();
+        await expectFeatureLanding(page);
+        if (width === 390) await page.getByLabel('Explore a feature', { exact: true }).selectOption(feature.id);
+        else await page.getByRole('group', { name: 'Choose a feature', exact: true }).getByRole('button', { name: feature.name, exact: true }).click();
+        await page.locator('.v2-feature-panel').getByRole('link', { name: 'Try it in the showcase' }).click();
+        const examples = page.locator('[data-chapter="blocks"]');
+        await expect(page).toHaveURL(/#v2-blocks$/);
+        await expect(examples).toHaveAttribute('data-active', 'true');
+        await expect(examples.getByRole('heading')).toBeFocused();
+        await expect(examples.getByRole('button', { name: /^Team/ })).toHaveAttribute('aria-pressed', 'true');
+        await expect.poll(() => lastShowcaseState(page)).toMatchObject({ highlight: 'team', xray: false, naked: false, phone: false });
+        await page.locator('.v2-step[data-step="remix"]').click();
+        await expect.poll(() => lastShowcaseState(page)).toMatchObject({ highlight: width === 390 ? 'today' : null, xray: true, naked: false });
+        if (width === 1440) await expectChapterHeadingBelowNav(page, 'remix');
+      }
+      await remix.getByRole('button', { name: 'Try the invite', exact: true }).click();
+      await expect(remix.getByRole('heading')).toBeFocused();
+      await expect.poll(() => lastShowcaseState(page)).toMatchObject({ highlight: 'team', xray: true, naked: false });
+      if (width === 1440) await expectChapterHeadingBelowNav(page, 'remix');
+      await expect(page.locator('flutter-view')).toHaveCount(1);
+      await expectNoOverflow(page);
+    });
+
+    test(`the bare Naked invite is reachable at ${width}px and after resizing`, async ({ page }) => {
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+      await page.goto('/v2/');
+      await expect(page.locator('.v2-stage')).toHaveAttribute('data-ready', 'true');
+      await observeShowcasePatches(page);
+      const naked = page.locator('[data-chapter="naked"]');
+      await page.locator('.v2-step[data-step="naked"]').click();
+      // A null highlight preserves the short-stage Today default in Flutter.
+      await expect.poll(() => lastShowcaseState(page)).toMatchObject({ highlight: null, naked: true, xray: false, phone: false });
+      await naked.getByRole('button', { name: 'Try the Naked invite', exact: true }).click();
+      await expect(page).toHaveURL(/#v2-naked$/);
+      await expect(naked).toHaveAttribute('data-active', 'true');
+      await expect(naked.getByRole('heading')).toBeFocused();
+      await expect.poll(() => lastShowcaseState(page)).toMatchObject({ highlight: 'team', naked: true, xray: false, phone: false });
+      if (width === 1440) await expectChapterHeadingBelowNav(page, 'naked');
+      await page.setViewportSize({ width: width === 390 ? 1440 : 390, height: width === 390 ? 900 : 844 });
+      // Re-anchor after the reading line moves on resize; retain the explicit intent.
+      await naked.getByRole('button', { name: 'Try the Naked invite', exact: true }).click();
+      await expect.poll(() => lastShowcaseState(page)).toMatchObject({ highlight: 'team', naked: true, xray: false, phone: false });
+      await page.locator('.v2-step[data-step="blocks"]').click();
+      await expect.poll(() => lastShowcaseState(page)).toMatchObject({ highlight: 'team', naked: false, xray: false });
+      await page.locator('.v2-step[data-step="naked"]').click();
+      await expect.poll(() => lastShowcaseState(page)).toMatchObject({ highlight: null, naked: true, xray: false });
+      await expect(page.locator('flutter-view')).toHaveCount(1);
+      await expectNoOverflow(page);
+    });
+  }
+
+  for (const mode of ['blocks', 'naked'] as const) {
+    test(`${mode} invite targeting selected during startup replays when Flutter is ready`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      let release!: () => void;
+      const startup = new Promise<void>(resolve => { release = resolve; });
+      await page.route('**/v2-flutter/flutter_bootstrap.js', async route => { await startup; await route.continue(); });
+      const chapter = page.locator(`[data-chapter="${mode}"]`);
+      try {
+        await page.goto('/v2/', { waitUntil: 'domcontentloaded' });
+        if (mode === 'blocks') {
+          await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Features & code' }).click();
+          await page.getByLabel('Explore a feature', { exact: true }).selectOption('overlays');
+          await page.locator('.v2-feature-panel').getByRole('link', { name: 'Try it in the showcase' }).click();
+        } else {
+          await page.locator('.v2-step[data-step="naked"]').click();
+          await chapter.getByRole('button', { name: 'Try the Naked invite', exact: true }).click();
+        }
+        await expect(chapter.getByRole('heading')).toBeFocused();
+        await observeShowcasePatches(page, true);
+      } finally { release(); }
+      await expect(page.locator('.v2-stage')).toHaveAttribute('data-ready', 'true');
+      await expect(page).toHaveURL(new RegExp(`#v2-${mode}$`));
+      await expect(chapter).toHaveAttribute('data-active', 'true');
+      await expect.poll(() => lastShowcaseState(page)).toMatchObject({ highlight: 'team', naked: mode === 'naked', xray: false, phone: false });
+      await expect(page.locator('flutter-view')).toHaveCount(1);
+    });
+  }
 
   test('motion selected during startup replays, and feature previews keep the chosen animation', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
@@ -406,6 +566,7 @@ test.describe('live showcase', () => {
         await page.locator(`.v2-step[data-step="${chapter}"]`).click();
         await expect(page.locator(`[data-chapter="${chapter}"]`)).toHaveAttribute('data-active', 'true');
         await expect(page).toHaveURL(new RegExp(`#v2-${chapter}$`));
+        if (width === 1440) await expectChapterHeadingBelowNav(page, chapter);
       }
       await expectNoOverflow(page);
       expect(errors).toEqual([]);

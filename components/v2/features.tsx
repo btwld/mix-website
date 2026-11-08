@@ -12,7 +12,7 @@ export const motionDocs: Record<MotionMode, string> = {
   springs: '/mix/docs/guides/animations/#spring-based-configs',
   keyframes: '/mix/docs/guides/animations/#keyframe-animations',
 };
-export type FeaturePreview = { chapter: 'looks' | 'states' | 'adapt' | 'motion' | 'remix' | 'naked'; motion?: MotionMode; look?: string };
+export type FeaturePreview = { chapter: 'looks' | 'states' | 'adapt' | 'motion' | 'remix' | 'naked' | 'blocks'; motion?: MotionMode; look?: string; block?: string };
 
 const FEATURES: {
   id: string; name: string; layer: string; title: string; description: string; detail: string;
@@ -29,6 +29,12 @@ const FEATURES: {
     description: 'Put color, typography, shape, and depth in tokens. Each look supplies new values to the same styles.',
     detail: 'Cyber swaps rounded corners for flat cuts. Pick a look in the showcase to see the cards change together.',
     snippet: 'tokens', preview: { chapter: 'looks', look: 'cyber' }, docs: { href: '/mix/docs/guides/design-token/#mixscope', label: 'Explore design tokens' },
+  },
+  {
+    id: 'material-bridge', name: 'Material bridge', layer: 'Mix / Theming', title: 'Bring your Material theme along.',
+    description: 'Read the active Material theme with ContextToken. Mix styles can use your app’s existing colors directly.',
+    detail: 'Open Invite on the Team card. The Send invite button reads primary and onPrimary from the Material color scheme, which follows the selected look.',
+    snippet: 'material-bridge', preview: { chapter: 'blocks', block: 'team' }, docs: { href: '/mix/docs/guides/design-token/#context-tokens', label: 'Bridge your Material theme' },
   },
   {
     id: 'states', name: 'Interaction states', layer: 'Mix / Variants', title: 'The response belongs in the style.',
@@ -65,6 +71,12 @@ const FEATURES: {
     description: 'Remix pairs Naked UI behavior with Mix styling. Use buttons, sliders, and checkboxes without starting each component from scratch.',
     detail: 'Today uses RemixCheckbox with a shared checkbox style. Its checked state stays intact as you change looks.',
     snippet: 'remix', preview: { chapter: 'remix' }, docs: { href: '/remix/docs/components/checkbox/#basic-implementation', label: 'Explore the checkbox' },
+  },
+  {
+    id: 'overlays', name: 'Overlays and feedback', layer: 'Remix / Components', title: 'From an invite to a confirmation.',
+    description: 'Combine a dialog, text field, loading button, and toast in one interaction, with Mix styles for each component.',
+    detail: 'Open Invite on the Team card, enter an email, and choose Send invite. The dialog closes and a toast confirms the local demo invite. Nothing is sent.',
+    snippet: 'invite', preview: { chapter: 'blocks', block: 'team' }, docs: { href: '/remix/docs/components/dialog/', label: 'Explore dialogs' },
   },
   {
     id: 'naked', name: 'Naked UI behavior', layer: 'Naked UI / Behavior', title: 'Keep the behavior. Choose the rendering.',

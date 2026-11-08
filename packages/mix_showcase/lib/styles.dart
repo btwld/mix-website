@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart' show Colors;
+import 'package:flutter/material.dart' show Colors, Theme;
 import 'package:flutter/widgets.dart';
 import 'package:remix/remix.dart';
 
@@ -54,6 +54,59 @@ final quietButton = ButtonStyler()
     .onPressed(.scale(0.96))
     .onFocusVisible(.shape($focusShape.mix()))
     .animate(motion);
+
+// #docregion material-bridge
+// Context tokens let Mix read the Material theme already used by the app.
+final $brand = ContextToken<Color>((c) => Theme.of(c).colorScheme.primary);
+final $onBrand = ContextToken<Color>((c) => Theme.of(c).colorScheme.onPrimary);
+
+final primaryButton = ButtonStyler()
+    .padding(.horizontal(14))
+    .padding(.vertical(8))
+    .color($brand())
+    .shape($controlShape.mix())
+    .label(TextStyler().style($small.mix()).color($onBrand()))
+    .spinner(.color($onBrand()).size(16))
+    .onHovered(.scale(1.02))
+    .onPressed(.scale(0.96))
+    .onFocusVisible(.shape($focusShape.mix()));
+// #enddocregion material-bridge
+
+final dialogStyle = DialogStyler()
+    .width(400)
+    .padding(.all(16))
+    .color($surface())
+    .shape($cardShape.mix())
+    .shadow($lift.mix())
+    .title(text($title))
+    .description(text($small, $muted).wrap(.padding(.vertical(8))))
+    .actions(.row().spacing(8).mainAxisAlignment(.end).padding(.top(12)));
+
+final field = TextFieldStyler()
+    .padding(.all(10))
+    .color($raised())
+    .shape($controlShape.mix())
+    .text(text($body))
+    .label(text($small))
+    .hintText(text($body, $muted))
+    .helperText(text($small, $muted))
+    .cursorColor($ink())
+    .onFocused(.shape($focusShape.mix()));
+
+final toastStyle = ToastStyler()
+    .maxWidth(360)
+    .padding(.all(14))
+    .spacing(10)
+    .color($surface())
+    .shape($cardShape.mix())
+    .title(text($body))
+    .description(text($small, $muted))
+    .closeButton(
+      IconButtonStyler()
+          .size(28, 28)
+          .icon(.color($ink()).size(16))
+          .onFocusVisible(.shape($focusShape.mix())),
+    );
 
 /// A finished action reads as a state, not as another button to press.
 final doneButton = ButtonStyler()

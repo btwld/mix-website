@@ -134,8 +134,8 @@ class Showcase extends ChangeNotifier {
 
   void seek(double value) => position.value = value;
 
-  void invitePerson(Person person) {
-    person.invited = !person.invited;
+  void setInvited(Person person, bool value) {
+    person.invited = value;
     notifyListeners();
   }
 
