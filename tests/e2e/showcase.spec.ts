@@ -196,6 +196,33 @@ flutter run -d chrome`);
   await expectNoOverflow(page);
 });
 
+test('Remix breadth links reach their docs groups and preserve the live-component chips', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route('**/v2-flutter/flutter_bootstrap.js', route => route.abort());
+  await page.goto('/v2/');
+  const remix = page.locator('[data-chapter="remix"]');
+  const groups = remix.getByRole('list', { name: 'Also in Remix', exact: true });
+  await expect(groups.getByRole('link')).toHaveCount(6);
+  const destinations = {
+    Overlays: '/remix/docs/components/dialog/',
+    Navigation: '/remix/docs/components/tabs/',
+    Feedback: '/remix/docs/components/progress/',
+    Layout: '/remix/docs/components/accordion/',
+    'Data display': '/remix/docs/components/data_table/',
+    'Agent surfaces': '/remix/docs/agent/composer/',
+  };
+  for (const [name, href] of Object.entries(destinations)) {
+    const link = groups.getByRole('link', { name, exact: true });
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute('href', href);
+  }
+  const liveComponents = remix.getByRole('list', { name: 'Explore Remix components', exact: true });
+  await expect(liveComponents.getByRole('link')).toHaveText([
+    'Button', 'Icon button', 'Checkbox', 'Slider', 'Switch', 'Segmented control', 'Avatar', 'Badge',
+  ]);
+  await expectNoOverflow(page);
+});
+
 test('docs links reach sections and follow the selected motion mode', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.route('**/v2-flutter/flutter_bootstrap.js', route => route.abort());

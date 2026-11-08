@@ -21,6 +21,14 @@ const WIDGETS = [
   ['Slider', 'slider'], ['Switch', 'switch'], ['Segmented control', 'segmented_control'],
   ['Avatar', 'avatar'], ['Badge', 'badge'],
 ];
+const REMIX_GROUPS = [
+  ['Overlays', 'components/dialog'],
+  ['Navigation', 'components/tabs'],
+  ['Feedback', 'components/progress'],
+  ['Layout', 'components/accordion'],
+  ['Data display', 'components/data_table'],
+  ['Agent surfaces', 'agent/composer'],
+];
 const BLOCKS = [
   { id: 'player', name: 'Now playing', note: 'Play, pause, skip, and seek through a simulated track.' },
   { id: 'today', name: 'Today', note: 'Check off a task. Its state stays with you through every look.' },
@@ -221,7 +229,7 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
           <CodeExample entry={code[look]} collapsible />
         </Section>
         <Section id="states" active={active} doc={{ href: '/mix/docs/guides/dynamic-styling/#interaction', label: 'Explore state variants' }} tag="Mix / Interaction states" title="Style the interaction, too.">
-          <p>Hover, focus, or press a task. Mix keeps the visual response in the style, alongside its resting appearance.</p>
+          <p>Hover or press a task, or Tab to its checkbox. Mix keeps the visual response in the style, alongside its resting appearance.</p>
           <CodeExample entry={code.states} collapsible />
         </Section>
         <Section id="adapt" active={active} doc={{ href: '/mix/docs/guides/dynamic-styling/#breakpoint', label: 'Explore breakpoints' }} tag="Same styles / Responsive layout" title="Less room. Still your design.">
@@ -246,10 +254,14 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
           <ul className="v2-widgets" aria-label="Explore Remix components">
             {WIDGETS.map(([name, slug]) => <li key={slug}><Link href={`/remix/docs/components/${slug}/`}>{name}</Link></li>)}
           </ul>
+          <p className="v2-note" id="v2-remix-groups">Also in Remix</p>
+          <ul className="v2-widgets" aria-labelledby="v2-remix-groups">
+            {REMIX_GROUPS.map(([name, path]) => <li key={path}><Link href={`/remix/docs/${path}/`}>{name}</Link></li>)}
+          </ul>
           <CodeExample entry={code.remix} collapsible />
         </Section>
         <Section id="naked" active={active} doc={{ href: '/naked-ui/docs/widget/checkbox/#basic-implementation', label: 'Build with Naked UI' }} tag="Naked UI / Behavior" title="Take away the style. Keep the interaction.">
-          <p>The task rows and player buttons now use Naked UI directly. It handles interaction and state while you decide what to render.</p>
+          <p>The task rows and player buttons now use Naked UI directly. Naked UI handles interaction and its states (hover, focus, press); the app keeps the value.</p>
           <p className="v2-note">Try a task, or focus it and press Space. Its checked state stays the same when the styling returns.</p>
           <CodeExample entry={code.naked} collapsible />
         </Section>
