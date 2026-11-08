@@ -35,7 +35,14 @@
     },
     "guides/design-token": {
       "path": "src/content/documentation/mix/guides/design-token.mdx",
-      "sha256": "d435e2a94ca37dcdc356fab586cb3471cd0552869abcbb0ef7bf921293654e82"
+      "sha256": "d435e2a94ca37dcdc356fab586cb3471cd0552869abcbb0ef7bf921293654e82",
+      "updates": [
+        {
+          "date": "2026-11-08",
+          "description": "Correct plain-scope replacement versus MixScope.inherit, explain consumer placement and refresh behavior against Mix 2.3.1, and replace the incompatible nested-scope preview with an explicit inherited-override example. Retain the original import hash above.",
+          "reference": "https://pub.dev/packages/mix/versions/2.3.1"
+        }
+      ]
     },
     "guides/directives": {
       "path": "src/content/documentation/mix/guides/directives.mdx",

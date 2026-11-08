@@ -19,6 +19,7 @@ const descriptions: Record<string, string> = {
   'cards.dart': 'The five cards, their layouts and interactions.',
   'styles.dart': 'Shared Mix styles, variants and animation.',
   'tokens.dart': 'The four looks, design tokens and custom corner shape.',
+  'token_example.dart': 'A standalone, runnable token example: declare, provide, consume, then switch values.',
   'showcase.dart': 'Shared state and the controls used by the tour.',
   'app.dart': 'The showcase frame and layout.',
   'main.dart': 'The Flutter entry point and theme scope.',
@@ -57,17 +58,24 @@ export default async function ShowcaseSourcePage() {
         <p>Explore the complete files that power the live showcase. These cards share the styles, tokens, and state shown here — they aren’t standalone snippets.</p>
       </header>
 
-      <details className="v2-source-readme">
+      <details className="v2-source-readme" id="v2-source-setup" open>
         <summary><span>Use the source together</span><span>Dependencies & setup</span></summary>
         <div className="v2-source-setup">
           <div>
             <p>{packages.requirements}</p>
-            <p>Clone the repository, open the showcase package, then run it in Chrome:</p>
+            <p>{packages.github.pinned ? 'Check out the same revision as this page, then run the complete showcase:' : 'Run the linked committed baseline. This working copy is not an exact revision-matched build:'}</p>
+            {packages.github.dirty && <p>This local preview includes uncommitted changes. Its displayed files can differ from the GitHub reference and checkout below.</p>}
             <pre><code>{`git clone https://github.com/btwld/mix-website.git
-cd mix-website/packages/mix_showcase
+cd mix-website
+git checkout ${packages.github.reference}
+cd packages/mix_showcase
+flutter pub get
 flutter run -d chrome`}</code></pre>
+            <p>Start smaller with the standalone token example (same package, no showcase helpers):</p>
+            <pre><code>flutter run -d chrome -t lib/token_example.dart</code></pre>
             <p><a href={packages.github.package}>Browse the showcase package on GitHub</a>. Start with <code>cards.dart</code>, then follow its shared styles, tokens and state.</p>
             <p>Font license notices are included in the file selector below. Remix brings Mix and Naked UI with it.</p>
+            <p>The linked library docs explain the APIs; this checkout and its lockfile are the version-matched setup for these examples.</p>
           </div>
           <aside aria-label="Showcase dependencies">
             <h3>This example uses</h3>

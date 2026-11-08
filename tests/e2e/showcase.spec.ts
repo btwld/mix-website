@@ -1,11 +1,14 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 
+const siteIdentity = JSON.parse(readFileSync('public/__site.json', 'utf8'));
+const sourcePinned = Boolean(siteIdentity.commit) && !siteIdentity.dirty;
+
 const hasLocalShowcase = existsSync('public/v2-flutter/flutter_bootstrap.js');
 
 const featureExcerpts: { id: string; name: string; code: string; file: string; also?: string }[] = [
   { id: 'composition', name: 'Style composition', code: '.onBreakpoint(.maxWidth(480), .padding(.all(14)))', file: 'styles.dart' },
-  { id: 'tokens', name: 'Design tokens', code: 'return MixScope(', file: 'tokens.dart' },
+  { id: 'tokens', name: 'Design tokens', code: "const $panelColor = ColorToken('example.panel');", file: 'token_example.dart', also: 'child: const TokenPanel()' },
   { id: 'material-bridge', name: 'Material bridge', code: 'ContextToken<Color>', file: 'styles.dart' },
   { id: 'states', name: 'Interaction states', code: 'final listRow = BoxStyler()', file: 'styles.dart' },
   { id: 'transitions', name: 'Transitions', code: 'AnimationConfig.easeOut(420.ms)', file: 'styles.dart' },
@@ -167,7 +170,7 @@ for (const feature of featureExcerpts.filter(item => ['composition', 'overlays',
     await expect(first).toHaveClass(/v2-source-highlight/);
     await expect(first).toBeInViewport();
     await expect.poll(() => first.evaluate(line => line.getBoundingClientRect().top >= document.querySelector('.v2-nav')!.getBoundingClientRect().bottom)).toBe(true);
-    await expect(page.getByRole('link', { name: 'View on GitHub', exact: true })).toHaveAttribute('href', new RegExp(`/lib/${feature.file.replace('.', '\\.')}#L${start}-L${end}$`));
+    await expect(page.getByRole('link', { name: 'View on GitHub', exact: true })).toHaveAttribute('href', new RegExp(`/lib/${feature.file.replace('.', '\\.')}${sourcePinned ? `#L${start}-L${end}` : ''}$`));
   });
 }
 
@@ -200,7 +203,7 @@ test('source ranges follow hashes and clear when switching files at 320px', asyn
   await expect(page.locator('.v2-source-highlight')).toHaveCount(1);
   await expect(page.locator(`#L${end}`)).toHaveClass(/v2-source-highlight/);
   await expect(page.locator(`#L${end}`)).toBeInViewport();
-  await expect(page.getByRole('link', { name: 'View on GitHub', exact: true })).toHaveAttribute('href', new RegExp(`#L${end}$`));
+  await expect(page.getByRole('link', { name: 'View on GitHub', exact: true })).toHaveAttribute('href', new RegExp(sourcePinned ? `#L${end}$` : '/lib/styles\\.dart$'));
   await page.getByLabel('Source file', { exact: true }).selectOption('tokens.dart');
   await expect(page).toHaveURL(/\?file=tokens\.dart$/);
   await expect(page.locator('.v2-source-highlight')).toHaveCount(0);
@@ -226,17 +229,64 @@ test('library installs use version-agnostic prerelease ranges and SDK requiremen
 test('source setup includes runnable steps and pinned GitHub links', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 });
   await page.goto('/v2/source/?file=web/flutter_bootstrap.js#L1');
-  await page.getByText('Use the source together', { exact: true }).click();
+  await expect(page.locator('.v2-source-readme')).toHaveAttribute('open', '');
   const setup = page.locator('.v2-source-setup');
   await expect(setup).toContainText('Requires Flutter 3.44+ (Dart 3.12+).');
-  await expect(setup.locator('pre')).toHaveText(`git clone https://github.com/btwld/mix-website.git
-cd mix-website/packages/mix_showcase
-flutter run -d chrome`);
+  const site = JSON.parse(readFileSync('public/__site.json', 'utf8'));
+  await expect(setup.locator('pre')).toHaveText([`git clone https://github.com/btwld/mix-website.git
+cd mix-website
+git checkout ${site.commit}
+cd packages/mix_showcase
+flutter pub get
+flutter run -d chrome`, 'flutter run -d chrome -t lib/token_example.dart']);
   await expect(setup.locator('dd')).toHaveText(['2.3.1', '1.0.0-beta.17', '2.0.0-beta.1']);
   const github = (await setup.getByRole('link', { name: 'Browse the showcase package on GitHub' }).getAttribute('href'))!;
   expect(github).toMatch(/^https:\/\/github\.com\/btwld\/mix-website\/tree\/(?:[a-f0-9]+|main)\/packages\/mix_showcase$/);
-  await expect(page.getByRole('link', { name: 'View on GitHub', exact: true })).toHaveAttribute('href', `${github.replace('/tree/', '/blob/')}/web/flutter_bootstrap.js#L1`);
+  await expect(page.getByRole('link', { name: 'View on GitHub', exact: true })).toHaveAttribute('href', `${github.replace('/tree/', '/blob/')}/web/flutter_bootstrap.js${sourcePinned ? '#L1' : ''}`);
   await expectNoOverflow(page);
+});
+
+for (const width of [1440, 390]) {
+  test(`tokens teach a complete runnable lifecycle from the tour at ${width}px`, async ({ page, browserName }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.route('**/v2-flutter/flutter_bootstrap.js', route => route.abort());
+    await page.goto('/v2/#v2-looks');
+    await page.getByRole('button', { name: 'Learn tokens: declare, provide, use' }).click();
+    await expectFeatureLanding(page);
+    const panel = page.locator('.v2-feature-panel');
+    const source = readFileSync('packages/mix_showcase/lib/token_example.dart', 'utf8');
+    const expected = source.split('// #docregion token-example\n')[1].split('// #enddocregion token-example')[0].trimEnd();
+    await expect(panel.locator('pre')).toHaveText(expected);
+    await expect(panel.locator('figcaption')).toContainText('Runnable example');
+    await expect(panel).toContainText('MixScope.inherit');
+    await expect(panel).toContainText('flutter run -d chrome -t lib/token_example.dart');
+    await expect(panel).toContainText('not built-in Mix APIs');
+    if (browserName === 'chromium') {
+      await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+      await panel.getByRole('button', { name: 'Copy Dart excerpt' }).click();
+      expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(expected);
+    }
+    await expectNoOverflow(page);
+    await panel.getByRole('link', { name: 'Complete token example & package setup' }).click();
+    await expect(page.getByLabel('Source file', { exact: true })).toHaveValue('token_example.dart');
+    await expect(page.locator('.v2-source-readme')).toHaveAttribute('open', '');
+  });
+}
+
+test('developer documentation handoffs contain their requested sections', async ({ request }) => {
+  for (const href of [
+    '/mix/docs/guides/design-token/#mixscope',
+    '/mix/docs/guides/design-token/#context-tokens',
+    '/remix/docs/styler-api/#variants-and-selected-state',
+    '/remix/docs/fortal/#scope-placement',
+    '/remix/docs/components/checkbox/#basic-implementation',
+    '/naked-ui/docs/widget/checkbox/#basic-implementation',
+  ]) {
+    const [path, anchor] = href.split('#');
+    const response = await request.get(path);
+    expect(response.ok(), href).toBe(true);
+    expect(await response.text(), href).toContain(`id="${anchor}"`);
+  }
 });
 
 test('Remix breadth links reach their docs groups and preserve the live-component chips', async ({ page }) => {
@@ -334,8 +384,8 @@ test('docs links reach sections and follow the selected motion mode', async ({ p
     await page.getByRole('group', { name: 'Choose a feature', exact: true }).getByRole('button', { name: featureExcerpts.find(item => item.id === feature)!.name, exact: true }).click();
     await expect(page.locator('.v2-feature-actions a').last()).toHaveAttribute('href', href);
   }
-  for (const [name, href] of Object.entries({ Mix: '/mix/docs/overview/getting-started/#installation', Remix: '/remix/docs/getting-started/#installation', 'Naked UI': '/naked-ui/docs/#installation' })) {
-    await expect(page.getByRole('link', { name: `Start with ${name}`, exact: false })).toHaveAttribute('href', href);
+  for (const [name, href] of Object.entries({ 'Start with Mix': '/mix/docs/overview/getting-started/#installation', 'Remix component guide': '/remix/docs/components/checkbox/#basic-implementation', 'Naked UI component guide': '/naked-ui/docs/widget/checkbox/#basic-implementation' })) {
+    await expect(page.getByRole('link', { name, exact: false })).toHaveAttribute('href', href);
   }
 });
 
@@ -675,7 +725,6 @@ for (const width of [1440, 390]) {
     await expect(details.getByRole('link', { name: 'View the installed checkbox on GitHub' })).toHaveAttribute('href', `${files}/lib/fortal/components/checkbox.dart`);
     for (const [file, name, contract] of [
       ['fortal/components/checkbox.dart', 'fortal-checkbox', '@MixWidget(target: RemixCheckbox.new)'],
-      ['fortal_today.dart', 'fortal-today', 'FortalCheckbox('],
     ]) {
       // Compute the independent expected range from real source markers, not the rendered href.
       const lines = readFileSync(`packages/mix_showcase/lib/${file}`, 'utf8').split('\n');
@@ -696,7 +745,7 @@ for (const width of [1440, 390]) {
       await expect(page.getByLabel('Source file', { exact: true })).toHaveValue(file);
       await expect(page.locator('.v2-source-highlight')).toHaveCount(endMarker - startMarker - 1);
       await expect(page.locator(`#L${startMarker + 2}`)).toBeInViewport();
-      await expect(page.getByRole('link', { name: 'View on GitHub', exact: true })).toHaveAttribute('href', `${files}/lib/${file}#L${startMarker + 2}-L${endMarker}`);
+      await expect(page.getByRole('link', { name: 'View on GitHub', exact: true })).toHaveAttribute('href', `${files}/lib/${file}${sourcePinned ? `#L${startMarker + 2}-L${endMarker}` : ''}`);
       await page.goBack();
       // A page restored without bfcache starts with disclosures closed.
       if (await details.getAttribute('open') === null) await details.locator('summary').click();
@@ -754,7 +803,7 @@ test.describe('live open-code presets', () => {
   test.skip(!hasLocalShowcase, 'Build packages/mix_showcase locally to exercise the live Flutter integration.');
 
   for (const width of [1440, 390]) {
-    test(`preset controls send string modes and survive look, Naked and feature round trips at ${width}px`, async ({ page }) => {
+    test(`preset comparison is chapter-scoped, remembered and matched to feature previews at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.goto('/v2/');
@@ -772,13 +821,17 @@ test.describe('live open-code presets', () => {
         await expect(controls.locator('[aria-pressed="true"]')).toHaveCount(1);
         await expect(controls.getByRole('button', { name, exact: true })).toHaveAttribute('aria-pressed', 'true');
         await expect.poll(() => lastPresetPatch(page)).toEqual({ preset, presetMode });
+        const excerpt = remix.locator('.v2-remix-styling');
+        if (await excerpt.locator('details').getAttribute('open') === null) await excerpt.locator('summary').click();
+        await expect(excerpt.locator('pre')).toContainText(preset === 'custom' ? 'CheckboxStyler()' : 'FortalTheme(');
+        await expect(page.locator('.v2-stage-caption')).toContainText(preset === 'custom' ? 'Midnight' : `${name} · Today`);
         await expect.poll(() => observedBridgeState(page)).toMatchObject({ preset, presetMode, highlight: 'today', naked: false, xray: true });
       }
       await page.locator('.v2-step[data-step="looks"]').click();
       await page.getByRole('button', { name: 'Cyber', exact: true }).click();
-      await expect.poll(() => observedBridgeState(page)).toMatchObject({ look: 'cyber', preset: 'fortal', presetMode: 'dark' });
+      await expect.poll(() => observedBridgeState(page)).toMatchObject({ look: 'cyber', preset: 'custom', presetMode: 'light' });
       await page.locator('.v2-step[data-step="naked"]').click();
-      await expect.poll(() => observedBridgeState(page)).toMatchObject({ naked: true, preset: 'fortal', presetMode: 'dark' });
+      await expect.poll(() => observedBridgeState(page)).toMatchObject({ naked: true, preset: 'custom', presetMode: 'light' });
       await expect(page.locator('.v2-stage-caption')).toContainText('Unstyled');
       await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Features & code' }).click();
       if (width === 390) await page.getByLabel('Explore a feature', { exact: true }).selectOption('open-code');
@@ -788,6 +841,12 @@ test.describe('live open-code presets', () => {
       await expectChapterHeadingBelowNav(page, 'remix');
       await expect(controls.getByRole('button', { name: 'Fortal dark', exact: true })).toHaveAttribute('aria-pressed', 'true');
       await expect.poll(() => observedBridgeState(page)).toMatchObject({ preset: 'fortal', presetMode: 'dark', look: 'cyber', naked: false, xray: true, highlight: 'today' });
+      await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Features & code' }).click();
+      if (width === 390) await page.getByLabel('Explore a feature', { exact: true }).selectOption('remix');
+      else await page.getByRole('group', { name: 'Choose a feature', exact: true }).getByRole('button', { name: 'Remix components', exact: true }).click();
+      await page.locator('.v2-feature-panel').getByRole('link', { name: 'Try it in the showcase' }).click();
+      await expect.poll(() => observedBridgeState(page)).toMatchObject({ preset: 'custom', highlight: 'today' });
+      await expect(controls.getByRole('button', { name: 'Your styles', exact: true })).toHaveAttribute('aria-pressed', 'true');
       await expect(page.locator('flutter-view')).toHaveCount(1);
       await expectNoOverflow(page);
     });

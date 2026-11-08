@@ -10,15 +10,16 @@ const REPOSITORY = 'https://github.com/btwld/mix-website';
 export type SourcePart = { file: string; start: number; end: number };
 export type SourceDefinition = { name: string; file: string; line: number };
 export type SourceUses = { file: string; definitions: SourceDefinition[] };
-export type ShowcaseCode = Record<string, { html: string; raw: string; parts: SourcePart[]; uses: SourceUses[] }>;
+export type ShowcaseCode = Record<string, { html: string; raw: string; parts: SourcePart[]; uses: SourceUses[]; runnable?: boolean }>;
 export type ShowcasePackage = {
   libraries: Record<'mix' | 'remix' | 'naked_ui', { version: string; command: string }>;
   dart: string;
   flutter: string;
   requirements: string;
+  cli: { version: string; command: string };
   registry: { revision: string; url: string };
-  /** `pinned` is false when the build has no commit, so line numbers may not match `main`. */
-  github: { package: string; files: string; pinned: boolean };
+  /** Only clean, identified builds can promise matching GitHub source lines. */
+  github: { package: string; files: string; pinned: boolean; reference: string; dirty: boolean };
 };
 
 /** Paths stay relative to lib, including installed recipes and generated Dart. */
@@ -53,15 +54,19 @@ export async function showcasePackage(): Promise<ShowcasePackage> {
   };
   const dart = floor('sdk', 'Dart');
   const flutter = floor('flutter', 'Flutter');
+  const cliVersion = pubspec.match(/^  remix_cli: ["']?([^"'\s]+)/m)?.[1]?.replace(/^[\^~]/, '');
+  if (!cliVersion) throw new Error('Missing project-local Remix CLI version');
   let commit: string | null = null;
+  let dirty = false;
   try {
     const site = JSON.parse(await readFile(path.join(process.cwd(), 'public/__site.json'), 'utf8'));
     if (typeof site.commit === 'string' && site.commit) commit = site.commit;
+    dirty = site.dirty === true;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
   }
   const reference = `${encodeURIComponent(commit ?? 'main')}/packages/mix_showcase`;
-  return { libraries, dart, flutter, requirements: `Requires ${flutter} (${dart}).`, registry: { revision, url: `https://github.com/${repository}/tree/${revision}/registry` }, github: { package: `${REPOSITORY}/tree/${reference}`, files: `${REPOSITORY}/blob/${reference}`, pinned: commit !== null } };
+  return { libraries, dart, flutter, cli: { version: cliVersion, command: `flutter pub add --dev remix_cli:${cliVersion}` }, requirements: `Requires ${flutter} (${dart}).`, registry: { revision, url: `https://github.com/${repository}/tree/${revision}/registry` }, github: { package: `${REPOSITORY}/tree/${reference}`, files: `${REPOSITORY}/blob/${reference}`, pinned: commit !== null && !dirty, reference: commit ?? 'main', dirty } };
 }
 
 function region(file: string, name: string, source: string) {
@@ -122,9 +127,9 @@ export async function showcaseCode(): Promise<ShowcaseCode> {
   const sources = Object.fromEntries(await Promise.all(files.map(async file => [file, await readFile(path.join(SOURCE, file), 'utf8')])));
   const definitions = files.flatMap(file => declarations(file, sources[file]));
   const entries: [string, [string, string][]][] = [
-    ...['midnight', 'paper', 'pop', 'cyber'].map(look => [look, [['tokens.dart', `look-${look}`], ['tokens.dart', 'look-scope']]] as [string, [string, string][]]),
-    ['tokens', [['tokens.dart', 'token-colors'], ['tokens.dart', 'look-scope']]],
-    ['states', [['styles.dart', 'list-row']]],
+    ...['midnight', 'paper', 'pop', 'cyber'].map(look => [look, [['tokens.dart', `look-${look}`]]] as [string, [string, string][]]),
+    ['tokens', [['token_example.dart', 'token-example']]],
+    ['states', [['styles.dart', 'list-row'], ['cards.dart', 'pressable-row']]],
     ['adapt', [['styles.dart', 'card-padding'], ['cards.dart', 'responsive-deck']]],
     ['naked', [['cards.dart', 'naked-row']]],
     ['composition', [['styles.dart', 'composition']]],
@@ -141,6 +146,6 @@ export async function showcaseCode(): Promise<ShowcaseCode> {
   return Object.fromEntries(await Promise.all(entries.map(async ([key, regions]) => {
     const parts = regions.map(([file, name]) => region(file, name, sources[file]));
     const raw = parts.map((part, index) => regions[index][1].startsWith('look-') ? `${part.raw}\n  // …\n);` : part.raw).join('\n\n');
-    return [key, { html: await codeToHtml(raw, { lang: 'dart', theme: DARK_CODE_THEME }), raw, parts: parts.map(({ file, start, end }) => ({ file, start, end })), uses: uses(parts, definitions) }];
+    return [key, { html: await codeToHtml(raw, { lang: 'dart', theme: DARK_CODE_THEME }), raw, parts: parts.map(({ file, start, end }) => ({ file, start, end })), uses: uses(parts, definitions), runnable: key === 'tokens' }];
   })));
 }

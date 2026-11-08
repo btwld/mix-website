@@ -609,6 +609,7 @@ class _TodayRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final showcase = ShowcaseScope.of(context);
+    // #docregion pressable-row
     return listRow.pressable(
       // The checkbox is the row's one keyboard stop and its one semantic control.
       canRequestFocus: false,
@@ -654,6 +655,7 @@ class _TodayRow extends StatelessWidget {
         ],
       ),
     );
+    // #enddocregion pressable-row
   }
 }
 
