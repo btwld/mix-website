@@ -10,7 +10,7 @@ const REPOSITORY = 'https://github.com/btwld/mix-website';
 export type SourcePart = { file: string; start: number; end: number };
 export type SourceDefinition = { name: string; file: string; line: number };
 export type SourceUses = { file: string; definitions: SourceDefinition[] };
-export type ShowcaseCode = Record<string, { html: string; raw: string; parts: SourcePart[]; uses: SourceUses[]; runnable?: boolean }>;
+export type ShowcaseCode = Record<string, { html: string; raw: string; parts: SourcePart[]; uses: SourceUses[] }>;
 export type ShowcasePackage = {
   libraries: Record<'mix' | 'remix' | 'naked_ui', { version: string; command: string }>;
   dart: string;
@@ -104,6 +104,8 @@ function declarations(file: string, source: string): SourceDefinition[] {
 function uses(parts: (SourcePart & { raw: string })[], definitions: SourceDefinition[]): SourceUses[] {
   const groups = new Map<string, SourceDefinition[]>();
   const own = new Set(definitions.filter(definition => parts.some(part => part.file === definition.file && definition.line >= part.start && definition.line <= part.end)).map(definition => definition.name));
+  // Local declarations must not link to an unrelated top-level name.
+  for (const part of parts) for (const match of identifiers(part.raw).matchAll(/\b(?:final|const|var)\s+(?:[\w$<>?, ]+\s+)?([\w$]+)\s*=/g)) own.add(match[1]);
   const seen = new Set<string>();
   for (const part of parts) {
     const source = identifiers(part.raw);
@@ -127,25 +129,26 @@ export async function showcaseCode(): Promise<ShowcaseCode> {
   const sources = Object.fromEntries(await Promise.all(files.map(async file => [file, await readFile(path.join(SOURCE, file), 'utf8')])));
   const definitions = files.flatMap(file => declarations(file, sources[file]));
   const entries: [string, [string, string][]][] = [
-    ...['midnight', 'paper', 'pop', 'cyber'].map(look => [look, [['tokens.dart', `look-${look}`]]] as [string, [string, string][]]),
-    ['tokens', [['token_example.dart', 'token-example']]],
+    ['token-declare', [['tokens.dart', 'token-declare']]],
+    ...['midnight', 'paper', 'pop', 'cyber'].map(look => [`token-provide-${look}`, [['tokens.dart', `look-${look}`], ['tokens.dart', 'look-scope']]] as [string, [string, string][]]),
+    ['token-use', [['styles.dart', 'card-style'], ['styles.dart', 'card-padding'], ['cards.dart', 'card-consumer']]],
     ['states', [['styles.dart', 'list-row'], ['cards.dart', 'pressable-row']]],
     ['adapt', [['styles.dart', 'card-padding'], ['cards.dart', 'responsive-deck']]],
     ['naked', [['cards.dart', 'naked-row']]],
-    ['composition', [['styles.dart', 'composition']]],
+    ['composition', [['styles.dart', 'card-style'], ['styles.dart', 'quiet-controls']]],
     ['transitions', [['styles.dart', 'motion-config'], ['styles.dart', 'card-style']]],
     ['springs', [['styles.dart', 'bar-style']]],
     ['keyframes', [['styles.dart', 'equalizer']]],
     ['remix', [['styles.dart', 'checkbox-style'], ['cards.dart', 'remix-checkbox']]],
-    ['invite', [['invite.dart', 'invite-dialog']]],
+    ['invite', [['invite.dart', 'invite-dialog'], ['invite.dart', 'toast-feedback']]],
     ['naked-invite', [['invite.dart', 'naked-invite']]],
     ['material-bridge', [['styles.dart', 'material-bridge']]],
     ['fortal-checkbox', [['fortal/components/checkbox.dart', 'fortal-checkbox']]],
-    ['fortal-today', [['fortal_today.dart', 'fortal-today']]],
+    ['fortal-today', [['fortal_today.dart', 'fortal-today'], ['fortal_today.dart', 'fortal-control']]],
   ];
   return Object.fromEntries(await Promise.all(entries.map(async ([key, regions]) => {
     const parts = regions.map(([file, name]) => region(file, name, sources[file]));
-    const raw = parts.map((part, index) => regions[index][1].startsWith('look-') ? `${part.raw}\n  // …\n);` : part.raw).join('\n\n');
-    return [key, { html: await codeToHtml(raw, { lang: 'dart', theme: DARK_CODE_THEME }), raw, parts: parts.map(({ file, start, end }) => ({ file, start, end })), uses: uses(parts, definitions), runnable: key === 'tokens' }];
+    const raw = parts.map((part, index) => /^look-(midnight|paper|pop|cyber)$/.test(regions[index][1]) ? `${part.raw}\n  // Other look values are omitted here.\n);` : part.raw).join('\n\n');
+    return [key, { html: await codeToHtml(raw, { lang: 'dart', theme: DARK_CODE_THEME }), raw, parts: parts.map(({ file, start, end }) => ({ file, start, end })), uses: uses(parts, definitions) }];
   })));
 }

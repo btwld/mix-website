@@ -128,12 +128,14 @@ Future<void> openInvite(BuildContext context, Person person) async {
   if (naked) {
     nakedToasts.show(NakedToastRequest(data: message, semanticLabel: message));
   } else {
+    // #docregion toast-feedback
     remixToasts!.showToast(
       RemixToastData(
         title: message,
         description: 'Demo only. Nothing was sent.',
       ),
     );
+    // #enddocregion toast-feedback
   }
 }
 

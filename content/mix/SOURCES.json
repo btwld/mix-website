@@ -41,6 +41,11 @@
           "date": "2026-11-08",
           "description": "Correct plain-scope replacement versus MixScope.inherit, explain consumer placement and refresh behavior against Mix 2.3.1, and replace the incompatible nested-scope preview with an explicit inherited-override example. Retain the original import hash above.",
           "reference": "https://pub.dev/packages/mix/versions/2.3.1"
+        },
+        {
+          "date": "2026-11-08",
+          "description": "Keep the token guide self-contained: explain its existing live theme-switching example instead of routing readers into the separate V2 starter.",
+          "reference": "https://www.fluttermix.com/mix/docs/guides/design-token/"
         }
       ]
     },

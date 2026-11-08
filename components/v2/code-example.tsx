@@ -14,7 +14,7 @@ function Excerpt({ entry }: { entry: ShowcaseCode[string] }) {
   }, [status]);
 
   return <figure>
-    <figcaption><span>{entry.runnable ? 'Runnable example from ' : 'App excerpt from '}{entry.parts.map((part, index) => <span key={`${part.file}:${part.start}`}>
+    <figcaption><span>App excerpt from {entry.parts.map((part, index) => <span key={`${part.file}:${part.start}`}>
       {index > 0 && ' · '}<Link href={`/v2/source/?file=${part.file}#L${part.start}-L${part.end}`}>{part.file}, lines {part.start}–{part.end}</Link>
     </span>)}</span><button type="button" aria-label="Copy Dart excerpt" onClick={async () => {
       try { await navigator.clipboard.writeText(entry.raw); setStatus('copied'); }
@@ -22,7 +22,7 @@ function Excerpt({ entry }: { entry: ShowcaseCode[string] }) {
     }}>{status === 'copied' ? <Check /> : <Copy />}</button></figcaption>
     {/* Long lines scroll sideways, so the excerpt must take keyboard focus. */}
     <div tabIndex={0} role="region" aria-label="Dart excerpt" dangerouslySetInnerHTML={{ __html: entry.html }} />
-    <p className="v2-code-uses">{entry.runnable ? 'Complete file, including imports and main(). ' : 'Part of the showcase, not a standalone file. '}Uses {entry.uses.length ? entry.uses.map((group, index) => <span key={group.file}>
+    <p className="v2-code-uses">Uses {entry.uses.length ? entry.uses.map((group, index) => <span key={group.file}>
       {index > 0 && ' · '}{group.definitions.map((definition, index) => <span key={definition.name}>
         {index > 0 && ', '}<Link href={`/v2/source/?file=${definition.file}#L${definition.line}`}><code>{definition.name}</code></Link>
       </span>)} from {group.file}
@@ -31,10 +31,10 @@ function Excerpt({ entry }: { entry: ShowcaseCode[string] }) {
   </figure>;
 }
 
-/** The tour can fold code away; the feature browser always keeps it visible. */
-export function CodeExample({ entry, collapsible = false }: { entry: ShowcaseCode[string]; collapsible?: boolean }) {
+/** Tour lessons can reveal code on demand or open it from the topic index. */
+export function CodeExample({ entry, collapsible = false, initiallyOpen = false, onOpen }: { entry: ShowcaseCode[string]; collapsible?: boolean; initiallyOpen?: boolean; onOpen?: () => void }) {
   const excerpt = <Excerpt key={entry.raw} entry={entry} />;
-  return collapsible ? <details className="v2-code">
+  return collapsible ? <details className="v2-code" open={initiallyOpen} onToggle={event => { if (event.currentTarget.open) onOpen?.(); }}>
     <summary>See the Dart <span aria-hidden="true">+</span></summary>
     {excerpt}
   </details> : <div className="v2-code v2-code-expanded">{excerpt}</div>;

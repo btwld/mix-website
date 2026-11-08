@@ -11,6 +11,8 @@ Future<ShapeDecoration> renderStyle(
   Look look,
   BoxStyler style, {
   bool flat = false,
+  Color? accent,
+  double? corner,
 }) async {
   await tester.pumpWidget(
     MediaQuery(
@@ -20,6 +22,8 @@ Future<ShapeDecoration> renderStyle(
         child: lookScope(
           look,
           flat: flat,
+          accent: accent,
+          corner: corner,
           child: Box(
             style: style,
             child: const SizedBox(width: 100, height: 100),
@@ -164,4 +168,39 @@ void main() {
     );
     expect(circle.shape, isA<CircleBorder>());
   });
+
+  testWidgets(
+    'look overrides preserve accent, corner, and flat shadow values',
+    (tester) async {
+      const accent = Color(0xFFCC4477);
+      final style = BoxStyler()
+          .color($accent())
+          .shape($cardShape.mix())
+          .shadow($lift.mix());
+      for (final look in looks) {
+        for (final corner in [0.0, 12.0]) {
+          final decoration = await renderStyle(
+            tester,
+            look,
+            style,
+            accent: accent,
+            corner: corner,
+            flat: true,
+          );
+          expect(decoration.color, accent);
+          expect(decoration.shadows!.single.color.a, 0);
+          if (look.cut) {
+            final shape = decoration.shape as CutCorners;
+            expect(shape.cut, corner * 1.5);
+            expect(shape.edge, accent);
+          } else {
+            expect(
+              (decoration.shape as RoundedRectangleBorder).borderRadius,
+              BorderRadius.circular(corner * 1.5),
+            );
+          }
+        }
+      }
+    },
+  );
 }

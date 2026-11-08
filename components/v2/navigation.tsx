@@ -6,9 +6,9 @@ import { useEffect, useRef } from 'react';
 import { ArrowRight, Search } from '@/components/landing/icons';
 
 const libraries = [
-  { name: 'Mix', detail: 'Composable styling', href: '/mix/docs/' },
-  { name: 'Remix', detail: 'Components made yours', href: '/remix/docs/' },
-  { name: 'Naked UI', detail: 'Headless behavior', href: '/naked-ui/docs/' },
+  { name: 'Mix', detail: 'Styles and themes', href: '/mix/docs/' },
+  { name: 'Remix', detail: 'Components and open code', href: '/remix/docs/' },
+  { name: 'Naked UI', detail: 'Interaction primitives', href: '/naked-ui/docs/' },
 ];
 
 /** The showcase has one navigation hierarchy, separate from its live controls. */

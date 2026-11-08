@@ -7,8 +7,8 @@ const sourcePinned = Boolean(siteIdentity.commit) && !siteIdentity.dirty;
 const hasLocalShowcase = existsSync('public/v2-flutter/flutter_bootstrap.js');
 
 const featureExcerpts: { id: string; name: string; code: string; file: string; also?: string }[] = [
-  { id: 'composition', name: 'Style composition', code: '.onBreakpoint(.maxWidth(480), .padding(.all(14)))', file: 'styles.dart' },
-  { id: 'tokens', name: 'Design tokens', code: "const $panelColor = ColorToken('example.panel');", file: 'token_example.dart', also: 'child: const TokenPanel()' },
+  { id: 'composition', name: 'Style composition', code: 'final cardStyle = BoxStyler()', file: 'styles.dart', also: 'final quietSlider = slider.rangeColor($muted()).thumbColor($ink());' },
+  { id: 'tokens', name: 'Design tokens', code: "const $canvas = ColorToken('canvas');", file: 'tokens.dart' },
   { id: 'material-bridge', name: 'Material bridge', code: 'ContextToken<Color>', file: 'styles.dart' },
   { id: 'states', name: 'Interaction states', code: 'final listRow = BoxStyler()', file: 'styles.dart' },
   { id: 'transitions', name: 'Transitions', code: 'AnimationConfig.easeOut(420.ms)', file: 'styles.dart' },
@@ -17,9 +17,20 @@ const featureExcerpts: { id: string; name: string; code: string; file: string; a
   { id: 'layout', name: 'Responsive layout', code: '.onBreakpoint(.maxWidth(480), .padding(.all(14)))', file: 'styles.dart', also: 'constraints.maxWidth < 640' },
   { id: 'remix', name: 'Remix components', code: 'CheckboxStyler()', file: 'styles.dart', also: 'child: RemixCheckbox(' },
   { id: 'open-code', name: 'Open code', code: 'FortalCard(', file: 'fortal_today.dart', also: 'FortalCheckbox(' },
-  { id: 'overlays', name: 'Overlays and feedback', code: 'RemixDialog(', file: 'invite.dart', also: 'RemixTextField(' },
+  { id: 'overlays', name: 'Overlays and feedback', code: 'RemixDialog(', file: 'invite.dart', also: 'showToast(' },
   { id: 'naked', name: 'Naked UI behavior', code: 'return NakedCheckbox(', file: 'cards.dart' },
 ];
+
+async function openFeature(page: Page, id: string) {
+  const feature = featureExcerpts.find(item => item.id === id)!;
+  await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Features & code' }).click();
+  await expectFeatureLanding(page);
+  await page.getByRole('group', { name: 'Choose a feature', exact: true }).getByRole('button', { name: feature.name, exact: true }).click();
+  const panel = page.locator(`[data-chapter][data-active="true"] .v2-feature-panel[data-feature="${id}"]`);
+  await expect(panel).toHaveCount(1);
+  await expect(panel.locator('details.v2-code').first()).toHaveAttribute('open', '');
+  return panel;
+}
 
 async function expectNoOverflow(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -90,27 +101,20 @@ test('a failed Flutter load offers recovery without hiding the rest of the tour'
   await expect(page.getByRole('heading', { name: 'Behind the cards.' })).toBeVisible();
 });
 
-test('features and source excerpts remain usable when Flutter cannot load', async ({ page, browserName }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
+test('the code directory opens matching lessons in the live story when Flutter cannot load', async ({ page, browserName }) => {
   await page.route('**/v2-flutter/flutter_bootstrap.js', route => route.abort());
-  await page.goto('/v2/');
-  await expect(page.getByText('The live preview couldn’t load.')).toBeVisible();
-  await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Features & code' }).click();
-  await expect(page).toHaveURL(/#v2-features$/);
-  const choices = page.getByRole('group', { name: 'Choose a feature', exact: true });
-  const panel = page.locator('.v2-feature-panel');
+  await page.goto('/v2/#v2-features');
+  await expect(page.locator('#v2-features pre')).toHaveCount(0);
   for (const feature of featureExcerpts) {
-    const button = choices.getByRole('button', { name: feature.name, exact: true });
-    await button.click();
-    await expect(button).toHaveAttribute('aria-pressed', 'true');
-    await expect(choices.locator('[aria-pressed="true"]')).toHaveCount(1);
+    const panel = await openFeature(page, feature.id);
     await expect(panel.locator('pre')).toContainText(feature.code);
     if (feature.also) await expect(panel.locator('pre')).toContainText(feature.also);
     await expect(panel.locator('figcaption a').filter({ hasText: feature.file }).first()).toHaveAttribute('href', new RegExp(`^/v2/source/\\?file=${feature.file.replace('.', '\\.')}#L[0-9]+-L[0-9]+$`));
     await expect(panel.getByRole('button', { name: 'Copy Dart excerpt' })).toBeVisible();
-    await expect(page).toHaveURL(/#v2-features$/);
+    await expect(page).not.toHaveURL(/#v2-features$/);
   }
   if (browserName === 'chromium') {
+    const panel = page.locator('[data-chapter][data-active="true"] .v2-feature-panel');
     await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
     await panel.getByRole('button', { name: 'Copy Dart excerpt' }).click();
     await expect(panel.getByRole('status')).toHaveText('Copied.');
@@ -119,21 +123,15 @@ test('features and source excerpts remain usable when Flutter cannot load', asyn
   await expectNoOverflow(page);
 });
 
-test('all feature excerpts fit a 320px phone and preserve the feature anchor', async ({ page }) => {
+test('every code topic is reachable in context on a 320px phone', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 });
   await page.route('**/v2-flutter/flutter_bootstrap.js', route => route.abort());
   await page.goto('/v2/#v2-features');
-  const selector = page.getByLabel('Explore a feature', { exact: true });
-  const panel = page.locator('.v2-feature-panel');
-  await expect(selector).toBeVisible();
-  await expect(page.getByRole('group', { name: 'Choose a feature', exact: true })).toBeHidden();
   for (const feature of featureExcerpts) {
-    await selector.selectOption(feature.id);
-    await expect(selector).toHaveValue(feature.id);
+    const panel = await openFeature(page, feature.id);
     await expect(panel.locator('pre')).toContainText(feature.code);
     if (feature.also) await expect(panel.locator('pre')).toContainText(feature.also);
-    await expect(panel.getByRole('link', { name: 'Try it in the showcase' })).toBeVisible();
-    await expect(page).toHaveURL(/#v2-features$/);
+    await expect(panel.locator('pre')).toBeVisible();
     await expectNoOverflow(page);
   }
 });
@@ -157,8 +155,7 @@ for (const feature of featureExcerpts.filter(item => ['composition', 'overlays',
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.route('**/v2-flutter/flutter_bootstrap.js', route => route.abort());
     await page.goto('/v2/#v2-features');
-    const panel = page.locator('.v2-feature-panel');
-    await page.getByRole('group', { name: 'Choose a feature', exact: true }).getByRole('button', { name: feature.name, exact: true }).click();
+    const panel = await openFeature(page, feature.id);
     const firstLine = (await panel.locator('pre').innerText()).split('\n')[0].trim();
     const link = panel.locator('figcaption a').first();
     const href = (await link.getAttribute('href'))!;
@@ -178,7 +175,8 @@ test('Uses links land on showcase declarations', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.route('**/v2-flutter/flutter_bootstrap.js', route => route.abort());
   await page.goto('/v2/#v2-features');
-  const uses = page.locator('.v2-feature-panel .v2-code-uses');
+  const panel = await openFeature(page, 'composition');
+  const uses = panel.locator('.v2-code-uses');
   const link = uses.getByRole('link', { name: '$surface', exact: true });
   const href = (await link.getAttribute('href'))!;
   await link.click();
@@ -193,7 +191,8 @@ test('source ranges follow hashes and clear when switching files at 320px', asyn
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.route('**/v2-flutter/flutter_bootstrap.js', route => route.abort());
   await page.goto('/v2/#v2-features');
-  const href = (await page.locator('.v2-feature-panel figcaption a').first().getAttribute('href'))!;
+  const panel = await openFeature(page, 'composition');
+  const href = (await panel.locator('figcaption a').first().getAttribute('href'))!;
   const [start, end] = href.match(/#L(\d+)-L(\d+)$/)!.slice(1).map(Number);
   expect(end).toBeGreaterThan(start + 2);
   await page.goto(`${href.split('#')[0]}#L${start}-L${start + 2},L${end}`);
@@ -247,27 +246,45 @@ flutter run -d chrome`, 'flutter run -d chrome -t lib/token_example.dart']);
 });
 
 for (const width of [1440, 390]) {
-  test(`tokens teach a complete runnable lifecycle from the tour at ${width}px`, async ({ page, browserName }) => {
+  test(`tokens teach the running interface in place at ${width}px`, async ({ page, browserName }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.route('**/v2-flutter/flutter_bootstrap.js', route => route.abort());
     await page.goto('/v2/#v2-looks');
-    await page.getByRole('button', { name: 'Learn tokens: declare, provide, use' }).click();
-    await expectFeatureLanding(page);
-    const panel = page.locator('.v2-feature-panel');
-    const source = readFileSync('packages/mix_showcase/lib/token_example.dart', 'utf8');
-    const expected = source.split('// #docregion token-example\n')[1].split('// #enddocregion token-example')[0].trimEnd();
-    await expect(panel.locator('pre')).toHaveText(expected);
-    await expect(panel.locator('figcaption')).toContainText('Runnable example');
-    await expect(panel).toContainText('MixScope.inherit');
-    await expect(panel).toContainText('flutter run -d chrome -t lib/token_example.dart');
-    await expect(panel).toContainText('not built-in Mix APIs');
+    const looks = page.locator('[data-chapter="looks"]');
+    await expect(looks.getByText('Each look gives the same tokens new values.', { exact: false })).toBeVisible();
+    const panel = await openFeature(page, 'tokens');
+    if (width === 390) {
+      await expect.poll(() => page.evaluate(() => {
+        const heading = document.getElementById('v2-title-looks')!.getBoundingClientRect();
+        const stage = document.querySelector('.v2-stage-column')!.getBoundingClientRect();
+        return heading.top >= stage.bottom && heading.bottom <= innerHeight;
+      })).toBe(true);
+    }
+    const steps = panel.getByRole('group', { name: 'Token steps' });
+    await expect(panel.locator('pre')).toContainText("const $canvas = ColorToken('canvas');");
+    await expect(panel.locator('pre')).toContainText('const $cardShape = ShapeToken');
+    await expect(panel.locator('pre')).toContainText('const $lift = LiftToken');
+    await steps.getByRole('button', { name: '2. Provide' }).click();
+    await expect(panel.locator('pre')).toContainText('Widget lookScope(');
+    await expect(panel.locator('pre')).toContainText('return MixScope(');
+    await expect(panel.locator('pre')).toContainText('child: child,');
+    await panel.getByRole('group', { name: 'Compare token values' }).getByRole('button', { name: 'Paper', exact: true }).click();
+    await expect(panel.locator('pre')).toContainText('const paper = Look(');
+    await expect(panel.locator('pre')).toContainText('surface: Color(');
+    await expect(panel.locator('pre')).toContainText('card: 3,');
+    await expect(panel.locator('pre')).toContainText('Color(0xFFF3EDE1)');
+    await steps.getByRole('button', { name: '3. Use' }).click();
+    await expect(panel.locator('pre')).toContainText('.color($surface())');
+    await expect(panel.locator('pre')).toContainText('final cardPad = cardStyle');
+    await expect(panel.locator('pre')).toContainText('style: cardPad,');
+    await expect(panel.locator('pre')).toContainText('return Box(');
     if (browserName === 'chromium') {
       await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
       await panel.getByRole('button', { name: 'Copy Dart excerpt' }).click();
-      expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(expected);
+      expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(await panel.locator('pre').innerText());
     }
     await expectNoOverflow(page);
-    await panel.getByRole('link', { name: 'Complete token example & package setup' }).click();
+    await panel.getByRole('link', { name: 'Run the token starter' }).click();
     await expect(page.getByLabel('Source file', { exact: true })).toHaveValue('token_example.dart');
     await expect(page.locator('.v2-source-readme')).toHaveAttribute('open', '');
   });
@@ -332,7 +349,7 @@ test('the Naked invite instructions expose the real bare-widget excerpt and its 
   await page.goto('/v2/#v2-naked');
   const naked = page.locator('[data-chapter="naked"]');
   await expect(naked.getByRole('button', { name: 'Try the Naked invite', exact: true })).toBeVisible();
-  await expect(naked).toContainText('Tab stays inside, Escape closes it, and focus returns to Invite.');
+  await expect(naked).toContainText('Tab stays inside, Escape closes it, and this demo returns focus to Invite.');
   await expect(naked).toContainText('Demo only: nothing is sent.');
   const excerpt = naked.locator('.v2-code').filter({ has: page.locator('figcaption a[href*="file=invite.dart"]') });
   await excerpt.locator('summary').click();
@@ -358,7 +375,7 @@ test('docs links reach sections and follow the selected motion mode', async ({ p
     looks: '/mix/docs/guides/design-token/#mixscope',
     states: '/mix/docs/guides/dynamic-styling/#interaction',
     adapt: '/mix/docs/guides/dynamic-styling/#breakpoint',
-    remix: '/remix/docs/open-code/',
+    remix: '/remix/docs/components/checkbox/#basic-implementation',
     naked: '/naked-ui/docs/widget/checkbox/#basic-implementation',
   };
   for (const [chapter, href] of Object.entries(chapters)) {
@@ -368,7 +385,7 @@ test('docs links reach sections and follow the selected motion mode', async ({ p
   const modes = { Transitions: 'curve-based-configs', Springs: 'spring-based-configs', Keyframes: 'keyframe-animations' };
   for (const [name, anchor] of Object.entries(modes)) {
     await motion.getByRole('button', { name, exact: true }).click();
-    await expect(motion.getByRole('link', { name: 'Explore animation' })).toHaveAttribute('href', `/mix/docs/guides/animations/#${anchor}`);
+    await expect(motion.getByRole('link', { name: 'Animation guide' })).toHaveAttribute('href', `/mix/docs/guides/animations/#${anchor}`);
   }
   const featureDocs = {
     tokens: chapters.looks, states: chapters.states, layout: chapters.adapt,
@@ -381,8 +398,8 @@ test('docs links reach sections and follow the selected motion mode', async ({ p
     'material-bridge': '/mix/docs/guides/design-token/#context-tokens',
   };
   for (const [feature, href] of Object.entries(featureDocs)) {
-    await page.getByRole('group', { name: 'Choose a feature', exact: true }).getByRole('button', { name: featureExcerpts.find(item => item.id === feature)!.name, exact: true }).click();
-    await expect(page.locator('.v2-feature-actions a').last()).toHaveAttribute('href', href);
+    await openFeature(page, feature);
+    await expect(page.locator('[data-chapter][data-active="true"] > .v2-chapter-body > a.v2-link')).toHaveAttribute('href', href);
   }
   for (const [name, href] of Object.entries({ 'Start with Mix': '/mix/docs/overview/getting-started/#installation', 'Remix component guide': '/remix/docs/components/checkbox/#basic-implementation', 'Naked UI component guide': '/naked-ui/docs/widget/checkbox/#basic-implementation' })) {
     await expect(page.getByRole('link', { name, exact: false })).toHaveAttribute('href', href);
@@ -398,20 +415,14 @@ test.describe('live showcase', () => {
       await page.goto('/v2/');
       await expect(page.locator('.v2-stage')).toHaveAttribute('data-ready', 'true');
       await observeShowcasePatches(page);
-      const featureLink = page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Features & code' });
       const remix = page.locator('[data-chapter="remix"]');
       for (const feature of featureExcerpts.filter(item => ['overlays', 'material-bridge'].includes(item.id))) {
-        await featureLink.click();
-        await expectFeatureLanding(page);
-        if (width === 390) await page.getByLabel('Explore a feature', { exact: true }).selectOption(feature.id);
-        else await page.getByRole('group', { name: 'Choose a feature', exact: true }).getByRole('button', { name: feature.name, exact: true }).click();
-        await page.locator('.v2-feature-panel').getByRole('link', { name: 'Try it in the showcase' }).click();
-        const examples = page.locator('[data-chapter="blocks"]');
-        await expect(page).toHaveURL(/#v2-blocks$/);
-        await expect(examples).toHaveAttribute('data-active', 'true');
-        await expect(examples.getByRole('heading')).toBeFocused();
-        await expect(examples.getByRole('button', { name: /^Team/ })).toHaveAttribute('aria-pressed', 'true');
-        await expect.poll(() => lastShowcaseState(page)).toMatchObject({ highlight: 'team', xray: false, naked: false, phone: false });
+        const panel = await openFeature(page, feature.id);
+        await expect(page).toHaveURL(/#v2-remix$/);
+        await expect(remix).toHaveAttribute('data-active', 'true');
+        await expect(remix.getByRole('heading')).toBeFocused();
+        await expect(panel.locator('pre')).toContainText(feature.code);
+        await expect.poll(() => lastShowcaseState(page)).toMatchObject({ highlight: 'team', xray: true, naked: false, phone: false });
         await page.locator('.v2-step[data-step="remix"]').click();
         await expect.poll(() => lastShowcaseState(page)).toMatchObject({ highlight: width === 390 ? 'today' : null, xray: true, naked: false });
         if (width === 1440) await expectChapterHeadingBelowNav(page, 'remix');
@@ -452,7 +463,7 @@ test.describe('live showcase', () => {
     });
   }
 
-  for (const mode of ['blocks', 'naked'] as const) {
+  for (const mode of ['remix', 'naked'] as const) {
     test(`${mode} invite targeting selected during startup replays when Flutter is ready`, async ({ page }) => {
       await page.setViewportSize({ width: 390, height: 844 });
       let release!: () => void;
@@ -461,10 +472,8 @@ test.describe('live showcase', () => {
       const chapter = page.locator(`[data-chapter="${mode}"]`);
       try {
         await page.goto('/v2/', { waitUntil: 'domcontentloaded' });
-        if (mode === 'blocks') {
-          await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Features & code' }).click();
-          await page.getByLabel('Explore a feature', { exact: true }).selectOption('overlays');
-          await page.locator('.v2-feature-panel').getByRole('link', { name: 'Try it in the showcase' }).click();
+        if (mode === 'remix') {
+          await openFeature(page, 'overlays');
         } else {
           await page.locator('.v2-step[data-step="naked"]').click();
           await chapter.getByRole('button', { name: 'Try the Naked invite', exact: true }).click();
@@ -475,7 +484,7 @@ test.describe('live showcase', () => {
       await expect(page.locator('.v2-stage')).toHaveAttribute('data-ready', 'true');
       await expect(page).toHaveURL(new RegExp(`#v2-${mode}$`));
       await expect(chapter).toHaveAttribute('data-active', 'true');
-      await expect.poll(() => lastShowcaseState(page)).toMatchObject({ highlight: 'team', naked: mode === 'naked', xray: false, phone: false });
+      await expect.poll(() => lastShowcaseState(page)).toMatchObject({ highlight: 'team', naked: mode === 'naked', xray: mode === 'remix', phone: false });
       await expect(page.locator('flutter-view')).toHaveCount(1);
     });
   }
@@ -528,7 +537,6 @@ test.describe('live showcase', () => {
       await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Features & code' }).click();
       await expectFeatureLanding(page);
       await page.getByRole('group', { name: 'Choose a feature', exact: true }).getByRole('button', { name: example.feature, exact: true }).click();
-      await page.locator('.v2-feature-panel').getByRole('link', { name: 'Try it in the showcase' }).click();
       await expect(page).toHaveURL(/#v2-motion$/);
       await expect(motion).toHaveAttribute('data-active', 'true');
       await expect(motion.getByRole('heading')).toBeFocused();
@@ -554,30 +562,20 @@ test.describe('live showcase', () => {
       });
       const lastPatch = () => page.evaluate(() => (window as typeof window & { observedPatches?: Record<string, unknown>[] })
         .observedPatches?.filter(patch => Object.hasOwn(patch, 'highlight')).at(-1));
-      const featureLink = page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Features & code' });
-      const selector = page.getByLabel('Explore a feature', { exact: true });
-      const panel = page.locator('.v2-feature-panel');
-      await featureLink.click();
-      await expectFeatureLanding(page);
-      await selector.selectOption('keyframes');
-      await panel.getByRole('link', { name: 'Try it in the showcase' }).click();
+      await openFeature(page, 'keyframes');
       const motion = page.locator('[data-chapter="motion"]');
       await expect(page).toHaveURL(/#v2-motion$/);
       await expect(motion).toHaveAttribute('data-active', 'true');
       await expect(motion.getByRole('button', { name: 'Keyframes', exact: true })).toHaveAttribute('aria-pressed', 'true');
       await expect.poll(lastPatch).toMatchObject({ highlight: 'player', xray: false });
-      await featureLink.click();
-      await expectFeatureLanding(page);
-      await expect(selector).toHaveValue('keyframes');
-      await selector.selectOption('remix');
+      const panel = await openFeature(page, 'remix');
       await expect(panel.locator('pre')).toContainText('child: RemixCheckbox(');
-      await panel.getByRole('link', { name: 'Try it in the showcase' }).click();
       const remix = page.locator('[data-chapter="remix"]');
       await expect(page).toHaveURL(/#v2-remix$/);
       await expect(remix).toHaveAttribute('data-active', 'true');
       await expect(remix.getByRole('heading')).toBeFocused();
       await expect.poll(lastPatch).toMatchObject({ highlight: 'today', xray: true, naked: false, phone: false });
-      await remix.getByText('See the Dart', { exact: false }).click();
+      await expect(remix.locator('.v2-remix-styling details.v2-code').first()).toHaveAttribute('open', '');
       await expect(remix.locator('.v2-remix-styling pre')).toContainText('child: RemixCheckbox(');
       await expectNoOverflow(page);
     });
@@ -619,7 +617,7 @@ test.describe('live showcase', () => {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
       await page.goto('/v2/');
       await expect(page.locator('.v2-stage')).toHaveAttribute('data-ready', 'true');
-      const chapters = width === 390 ? ['looks', 'states', 'motion', 'remix', 'naked', 'blocks'] : ['looks', 'states', 'adapt', 'motion', 'remix', 'naked', 'blocks'];
+      const chapters = ['looks', 'states', 'adapt', 'motion', 'remix', 'naked', 'blocks'];
       for (const chapter of [...chapters, ...chapters.toReversed()]) {
         await page.locator(`.v2-step[data-step="${chapter}"]`).click();
         await expect(page.locator(`[data-chapter="${chapter}"]`)).toHaveAttribute('data-active', 'true');
@@ -646,6 +644,14 @@ test.describe('live showcase', () => {
     await expect(cyber).toHaveAttribute('aria-pressed', 'true');
     await page.mouse.wheel(0, 300);
     await expect(cyber).toHaveAttribute('aria-pressed', 'true');
+    await looks.getByRole('group', { name: 'Choose a look', exact: true }).getByRole('button', { name: 'Paper', exact: true }).click();
+    const panel = await openFeature(page, 'tokens');
+    await expect(looks.getByRole('group', { name: 'Choose a look', exact: true }).getByRole('button', { name: 'Paper', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await panel.getByRole('button', { name: '2. Provide' }).click();
+    await expect(panel.locator('pre')).toContainText('const paper = Look(');
+    await expect(panel.locator('pre')).toContainText('surface: Color(');
+    await expect(panel.locator('pre')).toContainText('card: 3,');
+    await expect(page.locator('flutter-view')).toHaveCount(1);
   });
 
   // Pages answer 200 either way: only a mounted view shows the docs bundle really started.
@@ -822,8 +828,12 @@ test.describe('live open-code presets', () => {
         await expect(controls.getByRole('button', { name, exact: true })).toHaveAttribute('aria-pressed', 'true');
         await expect.poll(() => lastPresetPatch(page)).toEqual({ preset, presetMode });
         const excerpt = remix.locator('.v2-remix-styling');
-        if (await excerpt.locator('details').getAttribute('open') === null) await excerpt.locator('summary').click();
+        if (await excerpt.locator('details.v2-code').first().getAttribute('open') === null) await excerpt.locator('details.v2-code > summary').first().click();
         await expect(excerpt.locator('pre')).toContainText(preset === 'custom' ? 'CheckboxStyler()' : 'FortalTheme(');
+        if (preset === 'fortal') {
+          await expect(excerpt.locator('pre')).toContainText('final checkbox = FortalCheckbox(');
+          await expect(excerpt.locator('.v2-code-uses').getByRole('link', { name: 'checkbox', exact: true })).toHaveCount(0);
+        }
         await expect(page.locator('.v2-stage-caption')).toContainText(preset === 'custom' ? 'Midnight' : `${name} · Today`);
         await expect.poll(() => observedBridgeState(page)).toMatchObject({ preset, presetMode, highlight: 'today', naked: false, xray: true });
       }
@@ -832,19 +842,13 @@ test.describe('live open-code presets', () => {
       await expect.poll(() => observedBridgeState(page)).toMatchObject({ look: 'cyber', preset: 'custom', presetMode: 'light' });
       await page.locator('.v2-step[data-step="naked"]').click();
       await expect.poll(() => observedBridgeState(page)).toMatchObject({ naked: true, preset: 'custom', presetMode: 'light' });
-      await expect(page.locator('.v2-stage-caption')).toContainText('Unstyled');
-      await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Features & code' }).click();
-      if (width === 390) await page.getByLabel('Explore a feature', { exact: true }).selectOption('open-code');
-      else await page.getByRole('group', { name: 'Choose a feature', exact: true }).getByRole('button', { name: 'Open code', exact: true }).click();
-      await page.locator('.v2-feature-panel').getByRole('link', { name: 'Try it in the showcase' }).click();
+      await expect(page.locator('.v2-stage-caption')).toContainText('Bare rendering');
+      await openFeature(page, 'open-code');
       await expect(remix.getByRole('heading')).toBeFocused();
       await expectChapterHeadingBelowNav(page, 'remix');
       await expect(controls.getByRole('button', { name: 'Fortal dark', exact: true })).toHaveAttribute('aria-pressed', 'true');
       await expect.poll(() => observedBridgeState(page)).toMatchObject({ preset: 'fortal', presetMode: 'dark', look: 'cyber', naked: false, xray: true, highlight: 'today' });
-      await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Features & code' }).click();
-      if (width === 390) await page.getByLabel('Explore a feature', { exact: true }).selectOption('remix');
-      else await page.getByRole('group', { name: 'Choose a feature', exact: true }).getByRole('button', { name: 'Remix components', exact: true }).click();
-      await page.locator('.v2-feature-panel').getByRole('link', { name: 'Try it in the showcase' }).click();
+      await openFeature(page, 'remix');
       await expect.poll(() => observedBridgeState(page)).toMatchObject({ preset: 'custom', highlight: 'today' });
       await expect(controls.getByRole('button', { name: 'Your styles', exact: true })).toHaveAttribute('aria-pressed', 'true');
       await expect(page.locator('flutter-view')).toHaveCount(1);
@@ -866,6 +870,8 @@ test.describe('live open-code presets', () => {
         await observeShowcasePatches(page, true);
       } finally { release(); }
       await expect(page.locator('.v2-stage')).toHaveAttribute('data-ready', 'true');
+      await expect(remix).toHaveAttribute('data-active', 'true');
+      await expectChapterHeadingBelowNav(page, 'remix');
       await expect.poll(() => lastPresetPatch(page)).toEqual({ preset: 'fortal', presetMode: name === 'Fortal dark' ? 'dark' : 'light' });
       await expect.poll(() => observedBridgeState(page)).toMatchObject({ naked: false, xray: true, highlight: 'today' });
       await expect(page.locator('flutter-view')).toHaveCount(1);

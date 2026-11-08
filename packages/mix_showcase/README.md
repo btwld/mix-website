@@ -48,7 +48,8 @@ flutter run -d chrome
 
 For a smaller starting point, run `flutter run -d chrome -t lib/token_example.dart`.
 It declares built-in color, spacing, and typography tokens, provides values through
-`MixScope`, and updates those values while the same styled widget stays mounted.
+`MixScope` above the app, and swaps named value sets without changing the styles.
+Its token-styled control works by pointer, or Tab followed by Enter or Space.
 `MixScope.inherit` merges partial overrides; a plain nested `MixScope` replaces the
 available token set. The optional `FortalTheme` deliberately owns a separate scope.
 

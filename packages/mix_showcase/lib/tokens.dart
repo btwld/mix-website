@@ -4,7 +4,7 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/widgets.dart';
 import 'package:remix/remix.dart';
 
-// #docregion token-colors
+// #docregion token-declare
 const $canvas = ColorToken('canvas');
 const $surface = ColorToken('surface');
 const $raised = ColorToken('raised');
@@ -14,7 +14,10 @@ const $muted = ColorToken('muted');
 const $accent = ColorToken('accent');
 const $onAccent = ColorToken('onAccent');
 const $art = ColorToken('art');
-// #enddocregion token-colors
+
+const $cardShape = ShapeToken('card');
+const $lift = LiftToken('lift');
+// #enddocregion token-declare
 
 /// Mix tokens can hold any value, so a shape is a token like a color. A look
 /// can change every corner in the app without touching a widget.
@@ -68,7 +71,6 @@ final class _TokenShadowMix extends BoxShadowMix {
   List<Object?> get props => [token];
 }
 
-const $cardShape = ShapeToken('card');
 const $artShape = ShapeToken('art');
 const $controlShape = ShapeToken('control');
 const $solidShape = ShapeToken('solid');
@@ -79,7 +81,6 @@ const $checkFocusShape = ShapeToken('checkFocus');
 const $cardRing = ShapeToken('cardRing');
 const $swatchShape = ShapeToken('swatch');
 const $swatchRing = ShapeToken('swatchRing');
-const $lift = LiftToken('lift');
 
 const $title = TextStyleToken('title');
 const $stat = TextStyleToken('stat');
@@ -239,22 +240,22 @@ class Look {
 
 // #docregion look-midnight
 const midnight = Look(
+  surface: Color(0xFF15121F),
   accent: Color(0xFF8B5CF6),
-  canvas: Color(0xFF0D0B14),
   ink: Color(0xFFF4F2FA),
+  card: 16,
+  displayFont: 'Geist',
+  canvas: Color(0xFF0D0B14),
+  // #enddocregion look-midnight
   control: 10,
   stroke: 1,
-  displayFont: 'Geist',
-  // #enddocregion look-midnight
   id: 'midnight',
   name: 'Midnight',
-  surface: Color(0xFF15121F),
   raised: Color(0xFF211C30),
   line: Color(0xFF2C2640),
   muted: Color(0xFF9A93AE),
   onAccent: Color(0xFFFFFFFF),
   art: Color(0xFFF0619A),
-  card: 16,
   lift: BoxShadow(
     color: Color(0x66000000),
     blurRadius: 32,
@@ -265,22 +266,22 @@ const midnight = Look(
 
 // #docregion look-paper
 const paper = Look(
+  surface: Color(0xFFFBF8F1),
   accent: Color(0xFFB03A23),
-  canvas: Color(0xFFF3EDE1),
   ink: Color(0xFF1F1B14),
+  card: 3,
+  displayFont: 'AbrilFatface',
+  canvas: Color(0xFFF3EDE1),
+  // #enddocregion look-paper
   control: 2,
   stroke: 1,
-  displayFont: 'AbrilFatface',
-  // #enddocregion look-paper
   id: 'paper',
   name: 'Paper',
-  surface: Color(0xFFFBF8F1),
   raised: Color(0xFFEDE5D5),
   line: Color(0xFFD6CCB8),
   muted: Color(0xFF766C5A),
   onAccent: Color(0xFFFFFAF2),
   art: Color(0xFFE3B261),
-  card: 3,
   bodyFont: 'LibreFranklin',
   displayWeight: FontWeight.w400,
   displayTracking: 0,
@@ -288,22 +289,22 @@ const paper = Look(
 
 // #docregion look-pop
 const pop = Look(
+  surface: Color(0xFFFFFFFF),
   accent: Color(0xFF2540FF),
-  canvas: Color(0xFFFFD83D),
   ink: Color(0xFF111111),
+  card: 0,
+  displayFont: 'Montserrat',
+  canvas: Color(0xFFFFD83D),
+  // #enddocregion look-pop
   control: 0,
   stroke: 2.5,
-  displayFont: 'Montserrat',
-  // #enddocregion look-pop
   id: 'pop',
   name: 'Pop',
-  surface: Color(0xFFFFFFFF),
   raised: Color(0xFFFFF0B3),
   line: Color(0xFF111111),
   muted: Color(0xFF4A4A4A),
   onAccent: Color(0xFFFFFFFF),
   art: Color(0xFFFF4D8D),
-  card: 0,
   lift: BoxShadow(color: Color(0xFF111111), offset: Offset(6, 6)),
   bodyFont: 'Montserrat',
   displayWeight: FontWeight.w700,
@@ -312,23 +313,23 @@ const pop = Look(
 
 // #docregion look-cyber
 const cyber = Look(
+  surface: Color(0xFF071B11),
   accent: Color(0xFF2BFF88),
-  canvas: Color(0xFF04120B),
   ink: Color(0xFFBDF8D3),
+  card: 20,
+  displayFont: 'GeistMono',
+  canvas: Color(0xFF04120B),
+  // #enddocregion look-cyber
   control: 8,
   stroke: 1,
-  displayFont: 'GeistMono',
   cut: true,
-  // #enddocregion look-cyber
   id: 'cyber',
   name: 'Cyber',
-  surface: Color(0xFF071B11),
   raised: Color(0xFF0C2A1A),
   line: Color(0xFF14502F),
   muted: Color(0xFF4FA070),
   onAccent: Color(0xFF04120B),
   art: Color(0xFF0C5C34),
-  card: 20,
   lift: BoxShadow(color: Color(0x3322FF88), blurRadius: 40),
   bodyFont: 'GeistMono',
   displayWeight: FontWeight.w500,
@@ -368,6 +369,7 @@ OutlinedBorder _shape(
     : RoundedRectangleBorder(borderRadius: .circular(size), side: side);
 
 /// Every look is one call to this function. No widget knows which is active.
+// #docregion look-scope
 Widget lookScope(
   Look look, {
   Color? accent,
@@ -376,14 +378,6 @@ Widget lookScope(
   required Widget child,
 }) {
   final tint = accent ?? look.accent;
-  final control = corner ?? look.control;
-  final card = corner == null ? look.card : corner * 1.5;
-  final tiny = math.min(control, look.cut ? 4.0 : 5.0);
-  final line = BorderSide(color: look.line, width: look.stroke);
-  // Ink, not the accent: a focus ring has to read on an accent fill as well.
-  final focus = BorderSide(color: look.ink, width: math.max(look.stroke, 1.5));
-  final ring = BorderSide(color: look.ink, width: 1.5);
-  // #docregion look-scope
   return MixScope(
     colors: {
       $canvas: look.canvas,
@@ -396,72 +390,89 @@ Widget lookScope(
       $onAccent: look.onAccent,
       $art: look.art,
     },
-    // #enddocregion look-scope
-    tokens: {
-      $cardShape: _shape(look, card, side: line, edge: look.cut ? tint : null),
-      $artShape: _shape(look, look.cut ? card : card * 0.7),
-      $controlShape: _shape(look, control, side: line),
-      $solidShape: _shape(look, control),
-      $tinyShape: _shape(look, tiny),
-      // A checkbox stays square-ish in every look: a circle reads as a radio.
-      $checkShape: _shape(
-        look,
-        tiny,
-        side: BorderSide(color: look.muted, width: look.stroke),
-      ),
-      $focusShape: _shape(look, control, side: focus),
-      $checkFocusShape: _shape(look, tiny, side: focus),
-      $cardRing: _shape(
-        look,
-        card,
-        side: BorderSide(color: look.ink, width: 2),
-        edge: look.cut ? tint : null,
-      ),
-      // The same side width either way, so selecting a swatch cannot shift it.
-      $swatchShape: _shape(
-        look,
-        control,
-        side: ring.copyWith(color: const Color(0x00000000)),
-      ),
-      $swatchRing: _shape(look, control, side: ring),
-      $lift:
-          (flat ? null : look.lift) ??
-          const BoxShadow(color: Color(0x00000000)),
-    },
-    textStyles: {
-      $stat: TextStyle(
-        fontFamily: look.displayFont,
-        fontSize: 32,
-        fontWeight: look.displayWeight,
-        letterSpacing: look.displayTracking / 2,
-        height: 1.15,
-      ),
-      $lead: TextStyle(
-        fontFamily: look.displayFont,
-        fontSize: 19,
-        fontWeight: look.displayWeight,
-        letterSpacing: look.displayTracking / 3,
-        height: 1.2,
-      ),
-      $title: TextStyle(
-        fontFamily: look.bodyFont,
-        fontSize: 14.5,
-        fontWeight: FontWeight.w600,
-        height: 1.3,
-      ),
-      $body: TextStyle(
-        fontFamily: look.bodyFont,
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
-        height: 1.4,
-      ),
-      $small: TextStyle(
-        fontFamily: look.bodyFont,
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-        height: 1.3,
-      ),
-    },
+    textStyles: _typeScale(look),
+    tokens: _shapeTokens(look, tint: tint, corner: corner, flat: flat),
     child: child,
   );
+}
+// #enddocregion look-scope
+
+Map<TextStyleToken, TextStyle> _typeScale(Look look) => {
+  $stat: TextStyle(
+    fontFamily: look.displayFont,
+    fontSize: 32,
+    fontWeight: look.displayWeight,
+    letterSpacing: look.displayTracking / 2,
+    height: 1.15,
+  ),
+  $lead: TextStyle(
+    fontFamily: look.displayFont,
+    fontSize: 19,
+    fontWeight: look.displayWeight,
+    letterSpacing: look.displayTracking / 3,
+    height: 1.2,
+  ),
+  $title: TextStyle(
+    fontFamily: look.bodyFont,
+    fontSize: 14.5,
+    fontWeight: FontWeight.w600,
+    height: 1.3,
+  ),
+  $body: TextStyle(
+    fontFamily: look.bodyFont,
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    height: 1.4,
+  ),
+  $small: TextStyle(
+    fontFamily: look.bodyFont,
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    height: 1.3,
+  ),
+};
+
+Map<MixToken, Object> _shapeTokens(
+  Look look, {
+  required Color tint,
+  double? corner,
+  bool flat = false,
+}) {
+  final control = corner ?? look.control;
+  final card = corner == null ? look.card : corner * 1.5;
+  final tiny = math.min(control, look.cut ? 4.0 : 5.0);
+  final line = BorderSide(color: look.line, width: look.stroke);
+  // Ink, not the accent: a focus ring has to read on an accent fill as well.
+  final focus = BorderSide(color: look.ink, width: math.max(look.stroke, 1.5));
+  final ring = BorderSide(color: look.ink, width: 1.5);
+  return {
+    $cardShape: _shape(look, card, side: line, edge: look.cut ? tint : null),
+    $artShape: _shape(look, look.cut ? card : card * 0.7),
+    $controlShape: _shape(look, control, side: line),
+    $solidShape: _shape(look, control),
+    $tinyShape: _shape(look, tiny),
+    // A checkbox stays square-ish in every look: a circle reads as a radio.
+    $checkShape: _shape(
+      look,
+      tiny,
+      side: BorderSide(color: look.muted, width: look.stroke),
+    ),
+    $focusShape: _shape(look, control, side: focus),
+    $checkFocusShape: _shape(look, tiny, side: focus),
+    $cardRing: _shape(
+      look,
+      card,
+      side: BorderSide(color: look.ink, width: 2),
+      edge: look.cut ? tint : null,
+    ),
+    // The same side width either way, so selecting a swatch cannot shift it.
+    $swatchShape: _shape(
+      look,
+      control,
+      side: ring.copyWith(color: const Color(0x00000000)),
+    ),
+    $swatchRing: _shape(look, control, side: ring),
+    $lift:
+        (flat ? null : look.lift) ?? const BoxShadow(color: Color(0x00000000)),
+  };
 }

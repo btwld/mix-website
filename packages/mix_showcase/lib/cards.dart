@@ -236,10 +236,14 @@ class NowPlaying extends StatelessWidget {
   final bool fill;
 
   @override
-  Widget build(BuildContext context) => Box(
-    style: cardPad,
-    child: _Player(fill: fill),
-  );
+  Widget build(BuildContext context) {
+    // #docregion card-consumer
+    return Box(
+      style: cardPad,
+      child: _Player(fill: fill),
+    );
+    // #enddocregion card-consumer
+  }
 }
 
 /// Generated cover art: a grid of styled boxes. It needs no imagery, and every
@@ -615,47 +619,60 @@ class _TodayRow extends StatelessWidget {
       canRequestFocus: false,
       excludeFromSemantics: true,
       onPress: () => showcase.toggle(task),
-      child: Row(
-        spacing: 10,
-        children: [
-          Xray(
-            'RemixCheckbox',
-            named: last,
-            below: true,
-            // #docregion remix-checkbox
-            child: RemixCheckbox(
-              selected: task.done,
-              semanticLabel: task.title,
-              minimumTapTargetSize: Size.zero,
-              onChanged: (_) => showcase.toggle(task),
-              style: checkbox,
-            ),
-            // #enddocregion remix-checkbox
-          ),
-          Expanded(
-            child: StyledText(
-              task.title,
-              style: oneLine(
-                task.done
-                    ? text(
-                        $body,
-                        $muted,
-                      ).decoration(.lineThrough).decorationColor($muted())
-                    : text($body),
-              ),
-            ),
-          ),
-          Xray(
-            'RemixBadge',
-            named: last,
-            below: true,
-            right: true,
-            child: RemixBadge(label: task.tag, style: badge),
-          ),
-        ],
-      ),
+      child: _TaskContent(task: task, last: last),
     );
     // #enddocregion pressable-row
+  }
+}
+
+class _TaskContent extends StatelessWidget {
+  const _TaskContent({required this.task, required this.last});
+
+  final Task task;
+  final bool last;
+
+  @override
+  Widget build(BuildContext context) {
+    final showcase = ShowcaseScope.of(context);
+    return Row(
+      spacing: 10,
+      children: [
+        Xray(
+          'RemixCheckbox',
+          named: last,
+          below: true,
+          // #docregion remix-checkbox
+          child: RemixCheckbox(
+            selected: task.done,
+            semanticLabel: task.title,
+            minimumTapTargetSize: Size.zero,
+            onChanged: (_) => showcase.toggle(task),
+            style: checkbox,
+          ),
+          // #enddocregion remix-checkbox
+        ),
+        Expanded(
+          child: StyledText(
+            task.title,
+            style: oneLine(
+              task.done
+                  ? text(
+                      $body,
+                      $muted,
+                    ).decoration(.lineThrough).decorationColor($muted())
+                  : text($body),
+            ),
+          ),
+        ),
+        Xray(
+          'RemixBadge',
+          named: last,
+          below: true,
+          right: true,
+          child: RemixBadge(label: task.tag, style: badge),
+        ),
+      ],
+    );
   }
 }
 

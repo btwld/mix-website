@@ -175,7 +175,7 @@ Calling `$background()` creates a token reference; it does not read a global col
 
 Keep token declarations stable and rebuild with new values rather than mutating the same maps in place. Token maps compare values using their equality; list-valued tokens use the list's equality too. A `ContextToken` instead tracks the inherited values its resolver reads, such as `Theme.of(context)`.
 
-For a complete, runnable declaration → provider → consumer example, see [the showcase's token example](/v2/source/?file=token_example.dart). Run it in that package with `flutter run -d chrome -t lib/token_example.dart`.
+The preview below swaps two color maps in one `MixScope`.
 
 <FlutterPreview previewId="guides/design-token.1" height={200} />
 

@@ -1,18 +1,39 @@
-// #docregion token-example
 import 'package:flutter/material.dart';
 import 'package:mix/mix.dart';
 
 void main() => runApp(const TokenExample());
 
-// 1. Declare semantic tokens, then write styles against their references.
-const $panelColor = ColorToken('example.panel');
-const $panelPadding = SpaceToken('example.padding');
-const $panelText = TextStyleToken('example.text');
+// Declare semantic keys, then write styles against their references.
+const $surface = ColorToken('color.surface');
+const $onSurface = ColorToken('color.onSurface');
+const $gap = SpaceToken('space.gap');
+const $body = TextStyleToken('text.body');
 
-final panelStyle = BoxStyler()
-    .color($panelColor())
-    .padding(.all($panelPadding()));
-final panelTextStyle = TextStyler().style($panelText.mix()).color(Colors.white);
+final card = BoxStyler()
+    .color($surface())
+    .padding(.all($gap()))
+    .borderRadius(.circular(12))
+    .border(.color($surface()).width(2))
+    .onFocusVisible(.border(.color($onSurface()).width(2)));
+final label = TextStyler().style($body.mix()).color($onSurface());
+
+// Two value sets for the same keys, including matching foregrounds.
+final quiet = (
+  colors: {
+    $surface: const Color(0xFFEEF2FF),
+    $onSurface: const Color(0xFF312E81),
+  },
+  gap: 16.0,
+  body: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+);
+final bold = (
+  colors: {
+    $surface: const Color(0xFF4338CA),
+    $onSurface: const Color(0xFFFFFFFF),
+  },
+  gap: 32.0,
+  body: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+);
 
 class TokenExample extends StatefulWidget {
   const TokenExample({super.key});
@@ -22,49 +43,26 @@ class TokenExample extends StatefulWidget {
 }
 
 class _TokenExampleState extends State<TokenExample> {
-  bool roomy = false;
+  bool useBold = false;
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    home: Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: .min,
-          children: [
-            // 2. Provide concrete values above every token-consuming widget.
-            // Updating this scope changes values, not the styles or panel.
-            MixScope(
-              colors: {$panelColor: roomy ? Colors.teal : Colors.indigo},
-              spaces: {$panelPadding: roomy ? 32 : 16},
-              textStyles: {
-                $panelText: TextStyle(
-                  fontSize: roomy ? 22 : 16,
-                  fontWeight: roomy ? .w700 : .w400,
-                ),
-              },
-              child: const TokenPanel(),
+  Widget build(BuildContext context) {
+    final values = useBold ? bold : quiet;
+    // Provide values above the app. Only these values change, not the styles.
+    return MixScope(
+      colors: values.colors,
+      spaces: {$gap: values.gap},
+      textStyles: {$body: values.body},
+      child: MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: card.pressable(
+              onPress: () => setState(() => useBold = !useBold),
+              child: StyledText('Switch look', style: label),
             ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: () => setState(() => roomy = !roomy),
-              child: const Text('Switch look'),
-            ),
-          ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
-
-// 3. Consume the same styles. Mix resolves tokens from the nearest MixScope.
-// This const widget stays mounted when the button updates the scope values.
-class TokenPanel extends StatelessWidget {
-  const TokenPanel({super.key});
-
-  @override
-  Widget build(BuildContext context) => Box(
-    style: panelStyle,
-    child: StyledText('Same widget. New values.', style: panelTextStyle),
-  );
-}
-// #enddocregion token-example

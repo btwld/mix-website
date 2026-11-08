@@ -17,7 +17,6 @@ TextStyler oneLine(TextStyler style) => style.maxLines(1).overflow(.ellipsis);
 
 final canvasStyle = BoxStyler().color($canvas()).animate(motion);
 
-// #docregion composition
 // #docregion card-style
 final cardStyle = BoxStyler()
     .color($surface())
@@ -31,12 +30,10 @@ final cardPad = cardStyle
     .padding(.all(18))
     .onBreakpoint(.maxWidth(480), .padding(.all(14)));
 // #enddocregion card-padding
-// #enddocregion composition
 
 // #docregion list-row
 final listRow = BoxStyler()
-    .padding(.horizontal(6))
-    .padding(.vertical(7))
+    .padding(.symmetric(horizontal: 6, vertical: 7))
     .shape($solidShape.mix())
     .onHovered(.color($raised()))
     .onPressed(.scale(0.985))
@@ -45,8 +42,7 @@ final listRow = BoxStyler()
 
 final quietButton = ButtonStyler()
     .minWidth(84)
-    .padding(.horizontal(14))
-    .padding(.vertical(8))
+    .padding(.symmetric(horizontal: 14, vertical: 8))
     .color($surface())
     .shape($controlShape.mix())
     .label(text($small))
@@ -61,11 +57,10 @@ final $brand = ContextToken<Color>((c) => Theme.of(c).colorScheme.primary);
 final $onBrand = ContextToken<Color>((c) => Theme.of(c).colorScheme.onPrimary);
 
 final primaryButton = ButtonStyler()
-    .padding(.horizontal(14))
-    .padding(.vertical(8))
+    .padding(.symmetric(horizontal: 14, vertical: 8))
     .color($brand())
     .shape($controlShape.mix())
-    .label(TextStyler().style($small.mix()).color($onBrand()))
+    .label(.style($small.mix()).color($onBrand()))
     .spinner(.color($onBrand()).size(16))
     .onHovered(.scale(1.02))
     .onPressed(.scale(0.96))
@@ -111,8 +106,7 @@ final toastStyle = ToastStyler()
 /// A finished action reads as a state, not as another button to press.
 final doneButton = ButtonStyler()
     .minWidth(84)
-    .padding(.horizontal(10))
-    .padding(.vertical(8))
+    .padding(.symmetric(horizontal: 10, vertical: 8))
     .color(Colors.transparent)
     .shape($solidShape.mix())
     .spacing(5)
@@ -123,8 +117,7 @@ final doneButton = ButtonStyler()
     .animate(motion);
 
 // #docregion checkbox-style
-/// The alignment is required: without it the box forces the check to fill it,
-/// and `iconSize` is silently ignored.
+// Center the check so iconSize applies.
 final checkbox = CheckboxStyler()
     .size(18, 18)
     .alignment(.center)
@@ -138,8 +131,7 @@ final checkbox = CheckboxStyler()
 // #enddocregion checkbox-style
 
 final badge = BadgeStyler()
-    .padding(.horizontal(8))
-    .padding(.vertical(3))
+    .padding(.symmetric(horizontal: 8, vertical: 3))
     .color($raised())
     .shape($solidShape.mix())
     .label(text($small, $muted))
@@ -158,8 +150,7 @@ final segments = SegmentedControlStyler()
     .color($raised())
     .shape($solidShape.mix())
     .item(
-      .padding(.horizontal(12))
-          .padding(.vertical(5))
+      .padding(.symmetric(horizontal: 12, vertical: 5))
           .shape($solidShape.mix())
           .label(text($small, $muted))
           .onSelected(.color($surface()).label(text($small))),
@@ -186,8 +177,10 @@ final slider = SliderStyler()
     .rangeThickness(4)
     .animate(motion);
 
+// #docregion quiet-controls
 /// Neutral controls, so the accent stays on what the card is about.
 final quietSlider = slider.rangeColor($muted()).thumbColor($ink());
+// #enddocregion quiet-controls
 
 final quietSwitch = switchStyle.onSelected(
   .color($ink()).thumbColor($canvas()),

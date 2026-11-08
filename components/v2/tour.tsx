@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowRight } from '@/components/landing/icons';
 import { CopyCommand } from '@/components/landing/copy-command';
 import type { ShowcaseCode, ShowcasePackage } from '@/lib/showcase-source';
 import { Stage, useShowcase } from './stage';
 import { CodeExample } from './code-example';
-import { Features, motionDocs, type FeaturePreview, type MotionMode } from './features';
+import { Features, FeatureLesson, FEATURES, motionDocs, type FeaturePreview, type MotionMode } from './features';
+import { TokenLesson } from './token-lesson';
 
 const LOOKS = [
   { id: 'midnight', name: 'Midnight', swatch: ['#0d0b14', '#8b5cf6'] },
@@ -39,13 +40,13 @@ const BLOCKS = [
   { id: 'player', name: 'Now playing', note: 'Play, pause, skip, and seek through a simulated track.' },
   { id: 'today', name: 'Today', note: 'Check off a task. Its state stays with you through every look.' },
   { id: 'spending', name: 'Spending', note: 'Compare two weeks and explore the daily totals.' },
-  { id: 'appearance', name: 'Appearance', note: 'Change the cards’ accent, corners, and shadows.' },
+  { id: 'appearance', name: 'Make it yours', note: 'Change the accent, corners, and shadows across the interface.' },
   { id: 'team', name: 'Team', note: 'Try an invite interaction with local sample data.' },
 ];
-const MOTION: { id: MotionMode; name: string; description: string; instruction: string }[] = [
-  { id: 'transitions', name: 'Transitions', description: 'A new look changes the target values. One .animate() call lets the cards’ surface and shape flow into place.', instruction: 'Choose a look to see the transition.' },
-  { id: 'springs', name: 'Springs', description: 'The same animation API can use spring motion. Spending’s bars settle into their new heights when the data changes.', instruction: 'Switch This week and Last week in the card.' },
-  { id: 'keyframes', name: 'Keyframes', description: 'For a repeating sequence, define a timeline. The player’s equalizer moves through height keyframes, all within its style.', instruction: 'Use Play and Pause in the card. No audio is played; the equalizer stays still with reduced motion.' },
+const MOTION: { id: MotionMode; name: string; description: string }[] = [
+  { id: 'transitions', name: 'Transitions', description: 'A new look changes the target values. One .animate() call lets the cards’ surface and shape flow into place.' },
+  { id: 'springs', name: 'Springs', description: 'The same animation API can use spring motion. Spending’s bars settle into their new heights when the data changes.' },
+  { id: 'keyframes', name: 'Keyframes', description: 'For a repeating sequence, define a timeline. The player’s equalizer moves through height keyframes, all within its style.' },
 ];
 
 type Chapter = 'hero' | 'looks' | 'states' | 'adapt' | 'motion' | 'remix' | 'naked' | 'blocks';
@@ -111,26 +112,42 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
   const [chapterFocus, setChapterFocus] = useState<{ chapter: Chapter; block: string } | null>(null);
   const [motion, setMotion] = useState<MotionMode>('transitions');
   const [preset, setPreset] = useState<(typeof PRESETS)[number]>(PRESETS[0]);
-  const [feature, setFeature] = useState('composition');
+  const [lesson, setLesson] = useState<{ id: string; chapter: Chapter; request: number } | null>(null);
+  const lessonRequest = useRef(0);
+  const [anchorRequest, setAnchorRequest] = useState<{ chapter: Chapter; focusHeading: boolean } | null>(null);
   const root = useRef<HTMLDivElement>(null);
   const picked = useRef(false);
   const { ready, missing, mount, send } = useShowcase();
 
-  const goTo = useCallback((chapter: Chapter, focus?: string) => {
-    const compact = matchMedia('(max-width: 62rem)').matches;
-    if (compact && chapter === 'adapt') chapter = 'looks';
+  const goTo = useCallback((chapter: Chapter, focus?: string, feature?: string, focusHeading = false) => {
     const target = root.current?.querySelector<HTMLElement>(`[data-chapter="${chapter}"]`);
     if (!target) return;
     setChapterFocus(focus ? { chapter, block: focus } : null);
-    const stage = root.current?.querySelector('.v2-stage-column')?.getBoundingClientRect();
-    // Tall desktop chapters anchor below the fixed nav; shorter ones stay centered.
-    const offset = chapter === 'hero' ? 0 : compact ? innerHeight <= 600 ? 88 : (stage?.height ?? 0) + 88 : chapter === 'looks' ? 116 : Math.max(116, innerHeight / 2 - target.offsetHeight / 2);
-    scrollTo({ top: Math.max(0, scrollY + target.getBoundingClientRect().top - offset), behavior: 'instant' });
+    setLesson(feature ? { id: feature, chapter, request: ++lessonRequest.current } : null);
     setActive(chapter);
+    setAnchorRequest({ chapter, focusHeading });
     // Explicit navigation can reselect the active chapter after browsing Features.
     const hash = chapter === 'hero' ? '' : `#v2-${chapter}`;
     if (location.hash !== hash) history.replaceState(history.state, '', `${location.pathname}${location.search}${hash}`);
   }, []);
+
+  // Focus after the expanded lesson commits, then measure in the next frame.
+  // In WebKit, scrolling during that layout can be undone by native scroll
+  // anchoring when an earlier chapter grows. A newer request cancels this one.
+  useLayoutEffect(() => {
+    if (!anchorRequest) return;
+    const { chapter, focusHeading } = anchorRequest;
+    const target = root.current?.querySelector<HTMLElement>(`[data-chapter="${chapter}"]`);
+    if (!target) return;
+    if (focusHeading) target.querySelector<HTMLElement>('h2')?.focus({ preventScroll: true });
+    const frame = requestAnimationFrame(() => {
+      const compact = matchMedia('(max-width: 62rem)').matches;
+      const stage = root.current?.querySelector('.v2-stage-column')?.getBoundingClientRect();
+      const offset = chapter === 'hero' ? 0 : compact ? innerHeight <= 600 ? 88 : (stage?.height ?? 0) + 88 : chapter === 'looks' ? 116 : Math.max(116, innerHeight / 2 - target.offsetHeight / 2);
+      scrollTo({ top: Math.max(0, scrollY + target.getBoundingClientRect().top - offset), behavior: 'instant' });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [anchorRequest]);
 
   // Follow a reading line below the pinned demo on compact screens. Recalculate
   // on resize as well as scroll, so rotating a device cannot strand the chapter.
@@ -209,30 +226,27 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
 
   // A choice stays made: scrolling back through Looks must not replace it.
   const chooseLook = (id: string) => { picked.current = true; setLook(id); };
-  const previewFeature = ({ chapter, motion, look, block, preset }: FeaturePreview) => {
+  const previewFeature = ({ chapter, motion, block, preset, feature }: FeaturePreview) => {
     if (motion) setMotion(motion);
-    if (look) chooseLook(look);
     if (block) setBlock(block);
     if (preset === 'custom') setPreset(PRESETS[0]);
     if (preset === 'fortal') setPreset(previous => previous.preset === 'fortal' ? previous : PRESETS[1]);
-    goTo(chapter, block);
-    const target = chapter === 'adapt' && matchMedia('(max-width: 62rem)').matches ? 'looks' : chapter;
-    root.current?.querySelector<HTMLElement>(`#v2-title-${target}`)?.focus({ preventScroll: true });
+    goTo(chapter, block, feature, true);
   };
   const chapter = STEPS.find(step => step.id === active);
   const motionExample = MOTION.find(item => item.id === motion)!;
-  const showFeature = (id: string) => {
-    setFeature(id);
-    document.getElementById('v2-features')?.scrollIntoView({ behavior: 'instant' });
-    history.replaceState(history.state, '', `${location.pathname}${location.search}#v2-features`);
-  };
+  const lessonFor = (chapter: Chapter, fallback: string) => lesson?.chapter === chapter ? lesson.id : fallback;
+  const lessonKey = (chapter: Chapter) => lesson?.chapter === chapter ? lesson.request : 'default';
+  const readCode = () => { picked.current = true; };
+  const guideFor = (id: string) => FEATURES.find(item => item.id === id)!.docs;
+  const remixLesson = lessonFor('remix', preset.preset === 'custom' ? 'remix' : 'open-code');
 
   return <div className="lx project-mix v2" data-layer={LAYER[active]} ref={root} id="v2-content">
     <div className="v2-tour">
       <header className="v2-hero" data-chapter="hero">
         <h1>Flutter UI,<br />your way.</h1>
-        <p className="v2-lead">Style with Mix. Compose with Remix. Build on Naked UI. Three open-source libraries, one expressive Flutter stack.</p>
-        <p className="v2-hint">Start at the layer you need. Remix already includes Mix and Naked UI.</p>
+        <p className="v2-lead">One interface. Style it with Mix, compose it with Remix, or build its interactions with Naked UI.</p>
+        <p className="v2-start-note">Start at the layer you need. Remix includes Mix and Naked UI.</p>
         <div className="v2-cta">
           <button className="lx-btn lx-btn-primary" type="button" onClick={() => goTo('looks')}>Explore the showcase <ArrowRight /></button>
           <a className="lx-btn lx-btn-secondary" href="#v2-features">Features &amp; code</a>
@@ -242,35 +256,37 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
           <a href="#v2-remix" onClick={event => { event.preventDefault(); goTo('remix'); }}><strong>Remix</strong><span>Compose the interface</span><ArrowRight /></a>
           <a href="#v2-naked" onClick={event => { event.preventDefault(); goTo('naked'); }}><strong>Naked UI</strong><span>Start with behavior</span><ArrowRight /></a>
         </div>
-        <p className="v2-hint">Real Flutter, running right here.<br />Try the controls, then scroll to see how it’s built.</p>
+        <p className="v2-hint">This is real Flutter. Try the controls, then follow the same interface from styles to components and behavior.</p>
       </header>
 
       <div className="v2-stage-column">
-        <div className="v2-stage-caption"><span>{chapter ? `${chapter.group} / ${chapter.name}` : 'Interactive Flutter showcase'}</span><span>{active === 'naked' ? 'Unstyled' : active === 'remix' && preset.preset === 'fortal' ? `${preset.name} · Today` : LOOKS.find(item => item.id === look)?.name}</span></div>
+        <div className="v2-stage-caption"><span>{chapter ? `${chapter.group} / ${chapter.name}` : 'Live Flutter · Demo data'}</span><span>{active === 'naked' ? 'Bare rendering' : active === 'remix' && preset.preset === 'fortal' ? `${preset.name} · Today` : LOOKS.find(item => item.id === look)?.name}</span></div>
         <Stage mount={mount} ready={ready} missing={missing} />
         <Steps active={active} onStep={goTo} />
       </div>
 
       <div className="v2-rail">
-        <Section id="looks" active={active} doc={{ href: '/mix/docs/guides/design-token/#mixscope', label: 'Explore design tokens' }} tag="Mix / Design tokens" title="Same widgets. A whole new feel.">
-          <p>Color, typography, shape, and depth — one set of tokens changes them together. Scroll through four looks, or pick your own.</p>
+        <Section id="looks" active={active} doc={guideFor(lessonFor('looks', 'tokens'))} tag="01 / Style with Mix" title="Start with your design.">
+          <p>Each look gives the same tokens new values. Color, type, shape, and depth change together; the widgets stay the same.</p>
           <div className="v2-chips" role="group" aria-label="Choose a look">
             {LOOKS.map(item => <button key={item.id} type="button" aria-pressed={look === item.id} onClick={() => chooseLook(item.id)}>
               <span className="v2-swatch" style={{ background: `linear-gradient(135deg, ${item.swatch[0]} 50%, ${item.swatch[1]} 50%)` }} />{item.name}
             </button>)}
           </div>
-          <CodeExample entry={code[look]} collapsible />
-          <button className="v2-link" type="button" onClick={() => showFeature('tokens')}>Learn tokens: declare, provide, use <ArrowRight /></button>
+          {lessonFor('looks', 'tokens') === 'tokens'
+            ? <TokenLesson key={lessonKey('looks')} code={code} look={look} looks={LOOKS} onLook={chooseLook} open={lesson?.chapter === 'looks'} onOpen={readCode} />
+            : <FeatureLesson key={lessonKey('looks')} id={lessonFor('looks', 'tokens')} code={code} open onOpen={readCode} />}
         </Section>
-        <Section id="states" active={active} doc={{ href: '/mix/docs/guides/dynamic-styling/#interaction', label: 'Explore state variants' }} tag="Mix / Interaction states" title="Style the interaction, too.">
-          <p>Hover or press a task, or Tab to its checkbox. Mix keeps the visual response in the style, alongside its resting appearance.</p>
-          <CodeExample entry={code.states} collapsible />
+        <Section id="states" active={active} doc={guideFor('states')} tag="Mix / Interaction states" title="Make it respond.">
+          <p>The same style can describe resting, hover, and pressed states. The Today card shows how those states respond to input.</p>
+          <FeatureLesson key={lessonKey('states')} id="states" code={code} open={lesson?.chapter === 'states'} />
         </Section>
-        <Section id="adapt" active={active} doc={{ href: '/mix/docs/guides/dynamic-styling/#breakpoint', label: 'Explore breakpoints' }} tag="Same styles / Responsive layout" title="Less room. Still your design.">
-          <p>Flutter’s <code>LayoutBuilder</code> switches the deck when space gets tight. A Mix breakpoint tightens the shared card padding.</p>
-          <CodeExample entry={code.adapt} collapsible />
+        <Section id="adapt" active={active} doc={guideFor('layout')} tag="Flutter + Mix / Responsive layout" title="Fit the screen.">
+          <p>Flutter’s <code>LayoutBuilder</code> switches to a compact deck. A Mix breakpoint changes shared card padding from 18 to 14 pixels.</p>
+          <p className="v2-note v2-compact-note">On this screen you’re already seeing the compact deck.</p>
+          <FeatureLesson key={lessonKey('adapt')} id="layout" code={code} open={lesson?.chapter === 'adapt'} />
         </Section>
-        <Section id="motion" active={active} doc={{ href: motionDocs[motion], label: 'Explore animation' }} tag="Mix / Animation" title="Give your styles a little life.">
+        <Section id="motion" active={active} doc={{ href: motionDocs[motion], label: 'Animation guide' }} tag="Mix / Animation" title="Show what changed.">
           <div className="v2-motion-options" role="group" aria-label="Choose an animation">
             {MOTION.map(item => <button type="button" key={item.id} aria-pressed={motion === item.id} aria-controls="v2-motion-example" onClick={() => setMotion(item.id)}>{item.name}</button>)}
           </div>
@@ -279,30 +295,33 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
             {motion === 'transitions' && <div className="v2-motion-looks" role="group" aria-label="Change the animated look">
               {LOOKS.map(item => <button type="button" key={item.id} aria-label={`Animate to ${item.name}`} aria-pressed={look === item.id} onClick={() => chooseLook(item.id)}><span className="v2-swatch" style={{ background: `linear-gradient(135deg, ${item.swatch[0]} 50%, ${item.swatch[1]} 50%)` }} />{item.name}</button>)}
             </div>}
-            <p className="v2-note">{motionExample.instruction}</p>
-            <CodeExample entry={code[motion]} collapsible />
+            <FeatureLesson key={lessonKey('motion')} id={motion} code={code} open={lesson?.chapter === 'motion'} />
           </div>
         </Section>
-        <Section id="remix" active={active} doc={{ href: '/remix/docs/open-code/', label: 'Explore open code' }} tag="Remix / Components" title="Components, your way.">
-          <p>Style theme-free Remix components with Mix, or start with editable Fortal recipes built on the same behavior.</p>
+        <Section id="remix" active={active} doc={guideFor(remixLesson)} tag="02 / Compose with Remix" title="Build with components.">
+          <p>Remix pairs Naked UI behavior with Mix styles. The outlines identify the components already working in this interface.</p>
           <div className="v2-motion-options v2-preset-options" role="group" aria-label="Choose a component preset">
             {PRESETS.map(item => <button type="button" key={item.name} aria-pressed={preset.name === item.name} onClick={() => {
               setPreset(item);
-              setChapterFocus({ chapter: 'remix', block: 'today' });
+              goTo('remix', 'today');
             }}>{item.name}</button>)}
           </div>
-          <p className="v2-note">Only Today changes; the other cards keep the selected look. Task state stays shared. This comparison stays in the Remix chapter.</p>
+          <p className="v2-note">Start with your styles or Fortal, an optional starter design system installed as editable recipes. Only Today switches; the tasks keep their state.</p>
           <div className="v2-remix-styling">
-            <p className="v2-note">{preset.preset === 'custom'
-              ? 'Your styles: RemixCheckbox uses the app’s CheckboxStyler and look tokens.'
-              : 'Fortal: app-owned Card, Checkbox, and Badge recipes use their own FortalTheme tokens. It wraps one card here for comparison; in an app, place the theme above the Navigator so routes and overlays inherit it.'}</p>
-            <CodeExample entry={preset.preset === 'custom' ? code.remix : code['fortal-today']} collapsible />
-            <Link className="v2-link" href={preset.preset === 'custom' ? '/remix/docs/styler-api/#variants-and-selected-state' : '/remix/docs/fortal/#scope-placement'}>{preset.preset === 'custom' ? 'Build with Remix' : 'Understand Fortal’s theme scope'} <ArrowRight /></Link>
+            <FeatureLesson key={`${remixLesson}-${lessonKey('remix')}`} id={remixLesson} code={code} open={lesson?.chapter === 'remix'} />
+            {preset.preset === 'fortal' && <details className="v2-integration-note">
+              <summary>Fortal theme scope</summary>
+              <p>FortalTheme supplies its own token set. It wraps one card here for comparison.</p>
+              <p>In an app, place it above the Navigator so routes and overlays inherit the theme.</p>
+              <Link className="v2-link" href="/remix/docs/fortal/#scope-placement">Fortal scope guide <ArrowRight /></Link>
+            </details>}
           </div>
+          <button className="v2-link" type="button" onClick={() => previewFeature({ chapter: 'remix', block: 'team', preset: 'custom', feature: 'overlays' })}>Try the invite <ArrowRight /></button>
+          <p className="v2-note">Open Invite on Team for a dialog, email field, and confirmation toast. Demo only: nothing is sent.</p>
           <details className="v2-code v2-open-code">
             <summary>Install and edit the source <span aria-hidden="true">+</span></summary>
             <div className="v2-open-code-steps">
-              <p className="v2-note">Fortal is optional. These commands install a theme and component source into your Flutter package. This showcase used project-local <code>remix_cli:{packages.cli.version}</code>.</p>
+              <p className="v2-note">The optional CLI copies Fortal’s theme and component source into your Flutter package.</p>
               <ol>
                 <li><h3>Add the CLI</h3><CopyCommand command={packages.cli.command} /></li>
                 <li><h3>Initialize Fortal</h3><CopyCommand command="dart run remix_cli:remix init --prefix Fortal --preset fortal --ui-path lib/fortal" /></li>
@@ -310,11 +329,10 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
                   {['checkbox', 'badge', 'card'].map(component => <CopyCommand key={component} command={`dart run remix_cli:remix add ${component}`} />)}
                 </li>
               </ol>
-              <p className="v2-note">The registry revision <a href={packages.registry.url}><code>{packages.registry.revision.slice(0, 12)}</code></a> is pinned in <Link href="/v2/source/?file=remix.yaml">remix.yaml</Link>. The installed files live in <code>lib/fortal/</code>; this app’s documented theme edit sets Geist as the font.</p>
-              <p className="v2-note">A fresh init pins the current registry, which may differ from this demo. To reproduce these exact recipes, use <Link href="/v2/source/?file=remix.yaml">the version-matched checkout</Link>. The reference docs’ older “not published” notes predate the versions installed here.</p>
+              <p className="v2-note"><Link href="/v2/source/?file=remix.yaml">remix.yaml</Link> pins registry revision <a href={packages.registry.url}><code>{packages.registry.revision.slice(0, 12)}</code></a>. A fresh init can install newer recipes. Use <Link href="/v2/source/?file=remix.yaml">this checkout</Link> to match the demo.</p>
               <p className="v2-note"><a href={`${packages.github.files}/remix.yaml`}>View the configuration on GitHub</a> · <a href={`${packages.github.files}/lib/fortal/components/checkbox.dart`}>View the installed checkbox on GitHub</a>{!packages.github.pinned && ' (reference only; this working copy is not pinned)'}</p>
               <CodeExample entry={code['fortal-checkbox']} />
-              <p className="v2-note">The recipe’s <code>@MixWidget</code> annotation generates the <code>FortalCheckbox</code> wrapper. This checkout includes its generated Dart. After changing an annotated recipe, run <code>dart run build_runner build --delete-conflicting-outputs</code>.</p>
+              <p className="v2-note"><code>@MixWidget</code> generates the <code>FortalCheckbox</code> wrapper. After editing an annotated recipe, run <code>dart run build_runner build --delete-conflicting-outputs</code>.</p>
               <ul className="v2-widgets" aria-label="Open code guides">
                 <li><Link href="/remix/docs/open-code/">Open code</Link></li>
                 <li><Link href="/remix/docs/fortal/">Fortal</Link></li>
@@ -323,8 +341,6 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
               </ul>
             </div>
           </details>
-          <p className="v2-note">The outlines reveal the Remix widgets. Try Invite on Team for a dialog, email field, and confirmation toast. Demo only: nothing is sent.</p>
-          <button className="v2-link" type="button" onClick={() => previewFeature({ chapter: 'remix', block: 'team' })}>Try the invite <ArrowRight /></button>
           <ul className="v2-widgets" aria-label="Explore Remix components">
             {WIDGETS.map(([name, slug]) => <li key={slug}><Link href={`/remix/docs/components/${slug}/`}>{name}</Link></li>)}
           </ul>
@@ -333,30 +349,28 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
             {REMIX_GROUPS.map(([name, path]) => <li key={path}><Link href={`/remix/docs/${path}/`}>{name}</Link></li>)}
           </ul>
         </Section>
-        <Section id="naked" active={active} doc={{ href: '/naked-ui/docs/widget/checkbox/#basic-implementation', label: 'Build with Naked UI' }} tag="Naked UI / Behavior" title="Take away the style. Keep the interaction.">
-          <p>The task rows and player buttons now use Naked UI directly. Naked UI handles interaction and its states (hover, focus, press); the app keeps the value.</p>
-          <p className="v2-note">Try a task, or focus it and press Space. Its checked state stays the same when the styling returns.</p>
-          <CodeExample entry={code.naked} collapsible />
+        <Section id="naked" active={active} doc={guideFor('naked')} tag="03 / Build on Naked UI" title="Own the rendering.">
+          <p>Now the task rows and player buttons use Naked UI directly. It supplies interaction state; the app supplies the rendering and values.</p>
+          <FeatureLesson key={lessonKey('naked')} id="naked" code={code} open={lesson?.chapter === 'naked'} />
           <button className="v2-link" type="button" onClick={() => previewFeature({ chapter: 'naked', block: 'team' })}>Try the Naked invite <ArrowRight /></button>
-          <p className="v2-note">Choose Invite on Team to open the bare Naked UI dialog. Tab stays inside, Escape closes it, and focus returns to Invite. Demo only: nothing is sent.</p>
+          <p className="v2-note">Open the same invite with bare rendering. Tab stays inside, Escape closes it, and this demo returns focus to Invite. Demo only: nothing is sent.</p>
           <CodeExample entry={code['naked-invite']} collapsible />
         </Section>
-        <Section id="blocks" active={active} doc={{ href: '/v2/source/', label: 'Explore the showcase source' }} tag="The stack, together" title="Small pieces. Real possibilities.">
-          <p>Explore each card on its own. These examples share the same tokens, styles, and local state.</p>
+        <Section id="blocks" active={active} doc={{ href: '/v2/source/', label: 'Explore the showcase source' }} tag="The interface, together" title="Explore the parts.">
+          <p>Inspect any card from the same interface. Each one shares the design tokens and local state you just explored.</p>
           <div className="v2-blocks" role="group" aria-label="Choose an example">
             {BLOCKS.map(item => <button key={item.id} type="button" aria-pressed={block === item.id} onClick={() => setBlock(item.id)}>
               <span><strong>{item.name}</strong><span>{item.note}</span></span><ArrowRight />
             </button>)}
           </div>
-          <p className="v2-note">Demo data only. Nothing is sent or saved to a server.</p>
         </Section>
       </div>
     </div>
 
-    <Features code={code} onPreview={previewFeature} selected={feature} onSelect={setFeature} />
+    <Features onPreview={previewFeature} />
 
     <section className="v2-end" aria-labelledby="v2-start">
-      <div className="v2-end-intro"><h2 id="v2-start">One stack.<br />Start where you need.</h2><p>Use Mix to style your widgets, Remix for ready-to-style components, or Naked UI when you want to build from behavior up.</p><p>{packages.requirements}</p></div>
+      <div className="v2-end-intro"><h2 id="v2-start">Take it into your app.</h2><p>Start with the layer you need: Mix for styling, Remix for components, or Naked UI for behavior.</p><p>{packages.requirements}</p></div>
       <div className="v2-end-grid">
         <article>
           <p className="v2-library-role">Styling</p><h3>Mix</h3><p>Tokens, variants, and animation.<br />One expressive styling language.</p>
@@ -374,7 +388,7 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
           <Link className="v2-link" href="/naked-ui/docs/widget/checkbox/#basic-implementation">Naked UI component guide <ArrowRight /></Link>
         </article>
       </div>
-      <p className="v2-features-source"><Link href="/v2/source/?file=pubspec.yaml">Run the version-matched showcase with its pinned dependencies <ArrowRight /></Link></p>
+      <p className="v2-features-source"><Link href="/v2/source/?file=pubspec.yaml">Run this showcase locally <ArrowRight /></Link></p>
       <footer className="v2-footer"><span>Built with Mix, Remix, and Naked UI.</span><a href="https://github.com/btwld">Open source on GitHub <ArrowRight /></a></footer>
     </section>
   </div>;
