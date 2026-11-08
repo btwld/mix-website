@@ -16,12 +16,27 @@ export type ShowcasePackage = {
   dart: string;
   flutter: string;
   requirements: string;
+  registry: { revision: string; url: string };
   /** `pinned` is false when the build has no commit, so line numbers may not match `main`. */
   github: { package: string; files: string; pinned: boolean };
 };
 
+/** Paths stay relative to lib, including installed recipes and generated Dart. */
+export async function showcaseDartFiles(directory = SOURCE): Promise<string[]> {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = await Promise.all(entries.map(async entry => {
+    if (entry.isDirectory()) return (await showcaseDartFiles(path.join(directory, entry.name))).map(file => `${entry.name}/${file}`);
+    return entry.isFile() && entry.name.endsWith('.dart') ? [entry.name] : [];
+  }));
+  return files.flat().sort();
+}
+
 export async function showcasePackage(): Promise<ShowcasePackage> {
   const pubspec = await readFile(path.join(PACKAGE, 'pubspec.yaml'), 'utf8');
+  const remix = await readFile(path.join(PACKAGE, 'remix.yaml'), 'utf8');
+  const revision = remix.match(/^    revision: "([a-f0-9]{40})"$/m)?.[1];
+  const repository = remix.match(/^    repository: "([\w.-]+\/[\w.-]+)"$/m)?.[1];
+  if (!revision || !repository) throw new Error('Missing pinned Remix registry provenance in remix.yaml');
   const libraries = Object.fromEntries(['mix', 'remix', 'naked_ui'].map(name => {
     const constraint = pubspec.match(new RegExp(`^  ${name}: ["']?([^"'\\s]+)`, 'm'))?.[1];
     if (!constraint) throw new Error(`Missing pub version for ${name}`);
@@ -46,7 +61,7 @@ export async function showcasePackage(): Promise<ShowcasePackage> {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
   }
   const reference = `${encodeURIComponent(commit ?? 'main')}/packages/mix_showcase`;
-  return { libraries, dart, flutter, requirements: `Requires ${flutter} (${dart}).`, github: { package: `${REPOSITORY}/tree/${reference}`, files: `${REPOSITORY}/blob/${reference}`, pinned: commit !== null } };
+  return { libraries, dart, flutter, requirements: `Requires ${flutter} (${dart}).`, registry: { revision, url: `https://github.com/${repository}/tree/${revision}/registry` }, github: { package: `${REPOSITORY}/tree/${reference}`, files: `${REPOSITORY}/blob/${reference}`, pinned: commit !== null } };
 }
 
 function region(file: string, name: string, source: string) {
@@ -103,7 +118,7 @@ function uses(parts: (SourcePart & { raw: string })[], definitions: SourceDefini
 }
 
 export async function showcaseCode(): Promise<ShowcaseCode> {
-  const files = (await readdir(SOURCE)).filter(file => file.endsWith('.dart')).sort();
+  const files = await showcaseDartFiles();
   const sources = Object.fromEntries(await Promise.all(files.map(async file => [file, await readFile(path.join(SOURCE, file), 'utf8')])));
   const definitions = files.flatMap(file => declarations(file, sources[file]));
   const entries: [string, [string, string][]][] = [
@@ -120,6 +135,8 @@ export async function showcaseCode(): Promise<ShowcaseCode> {
     ['invite', [['invite.dart', 'invite-dialog']]],
     ['naked-invite', [['invite.dart', 'naked-invite']]],
     ['material-bridge', [['styles.dart', 'material-bridge']]],
+    ['fortal-checkbox', [['fortal/components/checkbox.dart', 'fortal-checkbox']]],
+    ['fortal-today', [['fortal_today.dart', 'fortal-today']]],
   ];
   return Object.fromEntries(await Promise.all(entries.map(async ([key, regions]) => {
     const parts = regions.map(([file, name]) => region(file, name, sources[file]));

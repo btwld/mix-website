@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { readFile, readdir } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { codeToHtml } from 'shiki';
 import { SourceBrowser, type SourceFile } from '@/components/v2/source-browser';
-import { showcasePackage } from '@/lib/showcase-source';
+import { showcaseDartFiles, showcasePackage } from '@/lib/showcase-source';
 import { DARK_CODE_THEME } from '@/lib/code-theme';
 import '../../../v2.css';
 import '../../../v2-source.css';
@@ -22,10 +22,13 @@ const descriptions: Record<string, string> = {
   'showcase.dart': 'Shared state and the controls used by the tour.',
   'app.dart': 'The showcase frame and layout.',
   'main.dart': 'The Flutter entry point and theme scope.',
+  'invite.dart': 'The Remix and bare Naked UI invite flows.',
+  'fortal_today.dart': 'The Today card composed from installed Fortal recipes.',
   'bridge.dart': 'Selects the web or native host bridge.',
   'bridge_web.dart': 'Connects the Flutter app to the website tour.',
   'bridge_stub.dart': 'The bridge fallback outside the browser.',
   'pubspec.yaml': 'Pinned dependencies, SDK requirements and font assets.',
+  'remix.yaml': 'Remix CLI configuration, Fortal preset and pinned registry source.',
   'web/index.html': 'The Flutter web host document.',
   'web/flutter_bootstrap.js': 'The web loader used by the showcase.',
   'assets/fonts/OFL.txt': 'License notices for the bundled fonts.',
@@ -34,15 +37,15 @@ const descriptions: Record<string, string> = {
 export default async function ShowcaseSourcePage() {
   const packages = await showcasePackage();
   const root = path.join(process.cwd(), 'packages/mix_showcase');
-  const dartFiles = (await readdir(path.join(root, 'lib'))).filter(file => file.endsWith('.dart'));
+  const dartFiles = await showcaseDartFiles();
   const ordered = ['cards.dart', 'styles.dart', 'tokens.dart', 'showcase.dart', 'app.dart', 'main.dart'];
   const names = [...ordered.filter(file => dartFiles.includes(file)), ...dartFiles.filter(file => !ordered.includes(file)).sort()];
-  const paths = [...names.map(file => `lib/${file}`), 'pubspec.yaml', 'web/index.html', 'web/flutter_bootstrap.js', 'assets/fonts/OFL.txt'];
+  const paths = [...names.map(file => `lib/${file}`), 'remix.yaml', 'pubspec.yaml', 'web/index.html', 'web/flutter_bootstrap.js', 'assets/fonts/OFL.txt'];
   const files: SourceFile[] = await Promise.all(paths.map(async file => {
     const raw = await readFile(path.join(root, file), 'utf8');
     const id = file.startsWith('lib/') ? file.slice(4) : file;
     const lang = file.endsWith('.dart') ? 'dart' : file.endsWith('.yaml') ? 'yaml' : file.endsWith('.js') ? 'javascript' : file.endsWith('.html') ? 'html' : 'text';
-    return { id, path: file, description: descriptions[id] ?? 'Showcase source file.', raw, html: await codeToHtml(raw, { lang, theme: DARK_CODE_THEME, transformers: [{ line(node, line) { node.properties.id = `L${line}`; node.properties['data-line'] = line; } }] }) };
+    return { id, path: file, description: descriptions[id] ?? (file.startsWith('lib/fortal/') ? 'Installed by remix add. This source lives in the app and can be edited here.' : 'Showcase source file.'), raw, html: await codeToHtml(raw, { lang, theme: DARK_CODE_THEME, transformers: [{ line(node, line) { node.properties.id = `L${line}`; node.properties['data-line'] = line; } }] }) };
   }));
 
   return <div className="lx project-mix v2-source" id="v2-content">

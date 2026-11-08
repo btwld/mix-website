@@ -80,7 +80,13 @@ export function SourceBrowser({ files, github, pinned }: { files: SourceFile[]; 
       <div className="v2-source-picker">
         <label htmlFor="v2-source-file">Source file</label>
         <select id="v2-source-file" value={file.id} onChange={event => choose(event.target.value)}>
-          {files.map(entry => <option value={entry.id} key={entry.id}>{entry.path}</option>)}
+          {[
+            { label: 'Showcase Dart', entries: files.filter(entry => entry.path.startsWith('lib/') && !entry.path.startsWith('lib/fortal/')) },
+            { label: 'Installed by remix add', entries: files.filter(entry => entry.path.startsWith('lib/fortal/')) },
+            { label: 'Package & setup', entries: files.filter(entry => !entry.path.startsWith('lib/')) },
+          ].filter(group => group.entries.length).map(group => <optgroup key={group.label} label={group.label}>
+            {group.entries.map(entry => <option value={entry.id} key={entry.id}>{entry.path}</option>)}
+          </optgroup>)}
         </select>
       </div>
       <button type="button" className="v2-source-copy" onClick={copy} aria-label={`Copy ${file.path}`}>

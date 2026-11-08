@@ -139,6 +139,16 @@ body:has(.v2), body:has(.v2-source) { background-image: none !important; }
 .v2-motion-options button { min-height: 44px; padding: 9px 13px; border: 1px solid #302938; border-radius: 8px; font-size: 14px; color: var(--lx-ink-dim); }
 .v2-motion-options button[aria-pressed='true'] { color: #fff; background: #21172e; border-color: #bba1e5; }
 .v2-motion-options button:hover { color: #fff; }
+.v2-preset-options { margin-block: 18px; }
+.v2-open-code { margin-top: 12px; }
+.v2-open-code-steps { min-width: 0; padding-bottom: 12px; }
+.v2-open-code-steps ol { list-style: decimal; padding-left: 22px; }
+.v2-open-code-steps li { min-width: 0; }
+.v2-open-code-steps h3 { margin-top: 18px; font-size: 14px; font-weight: 550; color: #e4d8f6; }
+.v2-open-code-steps .lx-terminal { display: flex; margin-top: 8px; padding: 4px 6px 4px 10px; gap: 8px; font-size: 12px; }
+.v2-open-code-steps .lx-copy-status { margin-top: 0; min-height: 18px; font-size: 12px; }
+.v2-open-code-steps .v2-note a { text-decoration: underline; text-underline-offset: 3px; }
+.v2-open-code-steps .v2-code figcaption > span { min-width: 0; overflow-wrap: anywhere; }
 .v2-motion-looks { display: flex; flex-wrap: wrap; column-gap: 18px; margin-top: 16px; }
 .v2-motion-looks button { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; font-size: 13px; color: var(--lx-ink-dim); }
 .v2-motion-looks button[aria-pressed='true'] { color: #fff; text-decoration: underline; text-underline-offset: 5px; }

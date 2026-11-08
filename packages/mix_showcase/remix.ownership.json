@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "context": {
+    "prefix": "Fortal",
+    "preset": "fortal",
+    "uiPath": "lib/fortal"
+  },
+  "targets": {
+    "lib/fortal/components/badge.dart": "btwld/remix/registry#fortal/badge",
+    "lib/fortal/components/badge.g.dart": "btwld/remix/registry#fortal/badge",
+    "lib/fortal/components/card.dart": "btwld/remix/registry#fortal/card",
+    "lib/fortal/components/card.g.dart": "btwld/remix/registry#fortal/card",
+    "lib/fortal/components/checkbox.dart": "btwld/remix/registry#fortal/checkbox",
+    "lib/fortal/components/checkbox.g.dart": "btwld/remix/registry#fortal/checkbox",
+    "lib/fortal/theme/computed.dart": "btwld/remix/registry#fortal/theme",
+    "lib/fortal/theme/control_styles.dart": "btwld/remix/registry#fortal/theme",
+    "lib/fortal/theme/fortal_colors.dart": "btwld/remix/registry#fortal/theme",
+    "lib/fortal/theme/palette.dart": "btwld/remix/registry#fortal/theme",
+    "lib/fortal/theme/surface_frame.dart": "btwld/remix/registry#fortal/theme",
+    "lib/fortal/theme/theme.dart": "btwld/remix/registry#fortal/theme",
+    "lib/fortal/theme/theme_data.dart": "btwld/remix/registry#fortal/theme",
+    "lib/fortal/theme/theme_scope.dart": "btwld/remix/registry#fortal/theme",
+    "lib/fortal/theme/tokens.dart": "btwld/remix/registry#fortal/theme"
+  }
+}

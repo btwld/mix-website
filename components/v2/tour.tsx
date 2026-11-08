@@ -16,6 +16,11 @@ const LOOKS = [
   { id: 'cyber', name: 'Cyber', swatch: ['#04120b', '#2bff88'] },
 ];
 const TOUR_LOOKS = ['paper', 'pop', 'cyber', 'midnight'];
+const PRESETS = [
+  { name: 'Your styles', preset: 'custom', presetMode: 'light' },
+  { name: 'Fortal light', preset: 'fortal', presetMode: 'light' },
+  { name: 'Fortal dark', preset: 'fortal', presetMode: 'dark' },
+] as const;
 const WIDGETS = [
   ['Button', 'button'], ['Icon button', 'icon_button'], ['Checkbox', 'checkbox'],
   ['Slider', 'slider'], ['Switch', 'switch'], ['Segmented control', 'segmented_control'],
@@ -105,6 +110,7 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
   // Normal chapter navigation clears it and restores the responsive defaults.
   const [chapterFocus, setChapterFocus] = useState<{ chapter: Chapter; block: string } | null>(null);
   const [motion, setMotion] = useState<MotionMode>('transitions');
+  const [preset, setPreset] = useState<(typeof PRESETS)[number]>(PRESETS[0]);
   const root = useRef<HTMLDivElement>(null);
   const picked = useRef(false);
   const { ready, missing, mount, send } = useShowcase();
@@ -167,6 +173,12 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
   useEffect(() => {
     if (ready) send({ look });
   }, [look, ready]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Replay a choice made before startup; looks and chapters keep this selection.
+  // Flutter retains it in Naked mode while rendering the bare widgets there.
+  useEffect(() => {
+    if (ready) send({ preset: preset.preset, presetMode: preset.presetMode });
+  }, [preset, ready]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!ready) return;
@@ -260,9 +272,38 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
             <CodeExample entry={code[motion]} collapsible />
           </div>
         </Section>
-        <Section id="remix" active={active} doc={{ href: '/remix/docs/styler-api/#variants-and-selected-state', label: 'Build with Remix' }} tag="Remix / Components" title="Your components. Your design language.">
-          <p>The outlines reveal Remix widgets. They combine Naked UI behavior with Mix styling, so buttons, sliders, and checkboxes can speak the same visual language.</p>
-          <p>Choose Invite on the Team card to try a dialog, email field, and confirmation toast. Demo only: nothing is sent.</p>
+        <Section id="remix" active={active} doc={{ href: '/remix/docs/open-code/', label: 'Explore open code' }} tag="Remix / Components" title="Own the source.">
+          <p>Remix pairs Naked UI behavior with Mix styling. Try the same Today card with your styles or Fortal recipes installed into this app.</p>
+          <div className="v2-motion-options v2-preset-options" role="group" aria-label="Choose a component preset">
+            {PRESETS.map(item => <button type="button" key={item.name} aria-pressed={preset.name === item.name} onClick={() => {
+              setPreset(item);
+              setChapterFocus({ chapter: 'remix', block: 'today' });
+            }}>{item.name}</button>)}
+          </div>
+          <details className="v2-code v2-open-code">
+            <summary>Install and edit the source <span aria-hidden="true">+</span></summary>
+            <div className="v2-open-code-steps">
+              <p className="v2-note">Run these commands in your Flutter package. This showcase used project-local <code>remix_cli:1.0.0-beta.1</code>.</p>
+              <ol>
+                <li><h3>Add the CLI</h3><CopyCommand command="flutter pub add --dev remix_cli:1.0.0-beta.1" /></li>
+                <li><h3>Initialize Fortal</h3><CopyCommand command="dart run remix_cli:remix init --prefix Fortal --preset fortal --ui-path lib/fortal" /></li>
+                <li><h3>Install the recipes</h3>
+                  {['checkbox', 'badge', 'card'].map(component => <CopyCommand key={component} command={`dart run remix_cli:remix add ${component}`} />)}
+                </li>
+              </ol>
+              <p className="v2-note">The registry revision <a href={packages.registry.url}><code>{packages.registry.revision.slice(0, 12)}</code></a> is pinned in <Link href="/v2/source/?file=remix.yaml">remix.yaml</Link>. The installed files live in <code>lib/fortal/</code>; this app’s documented theme edit sets Geist as the font.</p>
+              <p className="v2-note"><a href={`${packages.github.files}/remix.yaml`}>View the configuration on GitHub</a> · <a href={`${packages.github.files}/lib/fortal/components/checkbox.dart`}>View the installed checkbox on GitHub</a>{!packages.github.pinned && ' (main; this build has no commit pin)'}</p>
+              <CodeExample entry={code['fortal-checkbox']} />
+              <CodeExample entry={code['fortal-today']} />
+              <ul className="v2-widgets" aria-label="Open code guides">
+                <li><Link href="/remix/docs/open-code/">Open code</Link></li>
+                <li><Link href="/remix/docs/fortal/">Fortal</Link></li>
+                <li><Link href="/remix/docs/guides/registries/">Registries</Link></li>
+                <li><Link href="/remix/docs/agent/composer/">Agent surfaces</Link></li>
+              </ul>
+            </div>
+          </details>
+          <p className="v2-note">The outlines reveal the Remix widgets. Try Invite on Team for a dialog, email field, and confirmation toast. Demo only: nothing is sent.</p>
           <button className="v2-link" type="button" onClick={() => previewFeature({ chapter: 'remix', block: 'team' })}>Try the invite <ArrowRight /></button>
           <ul className="v2-widgets" aria-label="Explore Remix components">
             {WIDGETS.map(([name, slug]) => <li key={slug}><Link href={`/remix/docs/components/${slug}/`}>{name}</Link></li>)}
@@ -271,7 +312,10 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
           <ul className="v2-widgets" aria-labelledby="v2-remix-groups">
             {REMIX_GROUPS.map(([name, path]) => <li key={path}><Link href={`/remix/docs/${path}/`}>{name}</Link></li>)}
           </ul>
-          <CodeExample entry={code.remix} collapsible />
+          <div className="v2-remix-styling">
+            <CodeExample entry={code.remix} collapsible />
+            <Link className="v2-link" href="/remix/docs/styler-api/#variants-and-selected-state">Build with Remix <ArrowRight /></Link>
+          </div>
         </Section>
         <Section id="naked" active={active} doc={{ href: '/naked-ui/docs/widget/checkbox/#basic-implementation', label: 'Build with Naked UI' }} tag="Naked UI / Behavior" title="Take away the style. Keep the interaction.">
           <p>The task rows and player buttons now use Naked UI directly. Naked UI handles interaction and its states (hover, focus, press); the app keeps the value.</p>

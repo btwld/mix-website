@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 
 const hasLocalShowcase = existsSync('public/v2-flutter/flutter_bootstrap.js');
@@ -13,6 +13,7 @@ const featureExcerpts: { id: string; name: string; code: string; file: string; a
   { id: 'keyframes', name: 'Keyframe timelines', code: "KeyframeTrack<double>('height'", file: 'styles.dart' },
   { id: 'layout', name: 'Responsive layout', code: '.onBreakpoint(.maxWidth(480), .padding(.all(14)))', file: 'styles.dart', also: 'constraints.maxWidth < 640' },
   { id: 'remix', name: 'Remix components', code: 'CheckboxStyler()', file: 'styles.dart', also: 'child: RemixCheckbox(' },
+  { id: 'open-code', name: 'Open code', code: 'FortalCard(', file: 'fortal_today.dart', also: 'FortalCheckbox(' },
   { id: 'overlays', name: 'Overlays and feedback', code: 'RemixDialog(', file: 'invite.dart', also: 'RemixTextField(' },
   { id: 'naked', name: 'Naked UI behavior', code: 'return NakedCheckbox(', file: 'cards.dart' },
 ];
@@ -262,8 +263,14 @@ test('Remix breadth links reach their docs groups and preserve the live-componen
   await expect(liveComponents.getByRole('link')).toHaveText([
     'Button', 'Icon button', 'Checkbox', 'Slider', 'Switch', 'Segmented control', 'Avatar', 'Badge', 'Dialog', 'Text field', 'Toast',
   ]);
-  for (const [name, slug] of Object.entries({ Dialog: 'dialog', 'Text field': 'textfield', Toast: 'toast' })) {
-    await expect(liveComponents.getByRole('link', { name, exact: true })).toHaveAttribute('href', `/remix/docs/components/${slug}/`);
+  for (const [name, slug] of Object.entries({
+    Button: 'button', 'Icon button': 'icon_button', Checkbox: 'checkbox', Slider: 'slider',
+    Switch: 'switch', 'Segmented control': 'segmented_control', Avatar: 'avatar', Badge: 'badge',
+    Dialog: 'dialog', 'Text field': 'textfield', Toast: 'toast',
+  })) {
+    const link = liveComponents.getByRole('link', { name, exact: true });
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute('href', `/remix/docs/components/${slug}/`);
   }
   await expectNoOverflow(page);
 });
@@ -301,7 +308,7 @@ test('docs links reach sections and follow the selected motion mode', async ({ p
     looks: '/mix/docs/guides/design-token/#mixscope',
     states: '/mix/docs/guides/dynamic-styling/#interaction',
     adapt: '/mix/docs/guides/dynamic-styling/#breakpoint',
-    remix: '/remix/docs/styler-api/#variants-and-selected-state',
+    remix: '/remix/docs/open-code/',
     naked: '/naked-ui/docs/widget/checkbox/#basic-implementation',
   };
   for (const [chapter, href] of Object.entries(chapters)) {
@@ -320,6 +327,7 @@ test('docs links reach sections and follow the selected motion mode', async ({ p
     keyframes: '/mix/docs/guides/animations/#keyframe-animations',
     remix: '/remix/docs/components/checkbox/#basic-implementation', naked: chapters.naked,
     overlays: '/remix/docs/components/dialog/',
+    'open-code': '/remix/docs/open-code/',
     'material-bridge': '/mix/docs/guides/design-token/#context-tokens',
   };
   for (const [feature, href] of Object.entries(featureDocs)) {
@@ -520,7 +528,7 @@ test.describe('live showcase', () => {
       await expect(remix.getByRole('heading')).toBeFocused();
       await expect.poll(lastPatch).toMatchObject({ highlight: 'today', xray: true, naked: false, phone: false });
       await remix.getByText('See the Dart', { exact: false }).click();
-      await expect(remix.locator('pre')).toContainText('child: RemixCheckbox(');
+      await expect(remix.locator('.v2-remix-styling pre')).toContainText('child: RemixCheckbox(');
       await expectNoOverflow(page);
     });
   }
@@ -620,4 +628,188 @@ test.describe('live showcase', () => {
     await expect(page.locator('.v2-stage')).toHaveAttribute('data-ready', 'true');
     await expect(page.locator('[data-chapter="blocks"]')).toHaveAttribute('data-active', 'true');
   });
+});
+
+const openCodeCommands = [
+  'flutter pub add --dev remix_cli:1.0.0-beta.1',
+  'dart run remix_cli:remix init --prefix Fortal --preset fortal --ui-path lib/fortal',
+  'dart run remix_cli:remix add checkbox',
+  'dart run remix_cli:remix add badge',
+  'dart run remix_cli:remix add card',
+];
+
+for (const width of [1440, 390]) {
+  test(`open-code steps expose real commands, pinned provenance and exact excerpts at ${width}px`, async ({ page, browserName }) => {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+    await page.route('**/v2-flutter/flutter_bootstrap.js', route => route.abort());
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/v2/#v2-remix');
+    const remix = page.locator('[data-chapter="remix"]');
+    await expectChapterHeadingBelowNav(page, 'remix');
+    const controls = remix.getByRole('group', { name: 'Choose a component preset' });
+    await expect(controls.getByRole('button')).toHaveText(['Your styles', 'Fortal light', 'Fortal dark']);
+    await expect(controls.getByRole('button', { name: 'Your styles', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect(controls).toBeInViewport();
+    const details = remix.locator('.v2-open-code');
+    await expect(details).not.toHaveAttribute('open', '');
+    await details.locator('summary').click();
+    await expect(details.locator('.lx-terminal-cmd')).toHaveText(openCodeCommands);
+    if (browserName === 'chromium') {
+      await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+      for (const command of openCodeCommands) {
+        await details.getByRole('button', { name: `Copy ${command}`, exact: true }).click();
+        expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(command);
+      }
+    }
+    const guides = details.getByRole('list', { name: 'Open code guides' });
+    for (const [name, href] of Object.entries({
+      'Open code': '/remix/docs/open-code/', Fortal: '/remix/docs/fortal/',
+      Registries: '/remix/docs/guides/registries/', 'Agent surfaces': '/remix/docs/agent/composer/',
+    })) await expect(guides.getByRole('link', { name, exact: true })).toHaveAttribute('href', href);
+    await expect(details.getByRole('link', { name: 'remix.yaml', exact: true })).toHaveAttribute('href', '/v2/source/?file=remix.yaml');
+    const registryPin = '2906c78596cf1060f56322770a66d96fe1a02c55';
+    await expect(details.getByRole('link', { name: registryPin.slice(0, 12), exact: true })).toHaveAttribute('href', `https://github.com/btwld/remix/tree/${registryPin}/registry`);
+    const site = JSON.parse(readFileSync('public/__site.json', 'utf8'));
+    const files = `https://github.com/btwld/mix-website/blob/${site.commit}/packages/mix_showcase`;
+    await expect(details.getByRole('link', { name: 'View the configuration on GitHub' })).toHaveAttribute('href', `${files}/remix.yaml`);
+    await expect(details.getByRole('link', { name: 'View the installed checkbox on GitHub' })).toHaveAttribute('href', `${files}/lib/fortal/components/checkbox.dart`);
+    for (const [file, name, contract] of [
+      ['fortal/components/checkbox.dart', 'fortal-checkbox', '@MixWidget(target: RemixCheckbox.new)'],
+      ['fortal_today.dart', 'fortal-today', 'FortalCheckbox('],
+    ]) {
+      // Compute the independent expected range from real source markers, not the rendered href.
+      const lines = readFileSync(`packages/mix_showcase/lib/${file}`, 'utf8').split('\n');
+      const startMarker = lines.findIndex(line => line.trim() === `// #docregion ${name}`);
+      const endMarker = lines.findIndex((line, index) => index > startMarker && line.trim() === `// #enddocregion ${name}`);
+      expect(startMarker).toBeGreaterThanOrEqual(0);
+      expect(endMarker).toBeGreaterThan(startMarker);
+      const source = lines.slice(startMarker + 1, endMarker);
+      const indent = Math.min(...source.filter(line => line.trim()).map(line => line.match(/^ */)![0].length));
+      const expected = source.filter(line => !line.trim().startsWith('// #')).map(line => line.slice(indent)).join('\n');
+      expect(expected).toContain(contract);
+      const excerpt = details.locator('figure').filter({ has: page.locator(`figcaption a[href*="file=${file}"]`) });
+      await expect(excerpt.locator('pre')).toHaveText(expected);
+      const link = excerpt.locator('figcaption a').first();
+      await expect(link).toHaveAttribute('href', `/v2/source/?file=${file}#L${startMarker + 2}-L${endMarker}`);
+      await expectNoOverflow(page);
+      await link.click();
+      await expect(page.getByLabel('Source file', { exact: true })).toHaveValue(file);
+      await expect(page.locator('.v2-source-highlight')).toHaveCount(endMarker - startMarker - 1);
+      await expect(page.locator(`#L${startMarker + 2}`)).toBeInViewport();
+      await expect(page.getByRole('link', { name: 'View on GitHub', exact: true })).toHaveAttribute('href', `${files}/lib/${file}#L${startMarker + 2}-L${endMarker}`);
+      await page.goBack();
+      // A page restored without bfcache starts with disclosures closed.
+      if (await details.getAttribute('open') === null) await details.locator('summary').click();
+    }
+    await expectNoOverflow(page);
+  });
+}
+
+test('recursive source selection includes every installed Dart file, preserves history and copies whole files', async ({ page, browserName }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/v2/source/?file=fortal/components/checkbox.dart#L1');
+  const selector = page.getByLabel('Source file', { exact: true });
+  const installed = selector.locator('optgroup[label="Installed by remix add"] option');
+  const expected = readdirSync('packages/mix_showcase/lib/fortal', { recursive: true })
+    .map(String).filter(file => file.endsWith('.dart')).map(file => `lib/fortal/${file}`).sort();
+  expect(expected).toContain('lib/fortal/components/checkbox.dart');
+  expect(expected).toContain('lib/fortal/theme/theme_data.dart');
+  expect(expected.some(file => file.endsWith('.g.dart'))).toBe(true);
+  expect((await installed.allTextContents()).sort()).toEqual(expected);
+  for (const file of ['fortal/components/checkbox.dart', 'fortal/theme/theme_data.dart', 'remix.yaml']) {
+    await selector.selectOption(file);
+    await expect(selector).toHaveValue(file);
+    expect(new URL(page.url()).searchParams.get('file')).toBe(file);
+    expect(new URL(page.url()).hash).toBe('');
+    const path = file.endsWith('.dart') ? `lib/${file}` : file;
+    const source = readFileSync(`packages/mix_showcase/${path}`, 'utf8');
+    const region = page.getByRole('region', { name: `${path} source code`, exact: true });
+    // Shiki may omit a final newline in its HTML; all source content must still match.
+    expect((await region.locator('pre').innerText()).trimEnd()).toBe(source.trimEnd());
+    await expect(page.locator('.v2-source-highlight')).toHaveCount(0);
+    if (browserName === 'chromium') {
+      await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+      await page.getByRole('button', { name: `Copy ${path}`, exact: true }).click();
+      expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(source);
+    }
+    await expectNoOverflow(page);
+  }
+  await page.goBack();
+  await expect(selector).toHaveValue('fortal/theme/theme_data.dart');
+  await page.goForward();
+  await expect(selector).toHaveValue('remix.yaml');
+});
+
+async function observedBridgeState(page: Page) {
+  return page.evaluate(() => Object.assign({}, ...(window as typeof window & { observedPatches?: Record<string, unknown>[] }).observedPatches ?? []));
+}
+
+async function lastPresetPatch(page: Page) {
+  return page.evaluate(() => (window as typeof window & { observedPatches?: Record<string, unknown>[] })
+    .observedPatches?.filter(patch => Object.hasOwn(patch, 'preset')).at(-1));
+}
+
+test.describe('live open-code presets', () => {
+  test.skip(!hasLocalShowcase, 'Build packages/mix_showcase locally to exercise the live Flutter integration.');
+
+  for (const width of [1440, 390]) {
+    test(`preset controls send string modes and survive look, Naked and feature round trips at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await page.goto('/v2/');
+      await expect(page.locator('.v2-stage')).toHaveAttribute('data-ready', 'true');
+      await observeShowcasePatches(page);
+      await page.locator('.v2-step[data-step="remix"]').click();
+      const remix = page.locator('[data-chapter="remix"]');
+      const controls = remix.getByRole('group', { name: 'Choose a component preset' });
+      await expectChapterHeadingBelowNav(page, 'remix');
+      await expect(controls).toBeInViewport();
+      for (const [name, preset, presetMode] of [
+        ['Fortal light', 'fortal', 'light'], ['Your styles', 'custom', 'light'], ['Fortal dark', 'fortal', 'dark'],
+      ]) {
+        await controls.getByRole('button', { name, exact: true }).click();
+        await expect(controls.locator('[aria-pressed="true"]')).toHaveCount(1);
+        await expect(controls.getByRole('button', { name, exact: true })).toHaveAttribute('aria-pressed', 'true');
+        await expect.poll(() => lastPresetPatch(page)).toEqual({ preset, presetMode });
+        await expect.poll(() => observedBridgeState(page)).toMatchObject({ preset, presetMode, highlight: 'today', naked: false, xray: true });
+      }
+      await page.locator('.v2-step[data-step="looks"]').click();
+      await page.getByRole('button', { name: 'Cyber', exact: true }).click();
+      await expect.poll(() => observedBridgeState(page)).toMatchObject({ look: 'cyber', preset: 'fortal', presetMode: 'dark' });
+      await page.locator('.v2-step[data-step="naked"]').click();
+      await expect.poll(() => observedBridgeState(page)).toMatchObject({ naked: true, preset: 'fortal', presetMode: 'dark' });
+      await expect(page.locator('.v2-stage-caption')).toContainText('Unstyled');
+      await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Features & code' }).click();
+      if (width === 390) await page.getByLabel('Explore a feature', { exact: true }).selectOption('open-code');
+      else await page.getByRole('group', { name: 'Choose a feature', exact: true }).getByRole('button', { name: 'Open code', exact: true }).click();
+      await page.locator('.v2-feature-panel').getByRole('link', { name: 'Try it in the showcase' }).click();
+      await expect(remix.getByRole('heading')).toBeFocused();
+      await expectChapterHeadingBelowNav(page, 'remix');
+      await expect(controls.getByRole('button', { name: 'Fortal dark', exact: true })).toHaveAttribute('aria-pressed', 'true');
+      await expect.poll(() => observedBridgeState(page)).toMatchObject({ preset: 'fortal', presetMode: 'dark', look: 'cyber', naked: false, xray: true, highlight: 'today' });
+      await expect(page.locator('flutter-view')).toHaveCount(1);
+      await expectNoOverflow(page);
+    });
+  }
+
+  for (const name of ['Fortal light', 'Fortal dark']) {
+    test(`${name} selected during startup replays at the real bridge`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      let release!: () => void;
+      const startup = new Promise<void>(resolve => { release = resolve; });
+      await page.route('**/v2-flutter/flutter_bootstrap.js', async route => { await startup; await route.continue(); });
+      const remix = page.locator('[data-chapter="remix"]');
+      try {
+        await page.goto('/v2/#v2-remix', { waitUntil: 'domcontentloaded' });
+        await remix.getByRole('button', { name, exact: true }).click();
+        await expect(remix.getByRole('button', { name, exact: true })).toHaveAttribute('aria-pressed', 'true');
+        await observeShowcasePatches(page, true);
+      } finally { release(); }
+      await expect(page.locator('.v2-stage')).toHaveAttribute('data-ready', 'true');
+      await expect.poll(() => lastPresetPatch(page)).toEqual({ preset: 'fortal', presetMode: name === 'Fortal dark' ? 'dark' : 'light' });
+      await expect.poll(() => observedBridgeState(page)).toMatchObject({ naked: false, xray: true, highlight: 'today' });
+      await expect(page.locator('flutter-view')).toHaveCount(1);
+    });
+  }
 });

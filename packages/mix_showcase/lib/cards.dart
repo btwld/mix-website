@@ -6,6 +6,7 @@ import 'package:naked_ui/naked_ui.dart';
 import 'package:remix/remix.dart';
 
 import 'app.dart';
+import 'fortal_today.dart';
 import 'invite.dart';
 import 'showcase.dart';
 import 'styles.dart';
@@ -528,6 +529,9 @@ class Today extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final showcase = ShowcaseScope.of(context);
+    if (showcase.preset == 'fortal' && !showcase.naked) {
+      return const FortalToday();
+    }
     final tasks = showcase.today;
     final done = tasks.where((task) => task.done).length;
     return Box(

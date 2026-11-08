@@ -62,6 +62,8 @@ class Showcase extends ChangeNotifier {
   bool xray = false;
   bool naked = false;
   bool phone = false;
+  String preset = 'custom';
+  bool presetDark = false;
 
   Color? accent;
   double? corner;
@@ -104,6 +106,12 @@ class Showcase extends ChangeNotifier {
     if (patch['xray'] case final bool value) xray = value;
     if (patch['naked'] case final bool value) naked = value;
     if (patch['phone'] case final bool value) phone = value;
+    if (patch['preset'] case 'custom' || 'fortal') {
+      preset = patch['preset']! as String;
+    }
+    if (patch['presetMode'] case 'light' || 'dark') {
+      presetDark = patch['presetMode'] == 'dark';
+    }
     if (patch['reduceMotion'] case final bool value) reduceMotion = value;
     if (patch.containsKey('highlight'))
       highlight = patch['highlight'] as String?;

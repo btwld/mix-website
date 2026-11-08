@@ -73,6 +73,12 @@ const FEATURES: {
     snippet: 'remix', preview: { chapter: 'remix' }, docs: { href: '/remix/docs/components/checkbox/#basic-implementation', label: 'Explore the checkbox' },
   },
   {
+    id: 'open-code', name: 'Open code', layer: 'Remix / Open code', title: 'Install the recipe. Own the source.',
+    description: 'The Remix CLI installs Fortal recipes into your app. Edit the checkbox source alongside your own code, with its registry revision pinned in remix.yaml.',
+    detail: 'Today composes the installed FortalCard, FortalCheckbox and FortalBadge. Switch between your styles and Fortal light or dark in the Remix chapter; the task state stays shared.',
+    snippet: 'fortal-today', preview: { chapter: 'remix', block: 'today' }, docs: { href: '/remix/docs/open-code/', label: 'Explore open code' },
+  },
+  {
     id: 'overlays', name: 'Overlays and feedback', layer: 'Remix / Components', title: 'From an invite to a confirmation.',
     description: 'Combine a dialog, text field, loading button, and toast in one interaction, with Mix styles for each component.',
     detail: 'Open Invite on the Team card, enter an email, and choose Send invite. The dialog closes and a toast confirms the local demo invite. Nothing is sent.',

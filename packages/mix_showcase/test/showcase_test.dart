@@ -2,9 +2,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mix_showcase/cards.dart';
+import 'package:mix_showcase/fortal/ui.dart';
+import 'package:mix_showcase/fortal_today.dart';
 import 'package:mix_showcase/main.dart';
 import 'package:mix_showcase/showcase.dart';
 import 'package:mix_showcase/tokens.dart';
+import 'package:naked_ui/naked_ui.dart';
 import 'package:remix/remix.dart';
 
 Future<void> _loadFonts() async {
@@ -104,6 +107,217 @@ void main() {
       }
     }
   }
+
+  for (final look in looks) {
+    for (final dark in [false, true]) {
+      for (final size in const [
+        Size(280, 258),
+        Size(320, 330),
+        Size(350, 330),
+        Size(350, 400),
+        Size(390, 700),
+        Size(700, 500),
+        Size(800, 620),
+        Size(800, 680),
+        Size(1100, 900),
+      ]) {
+        testWidgets('${look.id}/fortal ${dark ? "dark" : "light"} at $size', (
+          tester,
+        ) async {
+          addTearDown(tester.view.reset);
+          final showcase = Showcase()
+            ..apply({
+              'look': look.id,
+              'preset': 'fortal',
+              'presetMode': dark ? 'dark' : 'light',
+              'highlight': 'today',
+            });
+          addTearDown(showcase.dispose);
+          await _pump(tester, showcase, size);
+          expect(tester.takeException(), isNull);
+          expect(find.byType(FortalCard), findsOneWidget);
+          expect(find.byType(FortalCheckbox), findsNWidgets(3));
+          expect(find.byType(FortalBadge), findsNWidgets(3));
+          final bounds = tester.getRect(find.byType(Today));
+          expect(bounds.left, greaterThanOrEqualTo(0));
+          expect(bounds.top, greaterThanOrEqualTo(0));
+          expect(bounds.right, lessThanOrEqualTo(size.width));
+          expect(bounds.bottom, lessThanOrEqualTo(size.height));
+          for (final mode in const [
+            {'xray': true},
+            {'highlight': null},
+            {'phone': true},
+            {'naked': true, 'xray': false},
+          ]) {
+            showcase.apply(mode);
+            await tester.pump(const Duration(seconds: 1));
+            expect(tester.takeException(), isNull);
+          }
+          expect(find.byType(FortalToday), findsNothing);
+          expect(showcase.preset, 'fortal');
+          expect(showcase.presetDark, dark);
+        });
+      }
+    }
+  }
+
+  for (final mode in ['light', 'dark']) {
+    for (final size in const [
+      Size(280, 258),
+      Size(350, 330),
+      Size(1100, 900),
+    ]) {
+      testWidgets('Fortal X-ray label clears every clip: $mode at $size', (
+        tester,
+      ) async {
+        addTearDown(tester.view.reset);
+        final showcase = Showcase()
+          ..apply({
+            'preset': 'fortal',
+            'presetMode': mode,
+            'highlight': 'today',
+          });
+        addTearDown(showcase.dispose);
+        await _pump(tester, showcase, size);
+        final restingCard = tester.getRect(find.byType(FortalCard));
+        final restingCheckboxes = [
+          for (final checkbox in find.byType(FortalCheckbox).evaluate())
+            tester.getRect(find.byWidget(checkbox.widget)),
+        ];
+        showcase.apply({'xray': true});
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 1));
+        expect(tester.takeException(), isNull);
+        expect(tester.getRect(find.byType(FortalCard)), restingCard);
+        expect([
+          for (final checkbox in find.byType(FortalCheckbox).evaluate())
+            tester.getRect(find.byWidget(checkbox.widget)),
+        ], restingCheckboxes);
+
+        final label = tester.renderObject<RenderBox>(
+          find.text('RemixCheckbox'),
+        );
+        var checkedClips = 0;
+        // Walk the actual paint tree, including the host's stage clipping.
+        // A mounted Text alone does not prove that its pixels can be painted.
+        for (
+          RenderObject child = label;
+          child.parent != null;
+          child = child.parent!
+        ) {
+          final ancestor = child.parent!;
+          final clip = ancestor.describeApproximatePaintClip(child);
+          if (clip == null) continue;
+          checkedClips++;
+          final labelBounds = MatrixUtils.transformRect(
+            label.getTransformTo(ancestor),
+            label.paintBounds,
+          );
+          expect(
+            clip.inflate(0.01).intersect(labelBounds),
+            labelBounds,
+            reason:
+                '$mode at $size: $ancestor clips label $labelBounds to $clip',
+          );
+        }
+        expect(checkedClips, greaterThan(0));
+        showcase.apply({'xray': false});
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 1));
+        expect(tester.getRect(find.byType(FortalCard)), restingCard);
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
+
+  testWidgets('Fortal isolates tokens and uses the owned Geist theme edit', (
+    tester,
+  ) async {
+    addTearDown(tester.view.reset);
+    final showcase = Showcase()
+      ..apply({'preset': 'fortal', 'highlight': 'today', 'xray': true});
+    addTearDown(showcase.dispose);
+    await _pump(tester, showcase, const Size(350, 330));
+    for (final mode in ['light', 'dark', 'light']) {
+      showcase.apply({'presetMode': mode, 'look': 'cyber'});
+      await tester.pump(const Duration(seconds: 1));
+      expect(tester.takeException(), isNull);
+      final context = tester.element(find.byType(FortalCard));
+      // This fails if a showcase text/header style leaks below FortalTheme.
+      expect(() => $ink.resolve(context), throwsStateError);
+      expect(FortalTheme.of(context).isDark, mode == 'dark');
+      expect(FortalTokens.text2.resolve(context).fontFamily, 'Geist');
+      expect(find.text('RemixCheckbox'), findsOneWidget);
+    }
+  });
+
+  testWidgets('Fortal task changes round-trip through custom and Naked modes', (
+    tester,
+  ) async {
+    addTearDown(tester.view.reset);
+    final showcase = Showcase()
+      ..apply({'preset': 'fortal', 'presetMode': 'dark', 'highlight': 'today'});
+    addTearDown(showcase.dispose);
+    await _pump(tester, showcase, const Size(350, 330));
+    await tester.tap(find.byType(FortalCheckbox).at(1));
+    await tester.pump();
+    expect(showcase.today[1].done, isTrue);
+    showcase.apply({'preset': 'custom'});
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(FortalToday), findsNothing);
+    expect(
+      tester.widget<RemixCheckbox>(find.byType(RemixCheckbox).at(1)).selected,
+      isTrue,
+    );
+    await tester.tap(find.byType(RemixCheckbox).last);
+    await tester.pump();
+    showcase.apply({'preset': 'fortal', 'look': 'paper', 'naked': true});
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(FortalToday), findsNothing);
+    expect(find.byType(RemixCheckbox), findsNothing);
+    expect(find.byType(NakedCheckbox), findsNWidgets(3));
+    expect(showcase.preset, 'fortal');
+    expect(showcase.presetDark, isTrue);
+    await tester.tap(find.text(showcase.today[1].title));
+    await tester.pump();
+    showcase.apply({'naked': false});
+    await tester.pump(const Duration(seconds: 1));
+    expect(
+      tester.widget<FortalCheckbox>(find.byType(FortalCheckbox).at(1)).selected,
+      isFalse,
+    );
+    expect(
+      tester.widget<FortalCheckbox>(find.byType(FortalCheckbox).last).selected,
+      isTrue,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  test(
+    'partial and invalid patches preserve preset, mode and shared state',
+    () {
+      final showcase = Showcase()
+        ..apply({'preset': 'fortal', 'presetMode': 'dark'});
+      addTearDown(showcase.dispose);
+      final task = showcase.today.last;
+      showcase.toggle(task);
+      for (final look in looks) {
+        showcase.apply({'look': look.id});
+        expect(showcase.preset, 'fortal');
+        expect(showcase.presetDark, isTrue);
+        expect(showcase.today.last, same(task));
+        expect(task.done, isTrue);
+      }
+      showcase.apply({'preset': 'unknown', 'presetMode': 'system'});
+      expect(showcase.preset, 'fortal');
+      expect(showcase.presetDark, isTrue);
+      showcase.apply({'presetMode': 'light'});
+      expect(showcase.preset, 'fortal');
+      expect(showcase.presetDark, isFalse);
+      showcase.apply({'preset': 'custom'});
+      expect(showcase.preset, 'custom');
+    },
+  );
 
   testWidgets(
     'a pressed Naked row takes focus, then Tab and Space act on rows',
