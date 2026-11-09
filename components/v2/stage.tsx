@@ -61,22 +61,25 @@ export function useShowcase() {
   return { ready, missing, mount, send };
 }
 
-export function Stage({ mount, ready, missing }: { mount: (host: HTMLElement) => void; ready: boolean; missing: boolean }) {
+/**
+ * `hidden` keeps the running app mounted while a phone reader has moved it out
+ * of view; `inert` keeps keyboard focus out of the part they cannot see.
+ */
+export function Stage({ mount, ready, missing, hidden = false }: { mount: (host: HTMLElement) => void; ready: boolean; missing: boolean; hidden?: boolean }) {
   const host = useRef<HTMLDivElement>(null);
   useEffect(() => { if (host.current) mount(host.current); }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  return <div className="v2-stage" data-ready={ready} role="region" aria-label="Live Flutter card showcase">
+  return <div className="v2-stage" id="v2-stage" data-ready={ready} role="region" aria-label="Live Flutter card showcase" inert={hidden}>
     <div className="v2-host" ref={host} />
     {missing && <div className="v2-missing" role="status">
       <strong>The live preview couldn’t load.</strong>
       <p>You can still explore the showcase source, or try loading the interactive demo again.</p>
       <div className="v2-missing-actions"><Link href="/v2/source/">Explore the source</Link><button type="button" onClick={() => location.reload()}>Try again</button></div>
     </div>}
-    {/* The real app, captured from this build, holds the place while it starts. */}
-    <picture className="v2-poster" aria-hidden="true" hidden={missing}>
-      <source media="(max-width: 62rem)" srcSet={`${BASE}/poster-compact.png`} />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={`${BASE}/poster-wide.png`} alt="" />
-    </picture>
+    {/* Card outlines hold the place while Flutter starts. They need no image
+        from the Flutter build, which the site does not produce. */}
+    <div className="v2-poster" aria-hidden="true" hidden={missing}>
+      {['player', 'spending', 'appearance', 'today', 'team'].map(card => <i key={card} data-card={card} />)}
+    </div>
     {!ready && !missing && <p className="v2-loading" role="status">Loading interactive showcase…</p>}
   </div>;
 }

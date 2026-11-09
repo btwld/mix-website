@@ -14,9 +14,14 @@ function Excerpt({ entry }: { entry: ShowcaseCode[string] }) {
   }, [status]);
 
   return <figure>
-    <figcaption><span>App excerpt from {entry.parts.map((part, index) => <span key={`${part.file}:${part.start}`}>
-      {index > 0 && ' · '}<Link href={`/v2/source/?file=${part.file}#L${part.start}-L${part.end}`}>{part.file}, lines {part.start}–{part.end}</Link>
-    </span>)}</span><button type="button" aria-label="Copy Dart excerpt" onClick={async () => {
+    <figcaption><span>App excerpt from {entry.parts.map((part, index) => {
+      // Segments of one file read as one list of ranges: tokens.dart, lines 8–9, 270–272.
+      const continues = index > 0 && entry.parts[index - 1].file === part.file;
+      const lines = part.start === part.end ? `${part.start}` : `${part.start}–${part.end}`;
+      return <span key={`${part.file}:${part.start}`}>
+        {index > 0 && (continues ? ', ' : ' · ')}<Link href={`/v2/source/?file=${part.file}#L${part.start}-L${part.end}`}>{continues ? lines : `${part.file}, ${part.start === part.end ? 'line' : 'lines'} ${lines}`}</Link>
+      </span>;
+    })}</span><button type="button" aria-label="Copy Dart excerpt" onClick={async () => {
       try { await navigator.clipboard.writeText(entry.raw); setStatus('copied'); }
       catch { setStatus('error'); }
     }}>{status === 'copied' ? <Check /> : <Copy />}</button></figcaption>

@@ -69,14 +69,55 @@ export async function showcasePackage(): Promise<ShowcasePackage> {
   return { libraries, dart, flutter, cli: { version: cliVersion, command: `flutter pub add --dev remix_cli:${cliVersion}` }, requirements: `Requires ${flutter} (${dart}).`, registry: { revision, url: `https://github.com/${repository}/tree/${revision}/registry` }, github: { package: `${REPOSITORY}/tree/${reference}`, files: `${REPOSITORY}/blob/${reference}`, pinned: commit !== null && !dirty, reference: commit ?? 'main', dirty } };
 }
 
+const marker = (line: string) => line.trim().startsWith('// #');
+const indentOf = (line: string) => line.match(/^ */)![0].length;
+
+/**
+ * A region may reopen with the same name, as in Dart's code excerpter. The
+ * skipped source between its segments is shown as `// ···` at the indentation
+ * of the first omitted line, and each segment keeps its own exact line range.
+ */
 function region(file: string, name: string, source: string) {
   const lines = source.split('\n');
-  const start = lines.findIndex(line => line.trim() === `// #docregion ${name}`);
-  const end = lines.findIndex((line, index) => index > start && line.trim() === `// #enddocregion ${name}`);
-  if (start < 0 || end < start) throw new Error(`Missing docregion ${name} in ${file}`);
-  const body = lines.slice(start + 1, end).flatMap((line, index) => line.trim().startsWith('// #') ? [] : [{ text: line, line: start + index + 2 }]);
-  const indent = Math.min(...body.filter(line => line.text.trim()).map(line => line.text.match(/^ */)![0].length));
-  return { file, start: body[0].line, end: body.at(-1)!.line, raw: body.map(line => line.text.slice(indent)).join('\n') };
+  const segments: { text: string; line: number }[][] = [];
+  const omitted: number[] = [];
+  let from = 0;
+  for (;;) {
+    const start = lines.findIndex((line, index) => index >= from && line.trim() === `// #docregion ${name}`);
+    if (start < 0) break;
+    const end = lines.findIndex((line, index) => index > start && line.trim() === `// #enddocregion ${name}`);
+    if (end < 0) throw new Error(`Unclosed docregion ${name} in ${file}`);
+    const body = lines.slice(start + 1, end).flatMap((line, index) => marker(line) ? [] : [{ text: line, line: start + index + 2 }]);
+    if (!body.length) throw new Error(`Empty docregion ${name} in ${file}`);
+    segments.push(body);
+    omitted.push(indentOf(lines.slice(end + 1).find(line => line.trim() && !marker(line)) ?? ''));
+    from = end + 1;
+  }
+  if (!segments.length) throw new Error(`Missing docregion ${name} in ${file}`);
+  const indent = Math.min(...segments.flat().filter(line => line.text.trim()).map(line => indentOf(line.text)));
+  const raw = segments.map((body, index) => [
+    ...(index > 0 ? [`${' '.repeat(Math.max(0, omitted[index - 1] - indent))}// ···`] : []),
+    ...body.map(line => line.text.slice(indent)),
+  ].join('\n')).join('\n');
+  return { file, ranges: segments.map(body => ({ file, start: body[0].line, end: body.at(-1)!.line })), raw };
+}
+
+function directives(file: string, source: string, kind: 'import' | 'export') {
+  const uncommented = source.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, '');
+  return [...uncommented.matchAll(new RegExp(`^${kind}\\s+'(package:mix_showcase/)?([^':]+\\.dart)'`, 'gm'))]
+    .map(match => path.posix.normalize(match[1] ? match[2] : path.posix.join(path.posix.dirname(file), match[2])));
+}
+
+/** Dart has no global scope: a file sees itself, its relative imports and what they export. */
+function visibleFiles(file: string, sources: Record<string, string>) {
+  const visible = new Set([file]);
+  const add = (target: string) => {
+    if (visible.has(target) || !(target in sources)) return;
+    visible.add(target);
+    directives(target, sources[target], 'export').forEach(add);
+  };
+  directives(file, sources[file], 'import').forEach(add);
+  return visible;
 }
 
 function identifiers(source: string) {
@@ -101,19 +142,22 @@ function declarations(file: string, source: string): SourceDefinition[] {
   return definitions;
 }
 
-function uses(parts: (SourcePart & { raw: string })[], definitions: SourceDefinition[]): SourceUses[] {
+type Region = ReturnType<typeof region>;
+
+function uses(parts: Region[], definitions: SourceDefinition[], sources: Record<string, string>): SourceUses[] {
   const groups = new Map<string, SourceDefinition[]>();
-  const own = new Set(definitions.filter(definition => parts.some(part => part.file === definition.file && definition.line >= part.start && definition.line <= part.end)).map(definition => definition.name));
+  const own = new Set(definitions.filter(definition => parts.some(part => part.ranges.some(range => range.file === definition.file && definition.line >= range.start && definition.line <= range.end))).map(definition => definition.name));
   // Local declarations must not link to an unrelated top-level name.
   for (const part of parts) for (const match of identifiers(part.raw).matchAll(/\b(?:final|const|var)\s+(?:[\w$<>?, ]+\s+)?([\w$]+)\s*=/g)) own.add(match[1]);
   const seen = new Set<string>();
   for (const part of parts) {
     const source = identifiers(part.raw);
+    const visible = visibleFiles(part.file, sources);
     for (const match of source.matchAll(/[\w$]+/g)) {
       const name = match[0];
       if (own.has(name) || seen.has(name) || /[\w$.]/.test(source[match.index - 1] ?? '') || /^\s*:/.test(source.slice(match.index + name.length)) && !name.startsWith('$')) continue;
       const definition = definitions.find(item => item.name === name && item.file === part.file)
-        ?? definitions.find(item => item.name === name && !name.startsWith('_'));
+        ?? definitions.find(item => item.name === name && !name.startsWith('_') && visible.has(item.file));
       if (!definition) continue;
       seen.add(name);
       const group = groups.get(definition.file) ?? [];
@@ -129,9 +173,11 @@ export async function showcaseCode(): Promise<ShowcaseCode> {
   const sources = Object.fromEntries(await Promise.all(files.map(async file => [file, await readFile(path.join(SOURCE, file), 'utf8')])));
   const definitions = files.flatMap(file => declarations(file, sources[file]));
   const entries: [string, [string, string][]][] = [
+    // The first token loop uses only built-in ColorTokens; token-app is the complete setup.
     ['token-declare', [['tokens.dart', 'token-declare']]],
-    ...['midnight', 'paper', 'pop', 'cyber'].map(look => [`token-provide-${look}`, [['tokens.dart', `look-${look}`], ['tokens.dart', 'look-scope']]] as [string, [string, string][]]),
-    ['token-use', [['styles.dart', 'card-style'], ['styles.dart', 'card-padding'], ['cards.dart', 'card-consumer']]],
+    ...['midnight', 'paper', 'pop', 'cyber'].map(look => [`token-provide-${look}`, [['tokens.dart', `look-${look}`], ['tokens.dart', 'look-colors']]] as [string, [string, string][]]),
+    ['token-use', [['styles.dart', 'canvas-style'], ['app.dart', 'canvas-consumer']]],
+    ['token-app', [['tokens.dart', 'token-all'], ['tokens.dart', 'look-scope'], ['styles.dart', 'card-style'], ['styles.dart', 'card-padding'], ['cards.dart', 'card-consumer']]],
     ['states', [['styles.dart', 'list-row'], ['cards.dart', 'pressable-row']]],
     ['adapt', [['styles.dart', 'card-padding'], ['cards.dart', 'responsive-deck']]],
     ['naked', [['cards.dart', 'naked-row']]],
@@ -148,7 +194,7 @@ export async function showcaseCode(): Promise<ShowcaseCode> {
   ];
   return Object.fromEntries(await Promise.all(entries.map(async ([key, regions]) => {
     const parts = regions.map(([file, name]) => region(file, name, sources[file]));
-    const raw = parts.map((part, index) => /^look-(midnight|paper|pop|cyber)$/.test(regions[index][1]) ? `${part.raw}\n  // Other look values are omitted here.\n);` : part.raw).join('\n\n');
-    return [key, { html: await codeToHtml(raw, { lang: 'dart', theme: DARK_CODE_THEME }), raw, parts: parts.map(({ file, start, end }) => ({ file, start, end })), uses: uses(parts, definitions) }];
+    const raw = parts.map(part => part.raw).join('\n\n');
+    return [key, { html: await codeToHtml(raw, { lang: 'dart', theme: DARK_CODE_THEME }), raw, parts: parts.flatMap(part => part.ranges), uses: uses(parts, definitions, sources) }];
   })));
 }

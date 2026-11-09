@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { ArrowRight } from '@/components/landing/icons';
 import type { ShowcaseCode } from '@/lib/showcase-source';
 import { CodeExample } from './code-example';
@@ -111,6 +112,10 @@ export const FEATURES: Feature[] = [
 
 /** The directory opens lessons in the tour; it does not create a second story. */
 export function Features({ onPreview }: { onPreview: (preview: FeaturePreview) => void }) {
+  // These actions need the tour's handlers and refs, not Flutter itself.
+  // Do not offer an enabled SSR button whose first click can be lost.
+  const [interactive, setInteractive] = useState(false);
+  useEffect(() => setInteractive(true), []);
   return <section className="v2-features" id="v2-features" aria-labelledby="v2-features-title">
     <div className="v2-features-intro">
       <div><p className="v2-tag">Features &amp; code</p><h2 id="v2-features-title">Go straight to the code.</h2></div>
@@ -119,7 +124,7 @@ export function Features({ onPreview }: { onPreview: (preview: FeaturePreview) =
     <div className="v2-feature-index" role="group" aria-label="Choose a feature">
       {(['Mix', 'Remix', 'Naked UI'] as const).map(library => <div className="v2-feature-index-group" key={library}>
         <h3>{library}</h3>
-        <div>{FEATURES.filter(feature => feature.library === library).map(feature => <button type="button" key={feature.id}
+        <div>{FEATURES.filter(feature => feature.library === library).map(feature => <button type="button" key={feature.id} disabled={!interactive}
           title={feature.description} onClick={() => onPreview({ ...feature.preview, feature: feature.id })}>
           {feature.name}<ArrowRight />
         </button>)}</div>

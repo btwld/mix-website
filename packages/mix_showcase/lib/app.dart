@@ -57,7 +57,13 @@ class ShowcaseView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      Box(style: canvasStyle, child: const CardDeck());
+      // #docregion canvas-consumer
+      Box(
+        style: canvasStyle,
+        // The child tree stays the same.
+        child: const CardDeck(),
+      );
+  // #enddocregion canvas-consumer
 }
 
 /// Outlines a Remix widget and names it while the X-ray chapter is active.

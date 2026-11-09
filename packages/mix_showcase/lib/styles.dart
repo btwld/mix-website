@@ -15,7 +15,12 @@ TextStyler text(TextStyleToken style, [ColorToken color = $ink]) =>
 
 TextStyler oneLine(TextStyler style) => style.maxLines(1).overflow(.ellipsis);
 
-final canvasStyle = BoxStyler().color($canvas()).animate(motion);
+// #docregion canvas-style
+final canvasStyle = BoxStyler()
+    // Resolve the scoped color.
+    .color($canvas())
+    .animate(motion);
+// #enddocregion canvas-style
 
 // #docregion card-style
 final cardStyle = BoxStyler()

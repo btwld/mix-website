@@ -4,9 +4,11 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/widgets.dart';
 import 'package:remix/remix.dart';
 
+// #docregion token-all
 // #docregion token-declare
 const $canvas = ColorToken('canvas');
 const $surface = ColorToken('surface');
+// #enddocregion token-declare
 const $raised = ColorToken('raised');
 const $line = ColorToken('line');
 const $ink = ColorToken('ink');
@@ -17,7 +19,7 @@ const $art = ColorToken('art');
 
 const $cardShape = ShapeToken('card');
 const $lift = LiftToken('lift');
-// #enddocregion token-declare
+// #enddocregion token-all
 
 /// Mix tokens can hold any value, so a shape is a token like a color. A look
 /// can change every corner in the app without touching a widget.
@@ -240,13 +242,13 @@ class Look {
 
 // #docregion look-midnight
 const midnight = Look(
+  canvas: Color(0xFF0D0B14),
   surface: Color(0xFF15121F),
+  // #enddocregion look-midnight
   accent: Color(0xFF8B5CF6),
   ink: Color(0xFFF4F2FA),
   card: 16,
   displayFont: 'Geist',
-  canvas: Color(0xFF0D0B14),
-  // #enddocregion look-midnight
   control: 10,
   stroke: 1,
   id: 'midnight',
@@ -262,17 +264,19 @@ const midnight = Look(
     offset: Offset(0, 16),
   ),
   bodyFont: 'Geist',
+  // #docregion look-midnight
 );
+// #enddocregion look-midnight
 
 // #docregion look-paper
 const paper = Look(
+  canvas: Color(0xFFF3EDE1),
   surface: Color(0xFFFBF8F1),
+  // #enddocregion look-paper
   accent: Color(0xFFB03A23),
   ink: Color(0xFF1F1B14),
   card: 3,
   displayFont: 'AbrilFatface',
-  canvas: Color(0xFFF3EDE1),
-  // #enddocregion look-paper
   control: 2,
   stroke: 1,
   id: 'paper',
@@ -285,17 +289,19 @@ const paper = Look(
   bodyFont: 'LibreFranklin',
   displayWeight: FontWeight.w400,
   displayTracking: 0,
+  // #docregion look-paper
 );
+// #enddocregion look-paper
 
 // #docregion look-pop
 const pop = Look(
+  canvas: Color(0xFFFFD83D),
   surface: Color(0xFFFFFFFF),
+  // #enddocregion look-pop
   accent: Color(0xFF2540FF),
   ink: Color(0xFF111111),
   card: 0,
   displayFont: 'Montserrat',
-  canvas: Color(0xFFFFD83D),
-  // #enddocregion look-pop
   control: 0,
   stroke: 2.5,
   id: 'pop',
@@ -309,17 +315,19 @@ const pop = Look(
   bodyFont: 'Montserrat',
   displayWeight: FontWeight.w700,
   displayTracking: -0.4,
+  // #docregion look-pop
 );
+// #enddocregion look-pop
 
 // #docregion look-cyber
 const cyber = Look(
+  canvas: Color(0xFF04120B),
   surface: Color(0xFF071B11),
+  // #enddocregion look-cyber
   accent: Color(0xFF2BFF88),
   ink: Color(0xFFBDF8D3),
   card: 20,
   displayFont: 'GeistMono',
-  canvas: Color(0xFF04120B),
-  // #enddocregion look-cyber
   control: 8,
   stroke: 1,
   cut: true,
@@ -334,7 +342,9 @@ const cyber = Look(
   bodyFont: 'GeistMono',
   displayWeight: FontWeight.w500,
   displayTracking: -0.8,
+  // #docregion look-cyber
 );
+// #enddocregion look-cyber
 
 /// The look behind the behavior chapter: outlines and a mono face only.
 const bare = Look(
@@ -378,10 +388,12 @@ Widget lookScope(
   required Widget child,
 }) {
   final tint = accent ?? look.accent;
+  // #docregion look-colors
   return MixScope(
     colors: {
       $canvas: look.canvas,
       $surface: look.surface,
+      // #enddocregion look-colors
       $raised: look.raised,
       $line: look.line,
       $ink: look.ink,
@@ -389,11 +401,15 @@ Widget lookScope(
       $accent: tint,
       $onAccent: look.onAccent,
       $art: look.art,
+      // #docregion look-colors
     },
+    // #enddocregion look-colors
     textStyles: _typeScale(look),
     tokens: _shapeTokens(look, tint: tint, corner: corner, flat: flat),
+    // #docregion look-colors
     child: child,
   );
+  // #enddocregion look-colors
 }
 // #enddocregion look-scope
 

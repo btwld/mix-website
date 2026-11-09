@@ -63,6 +63,26 @@ const STEPS: { id: Chapter; group: string; name: string; short: string }[] = [
   { id: 'blocks', group: 'Examples', name: 'Explore the cards', short: 'Examples' },
 ];
 
+const COMPACT = '(max-width: 62rem)';
+
+/** Phones and tablets pin the demo above the reading column unless the screen is short. */
+function pinsStage() {
+  return matchMedia(COMPACT).matches && innerHeight > 600;
+}
+
+/** Where the pinned demo rests, from its real sticky offset and height. */
+function pinnedBottom(column: HTMLElement | null | undefined) {
+  if (!column) return 0;
+  const top = parseFloat(getComputedStyle(column).top);
+  return (Number.isFinite(top) ? top : 0) + column.getBoundingClientRect().height;
+}
+
+/** The line a chapter crosses to become active: just below the visible demo on phones. */
+function readingLine(column: HTMLElement | null | undefined) {
+  if (!pinsStage()) return innerHeight * .5;
+  return Math.min(innerHeight - 40, (column?.getBoundingClientRect().bottom ?? 0) + 64);
+}
+
 function stateFor(chapter: Chapter, block: string, motion: MotionMode, compact: boolean, focus: string | null) {
   const base: Record<string, unknown> = { xray: false, naked: false, phone: false, highlight: null };
   switch (chapter) {
@@ -87,6 +107,19 @@ function Section({ id, active, tag, title, doc, children }: {
       <Link className="v2-link" href={doc.href}>{doc.label} <ArrowRight /></Link>
     </div>
   </section>;
+}
+
+/** A prerelease pin, such as 1.0.0-beta.17, is read as maturity without naming the beta. */
+function Library({ role, version }: { role: string; version: string }) {
+  return <p className="v2-library-role">{role} · <span className="v2-maturity">{version.includes('-') ? 'Prerelease' : 'Stable release'}</span></p>;
+}
+
+/** Shown on phones while code is open, or while the demo is out of view. */
+function PreviewToggle({ hidden, visible, onToggle }: { hidden: boolean; visible: boolean; onToggle: () => void }) {
+  if (!visible && !hidden) return null;
+  return <button className="v2-preview-toggle" type="button" aria-controls="v2-stage" aria-expanded={!hidden} onClick={onToggle}>
+    {hidden ? 'Show preview' : 'Hide preview'}
+  </button>;
 }
 
 function Steps({ active, onStep }: { active: Chapter; onStep: (chapter: Chapter) => void }) {
@@ -118,10 +151,81 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
   const root = useRef<HTMLDivElement>(null);
   const picked = useRef(false);
   const { ready, missing, mount, send } = useShowcase();
+  // On phones, reading code moves the pinned demo up out of view. It stays
+  // mounted and keeps its state; the reader can bring it back at any time.
+  const [previewHidden, setPreviewHidden] = useState(false);
+  const [codeOpen, setCodeOpen] = useState(false);
+  const hidden = useRef(false);
+  // What stays in place when the demo moves: the line below it, or an element.
+  const previewShift = useRef<{ below: number } | { element: Element } | null>(null);
+  const column = () => root.current?.querySelector<HTMLElement>('.v2-stage-column');
+
+  // By default, keep the first line the reader was looking at directly below the demo.
+  const showPreview = useCallback((show: boolean, keep: 'reading' | 'nothing' | Element = 'reading') => {
+    if (hidden.current === !show) return;
+    hidden.current = !show;
+    previewShift.current = !pinsStage() || keep === 'nothing' ? null
+      : keep === 'reading' ? { below: column()?.getBoundingClientRect().bottom ?? 0 } : { element: keep };
+    setPreviewHidden(!show);
+  }, []);
+
+  // Measure against where the demo rests once pinned. Near the top of Looks it
+  // has not pinned yet, so hiding must also scroll it out of view.
+  useLayoutEffect(() => {
+    const shift = previewShift.current;
+    previewShift.current = null;
+    if (!shift) return;
+    const after = pinnedBottom(column());
+    const distance = 'below' in shift ? shift.below - after : shift.element.getBoundingClientRect().top - after - 12;
+    if (Math.abs(distance) > 1) scrollBy({ top: distance, behavior: 'instant' });
+  }, [previewHidden]);
+
+  // Opening code on a phone moves the demo out of the way and brings that code
+  // to the top; closing it brings the demo back. Topic and chapter jumps show
+  // the demo through goTo instead.
+  useEffect(() => {
+    const rail = root.current?.querySelector('.v2-rail');
+    if (!rail) return;
+    const onClick = (event: Event) => {
+      const summary = (event.target as Element).closest('summary');
+      const details = summary?.parentElement;
+      if (!(details instanceof HTMLDetailsElement) || !details.classList.contains('v2-code') || !pinsStage()) return;
+      if (details.open) showPreview(true);
+      else showPreview(false, summary!);
+    };
+    rail.addEventListener('click', onClick, true);
+    return () => rail.removeEventListener('click', onClick, true);
+  }, [showPreview]);
+
+  // The toggle is offered while the active chapter has code open.
+  useEffect(() => {
+    const rail = root.current?.querySelector('.v2-rail');
+    if (!rail) return;
+    const update = () => setCodeOpen(Boolean(rail.querySelector(`[data-chapter="${active}"] details.v2-code[open]`)));
+    update();
+    rail.addEventListener('toggle', update, true);
+    return () => rail.removeEventListener('toggle', update, true);
+  }, [active]);
+
+  // The demo must not stay hidden, and inert, where it is visible anyway: on a
+  // screen that does not pin it, or above the point where it pins.
+  useEffect(() => {
+    if (!previewHidden) return;
+    const restore = () => {
+      const top = column()?.getBoundingClientRect().top ?? 0;
+      const navigation = document.querySelector('.v2-nav')?.getBoundingClientRect().bottom ?? 0;
+      if (!pinsStage() || top >= navigation) showPreview(true, 'nothing');
+    };
+    addEventListener('resize', restore);
+    addEventListener('scroll', restore, { passive: true });
+    return () => { removeEventListener('resize', restore); removeEventListener('scroll', restore); };
+  }, [previewHidden, showPreview]);
 
   const goTo = useCallback((chapter: Chapter, focus?: string, feature?: string, focusHeading = false) => {
     const target = root.current?.querySelector<HTMLElement>(`[data-chapter="${chapter}"]`);
     if (!target) return;
+    // A chapter or topic jump is a request to see that demo state.
+    showPreview(true, 'nothing');
     setChapterFocus(focus ? { chapter, block: focus } : null);
     setLesson(feature ? { id: feature, chapter, request: ++lessonRequest.current } : null);
     setActive(chapter);
@@ -129,7 +233,7 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
     // Explicit navigation can reselect the active chapter after browsing Features.
     const hash = chapter === 'hero' ? '' : `#v2-${chapter}`;
     if (location.hash !== hash) history.replaceState(history.state, '', `${location.pathname}${location.search}${hash}`);
-  }, []);
+  }, [showPreview]);
 
   // Focus after the expanded lesson commits, then measure in the next frame.
   // In WebKit, scrolling during that layout can be undone by native scroll
@@ -141,9 +245,9 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
     if (!target) return;
     if (focusHeading) target.querySelector<HTMLElement>('h2')?.focus({ preventScroll: true });
     const frame = requestAnimationFrame(() => {
-      const compact = matchMedia('(max-width: 62rem)').matches;
-      const stage = root.current?.querySelector('.v2-stage-column')?.getBoundingClientRect();
-      const offset = chapter === 'hero' ? 0 : compact ? innerHeight <= 600 ? 88 : (stage?.height ?? 0) + 88 : chapter === 'looks' ? 116 : Math.max(116, innerHeight / 2 - target.offsetHeight / 2);
+      const compact = matchMedia(COMPACT).matches;
+      // Land below where the demo rests once pinned, not where it is right now.
+      const offset = chapter === 'hero' ? 0 : compact ? pinsStage() ? pinnedBottom(column()) + 20 : 88 : chapter === 'looks' ? 116 : Math.max(116, innerHeight / 2 - target.offsetHeight / 2);
       scrollTo({ top: Math.max(0, scrollY + target.getBoundingClientRect().top - offset), behavior: 'instant' });
     });
     return () => cancelAnimationFrame(frame);
@@ -155,9 +259,7 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
     let frame = 0;
     const update = () => {
       frame = 0;
-      const compact = matchMedia('(max-width: 62rem)').matches;
-      const stage = root.current?.querySelector('.v2-stage-column')?.getBoundingClientRect();
-      const line = compact && innerHeight > 600 ? Math.min(innerHeight - 40, (stage?.bottom ?? 0) + 64) : innerHeight * .5;
+      const line = readingLine(column());
       const chapters = [...(root.current?.querySelectorAll<HTMLElement>('[data-chapter]') ?? [])].filter(item => item.offsetHeight > 0);
       let next: Chapter = 'hero';
       for (const chapter of chapters) if (chapter.getBoundingClientRect().top <= line) next = chapter.dataset.chapter as Chapter;
@@ -215,7 +317,11 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
     const follow = () => {
       if (picked.current || media.matches) return;
       const { top, height } = chapter.getBoundingClientRect();
-      const progress = Math.min(.999, Math.max(0, (120 - top) / Math.max(1, height - innerHeight)));
+      // Desktop holds the chapter while its long scroll cycles the looks. Phones
+      // size it to its content and cycle while that content passes the reading line.
+      const progress = Math.min(.999, Math.max(0, matchMedia(COMPACT).matches
+        ? (readingLine(column()) - top) / Math.max(1, height)
+        : (120 - top) / Math.max(1, height - innerHeight)));
       const next = TOUR_LOOKS[Math.floor(progress * TOUR_LOOKS.length)];
       setLook(next);
     };
@@ -241,7 +347,7 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
   const guideFor = (id: string) => FEATURES.find(item => item.id === id)!.docs;
   const remixLesson = lessonFor('remix', preset.preset === 'custom' ? 'remix' : 'open-code');
 
-  return <div className="lx project-mix v2" data-layer={LAYER[active]} ref={root} id="v2-content">
+  return <div className="lx project-mix v2" data-layer={LAYER[active]} data-preview={previewHidden ? 'hidden' : 'shown'} ref={root} id="v2-content">
     <div className="v2-tour">
       <header className="v2-hero" data-chapter="hero">
         <h1>Flutter UI,<br />your way.</h1>
@@ -261,15 +367,18 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
 
       <div className="v2-stage-column">
         <div className="v2-stage-caption"><span>{chapter ? `${chapter.group} / ${chapter.name}` : 'Live Flutter · Demo data'}</span><span>{active === 'naked' ? 'Bare rendering' : active === 'remix' && preset.preset === 'fortal' ? `${preset.name} · Today` : LOOKS.find(item => item.id === look)?.name}</span></div>
-        <Stage mount={mount} ready={ready} missing={missing} />
-        <Steps active={active} onStep={goTo} />
+        <Stage mount={mount} ready={ready} missing={missing} hidden={previewHidden} />
+        <div className="v2-stage-bar">
+          <Steps active={active} onStep={goTo} />
+          <PreviewToggle hidden={previewHidden} visible={codeOpen} onToggle={() => showPreview(previewHidden)} />
+        </div>
       </div>
 
       <div className="v2-rail">
         <Section id="looks" active={active} doc={guideFor(lessonFor('looks', 'tokens'))} tag="01 / Style with Mix" title="Start with your design.">
           <p>Each look gives the same tokens new values. Color, type, shape, and depth change together; the widgets stay the same.</p>
           <div className="v2-chips" role="group" aria-label="Choose a look">
-            {LOOKS.map(item => <button key={item.id} type="button" aria-pressed={look === item.id} onClick={() => chooseLook(item.id)}>
+            {LOOKS.map(item => <button key={item.id} type="button" aria-pressed={look === item.id} onClick={event => { chooseLook(item.id); showPreview(true, event.currentTarget); }}>
               <span className="v2-swatch" style={{ background: `linear-gradient(135deg, ${item.swatch[0]} 50%, ${item.swatch[1]} 50%)` }} />{item.name}
             </button>)}
           </div>
@@ -288,12 +397,12 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
         </Section>
         <Section id="motion" active={active} doc={{ href: motionDocs[motion], label: 'Animation guide' }} tag="Mix / Animation" title="Show what changed.">
           <div className="v2-motion-options" role="group" aria-label="Choose an animation">
-            {MOTION.map(item => <button type="button" key={item.id} aria-pressed={motion === item.id} aria-controls="v2-motion-example" onClick={() => setMotion(item.id)}>{item.name}</button>)}
+            {MOTION.map(item => <button type="button" key={item.id} aria-pressed={motion === item.id} aria-controls="v2-motion-example" onClick={event => { setMotion(item.id); showPreview(true, event.currentTarget); }}>{item.name}</button>)}
           </div>
           <div id="v2-motion-example">
             <p>{motionExample.description}</p>
             {motion === 'transitions' && <div className="v2-motion-looks" role="group" aria-label="Change the animated look">
-              {LOOKS.map(item => <button type="button" key={item.id} aria-label={`Animate to ${item.name}`} aria-pressed={look === item.id} onClick={() => chooseLook(item.id)}><span className="v2-swatch" style={{ background: `linear-gradient(135deg, ${item.swatch[0]} 50%, ${item.swatch[1]} 50%)` }} />{item.name}</button>)}
+              {LOOKS.map(item => <button type="button" key={item.id} aria-label={`Animate to ${item.name}`} aria-pressed={look === item.id} onClick={event => { chooseLook(item.id); showPreview(true, event.currentTarget); }}><span className="v2-swatch" style={{ background: `linear-gradient(135deg, ${item.swatch[0]} 50%, ${item.swatch[1]} 50%)` }} />{item.name}</button>)}
             </div>}
             <FeatureLesson key={lessonKey('motion')} id={motion} code={code} open={lesson?.chapter === 'motion'} />
           </div>
@@ -359,7 +468,7 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
         <Section id="blocks" active={active} doc={{ href: '/v2/source/', label: 'Explore the showcase source' }} tag="The interface, together" title="Explore the parts.">
           <p>Inspect any card from the same interface. Each one shares the design tokens and local state you just explored.</p>
           <div className="v2-blocks" role="group" aria-label="Choose an example">
-            {BLOCKS.map(item => <button key={item.id} type="button" aria-pressed={block === item.id} onClick={() => setBlock(item.id)}>
+            {BLOCKS.map(item => <button key={item.id} type="button" aria-pressed={block === item.id} onClick={event => { setBlock(item.id); showPreview(true, event.currentTarget); }}>
               <span><strong>{item.name}</strong><span>{item.note}</span></span><ArrowRight />
             </button>)}
           </div>
@@ -373,19 +482,21 @@ export function Tour({ code, packages }: { code: ShowcaseCode; packages: Showcas
       <div className="v2-end-intro"><h2 id="v2-start">Take it into your app.</h2><p>Start with the layer you need: Mix for styling, Remix for components, or Naked UI for behavior.</p><p>{packages.requirements}</p></div>
       <div className="v2-end-grid">
         <article>
-          <p className="v2-library-role">Styling</p><h3>Mix</h3><p>Tokens, variants, and animation.<br />One expressive styling language.</p>
+          <Library role="Styling" version={packages.libraries.mix.version} /><h3>Mix</h3><p>Tokens, variants, and animation.<br />One expressive styling language.</p>
           <CopyCommand command={packages.libraries.mix.command} />
           <Link className="v2-link" href="/mix/docs/overview/getting-started/#installation">Start with Mix <ArrowRight /></Link>
         </article>
         <article>
-          <p className="v2-library-role">Components</p><h3>Remix</h3><p>Remix brings Mix and Naked UI with it.<br />Style the components your way.</p>
+          <Library role="Components" version={packages.libraries.remix.version} /><h3>Remix</h3><p>Remix brings Mix and Naked UI with it.<br />Style the components your way.</p>
           <CopyCommand command={packages.libraries.remix.command} />
-          <Link className="v2-link" href="/remix/docs/components/checkbox/#basic-implementation">Remix component guide <ArrowRight /></Link>
+          <Link className="v2-link" href="/remix/docs/getting-started/#your-first-component">Start with Remix <ArrowRight /></Link>
+          <p className="v2-end-example">Example: <Link href="/remix/docs/components/checkbox/#basic-implementation">Remix checkbox</Link></p>
         </article>
         <article>
-          <p className="v2-library-role">Behavior</p><h3>Naked UI</h3><p>Headless, interactive primitives.<br />Your widgets. Your visual choices.</p>
+          <Library role="Behavior" version={packages.libraries.naked_ui.version} /><h3>Naked UI</h3><p>Headless, interactive primitives.<br />Your widgets. Your visual choices.</p>
           <CopyCommand command={packages.libraries.naked_ui.command} />
-          <Link className="v2-link" href="/naked-ui/docs/widget/checkbox/#basic-implementation">Naked UI component guide <ArrowRight /></Link>
+          <Link className="v2-link" href="/naked-ui/docs/#basic-implementation">Start with Naked UI <ArrowRight /></Link>
+          <p className="v2-end-example">Example: <Link href="/naked-ui/docs/widget/checkbox/#basic-implementation">NakedCheckbox</Link></p>
         </article>
       </div>
       <p className="v2-features-source"><Link href="/v2/source/?file=pubspec.yaml">Run this showcase locally <ArrowRight /></Link></p>

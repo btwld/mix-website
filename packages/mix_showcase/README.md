@@ -74,6 +74,6 @@ pnpm start --port 3200
 ```
 
 Then open <http://127.0.0.1:3200/v2/>. `public/v2-flutter` is ignored build output.
-Browser tests skip their live cases when it is missing. This build does not produce
-the stage's loading posters (`poster-wide.png`, `poster-compact.png`), so the stage
-stays empty until Flutter starts unless they are captured separately.
+Browser tests skip their live cases when it is missing. While Flutter starts, the
+stage draws card outlines in CSS. It requests no loading image, so replacing this
+directory with a fresh build cannot leave a broken poster behind.

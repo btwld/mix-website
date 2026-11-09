@@ -88,6 +88,14 @@ test('showcase navigation is server-rendered and works on a narrow phone without
   await page.getByLabel('Documentation', { exact: true }).click();
   await expect(page.locator('.v2-docs-panel a')).toHaveCount(3);
   await expect(page.locator('.v2-docs-panel')).toBeVisible();
+  // Topics need the website's handlers. Before hydration they must not offer
+  // an enabled action that drops its first click; native source navigation stays available.
+  const topics = page.getByRole('group', { name: 'Choose a feature', exact: true }).getByRole('button');
+  await expect(topics).toHaveCount(12);
+  for (const topic of await topics.all()) await expect(topic).toBeDisabled();
+  await page.getByLabel('Documentation', { exact: true }).click();
+  await page.getByRole('link', { name: 'Browse the complete project and setup' }).click();
+  await expect(page.getByRole('heading', { name: 'Behind the cards.' })).toBeVisible();
   await expectNoOverflow(page);
   await context.close();
 });
@@ -261,34 +269,146 @@ for (const width of [1440, 390]) {
       })).toBe(true);
     }
     const steps = panel.getByRole('group', { name: 'Token steps' });
-    await expect(panel.locator('pre')).toContainText("const $canvas = ColorToken('canvas');");
-    await expect(panel.locator('pre')).toContainText('const $cardShape = ShapeToken');
-    await expect(panel.locator('pre')).toContainText('const $lift = LiftToken');
+    // The runnable starter is offered before the excerpts, not after them.
+    const starter = panel.getByRole('link', { name: 'Run the token starter' });
+    await expect(starter).toBeVisible();
+    expect(await starter.evaluate(link => link.compareDocumentPosition(document.getElementById('v2-token-code')!) & Node.DOCUMENT_POSITION_FOLLOWING)).toBeTruthy();
+    // The first loop uses built-in color tokens only; app adapters wait one level deeper.
+    const lesson = panel.locator('#v2-token-code');
+    await expect(lesson.locator('pre')).toHaveText(/^const \$canvas = ColorToken\('canvas'\);\s+const \$surface = ColorToken\('surface'\);\s*$/);
     await steps.getByRole('button', { name: '2. Provide' }).click();
-    await expect(panel.locator('pre')).toContainText('Widget lookScope(');
-    await expect(panel.locator('pre')).toContainText('return MixScope(');
-    await expect(panel.locator('pre')).toContainText('child: child,');
+    await expect(lesson.locator('pre')).toContainText('return MixScope(');
+    await expect(lesson.locator('pre')).toContainText('$canvas: look.canvas,');
+    await expect(lesson.locator('pre')).toContainText('child: child,');
+    await expect(lesson.locator('pre')).toContainText('// ···');
     await panel.getByRole('group', { name: 'Compare token values' }).getByRole('button', { name: 'Paper', exact: true }).click();
-    await expect(panel.locator('pre')).toContainText('const paper = Look(');
-    await expect(panel.locator('pre')).toContainText('surface: Color(');
-    await expect(panel.locator('pre')).toContainText('card: 3,');
-    await expect(panel.locator('pre')).toContainText('Color(0xFFF3EDE1)');
+    await expect(lesson.locator('pre')).toContainText('const paper = Look(');
+    await expect(lesson.locator('pre')).toContainText('canvas: Color(0xFFF3EDE1)');
+    await expect(lesson.locator('pre')).toContainText('surface: Color(0xFFFBF8F1)');
+    // Every omitted stretch is a separate exact range: no line is shown that the link does not cover.
+    const ranges = await lesson.locator('figcaption a').evaluateAll(links => links.map(link => link.getAttribute('href')!));
+    expect(ranges.length).toBeGreaterThan(2);
+    for (const href of ranges) expect(href).toMatch(/^\/v2\/source\/\?file=tokens\.dart#L\d+-L\d+$/);
     await steps.getByRole('button', { name: '3. Use' }).click();
-    await expect(panel.locator('pre')).toContainText('.color($surface())');
-    await expect(panel.locator('pre')).toContainText('final cardPad = cardStyle');
-    await expect(panel.locator('pre')).toContainText('style: cardPad,');
-    await expect(panel.locator('pre')).toContainText('return Box(');
+    await expect(lesson.locator('pre')).toContainText('final canvasStyle = BoxStyler()');
+    await expect(lesson.locator('pre')).toContainText('.color($canvas())');
+    await expect(lesson.locator('pre')).toContainText('Box(');
+    await expect(lesson.locator('pre')).toContainText('style: canvasStyle,');
+    await expect(lesson.locator('pre')).toContainText('child: const CardDeck(),');
+    for (const adapter of ['ShapeToken', 'LiftToken', '$cardShape', '$lift', 'onBreakpoint']) await expect(lesson.locator('pre')).not.toContainText(adapter);
+    // Uses links resolve through Dart imports, not to a same-named starter token.
+    await expect(lesson.locator('.v2-code-uses').getByRole('link', { name: '$canvas', exact: true })).toHaveAttribute('href', /^\/v2\/source\/\?file=tokens\.dart#L\d+$/);
     if (browserName === 'chromium') {
       await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
-      await panel.getByRole('button', { name: 'Copy Dart excerpt' }).click();
-      expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(await panel.locator('pre').innerText());
+      await lesson.getByRole('button', { name: 'Copy Dart excerpt' }).click();
+      expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(await lesson.locator('pre').innerText());
     }
+    // The complete app setup, including its adapters, stays available as optional depth.
+    const app = panel.locator('details.v2-token-app');
+    await expect(app).not.toHaveAttribute('open', '');
+    await app.locator('summary').click();
+    for (const code of ['const $cardShape = ShapeToken', 'const $lift = LiftToken', 'Widget lookScope(', '.shape($cardShape.mix())', 'final cardPad = cardStyle', 'style: cardPad,']) await expect(app.locator('pre')).toContainText(code);
+    await expect(app).toContainText('not built-in Mix APIs');
     await expectNoOverflow(page);
-    await panel.getByRole('link', { name: 'Run the token starter' }).click();
+    await starter.click();
     await expect(page.getByLabel('Source file', { exact: true })).toHaveValue('token_example.dart');
     await expect(page.locator('.v2-source-readme')).toHaveAttribute('open', '');
   });
 }
+
+for (const { width, height } of [{ width: 390, height: 844 }, { width: 320, height: 700 }]) {
+  test(`phone Looks fits its content and reading code moves the pinned demo aside at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    await page.route('**/v2-flutter/flutter_bootstrap.js', route => route.abort());
+    await page.goto('/v2/');
+    await page.locator('.v2-step[data-step="looks"]').click();
+    const looks = page.locator('[data-chapter="looks"]');
+    await expect(looks).toHaveAttribute('data-active', 'true');
+    // No reserved scroll: the chapter is its content plus padding.
+    const [chapter, body] = await looks.evaluate((section: HTMLElement) => [section.offsetHeight, section.querySelector<HTMLElement>('.v2-chapter-body')!.offsetHeight]);
+    expect(chapter - body).toBeLessThanOrEqual(100);
+    const stageBottom = () => page.locator('.v2-stage-column').evaluate(column => column.getBoundingClientRect().bottom);
+    // Where the demo rests once pinned: its sticky offset plus its height.
+    const pinned = await page.locator('.v2-stage-column').evaluate(column => parseFloat(getComputedStyle(column).top) + column.getBoundingClientRect().height);
+    const toggle = page.locator('.v2-preview-toggle');
+    await expect(toggle).toHaveCount(0);
+
+    const summary = looks.locator('summary').filter({ hasText: 'See the Dart' });
+    await summary.click();
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'hidden');
+    await expect.poll(stageBottom).toBeLessThanOrEqual(130);
+    await expect(page.locator('#v2-stage')).toHaveJSProperty('inert', true);
+    // The lesson the reader opened starts right below the remaining strip.
+    await expect(summary).toBeInViewport();
+    await expect.poll(() => summary.evaluate(item => item.getBoundingClientRect().top)).toBeLessThan(200);
+    await expect(toggle).toHaveText('Show preview');
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(toggle).toHaveAttribute('aria-controls', 'v2-stage');
+    await expect(page.locator('.v2-steps')).toBeInViewport();
+
+    await toggle.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'shown');
+    await expect.poll(stageBottom).toBeCloseTo(pinned, 0);
+    await expect(page.locator('#v2-stage')).toHaveJSProperty('inert', false);
+    await expect(toggle).toHaveText('Hide preview');
+    await expect(toggle).toBeFocused();
+    // The first line being read stays visible below the returned demo.
+    await expect(summary).toBeInViewport();
+    expect(await summary.evaluate(item => item.getBoundingClientRect().top)).toBeGreaterThanOrEqual(await stageBottom());
+
+    await page.keyboard.press('Space');
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'hidden');
+    await summary.click();
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'shown');
+    await expect(toggle).toHaveCount(0);
+
+    // Chapter navigation shows the demo again and lands below where it rests.
+    await summary.click();
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'hidden');
+    await page.locator('.v2-step[data-step="motion"]').click();
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'shown');
+    await expect(page.locator('[data-chapter="motion"]')).toHaveAttribute('data-active', 'true');
+    await expect.poll(() => page.evaluate(() => document.getElementById('v2-title-motion')!.getBoundingClientRect().top
+      >= document.querySelector('.v2-stage-column')!.getBoundingClientRect().bottom)).toBe(true);
+    await expectNoOverflow(page);
+  });
+}
+
+test('the desktop tour keeps the pinned demo beside open code', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.route('**/v2-flutter/flutter_bootstrap.js', route => route.abort());
+  await page.goto('/v2/');
+  await page.locator('.v2-step[data-step="looks"]').click();
+  const looks = page.locator('[data-chapter="looks"]');
+  expect(await looks.evaluate((section: HTMLElement) => section.offsetHeight)).toBeGreaterThan(900 * 2);
+  await looks.locator('summary').filter({ hasText: 'See the Dart' }).click();
+  await expect(page.locator('.v2-preview-toggle')).toBeHidden();
+  await expect(page.locator('#v2-stage')).toHaveJSProperty('inert', false);
+  await expect(page.locator('#v2-stage')).toBeInViewport();
+});
+
+test('the loading placeholder requests no image and gives way to recovery', async ({ page }) => {
+  const requested: string[] = [];
+  page.on('request', request => { if (/\/v2-flutter\/(?!flutter_bootstrap\.js)/.test(request.url())) requested.push(request.url()); });
+  let fail!: () => void;
+  const held = new Promise<void>(resolve => { fail = resolve; });
+  await page.route('**/v2-flutter/flutter_bootstrap.js', async route => { await held; await route.abort(); });
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+    if (width === 1440) await page.goto('/v2/', { waitUntil: 'domcontentloaded' });
+    const placeholder = page.locator('.v2-poster');
+    await expect(placeholder).toBeVisible();
+    await expect(placeholder.locator('i').first()).toBeVisible();
+    await expect(page.locator('.v2-stage img')).toHaveCount(0);
+    await expect(page.locator('.v2-loading')).toHaveText('Loading interactive showcase…');
+  }
+  expect(requested).toEqual([]);
+  fail();
+  await expect(page.getByText('The live preview couldn’t load.')).toBeVisible();
+  await expect(page.locator('.v2-poster')).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Try again', exact: true })).toBeVisible();
+});
 
 test('developer documentation handoffs contain their requested sections', async ({ request }) => {
   for (const href of [
@@ -298,6 +418,8 @@ test('developer documentation handoffs contain their requested sections', async 
     '/remix/docs/fortal/#scope-placement',
     '/remix/docs/components/checkbox/#basic-implementation',
     '/naked-ui/docs/widget/checkbox/#basic-implementation',
+    '/remix/docs/getting-started/#your-first-component',
+    '/naked-ui/docs/#basic-implementation',
   ]) {
     const [path, anchor] = href.split('#');
     const response = await request.get(path);
@@ -401,9 +523,18 @@ test('docs links reach sections and follow the selected motion mode', async ({ p
     await openFeature(page, feature);
     await expect(page.locator('[data-chapter][data-active="true"] > .v2-chapter-body > a.v2-link')).toHaveAttribute('href', href);
   }
-  for (const [name, href] of Object.entries({ 'Start with Mix': '/mix/docs/overview/getting-started/#installation', 'Remix component guide': '/remix/docs/components/checkbox/#basic-implementation', 'Naked UI component guide': '/naked-ui/docs/widget/checkbox/#basic-implementation' })) {
-    await expect(page.getByRole('link', { name, exact: false })).toHaveAttribute('href', href);
+  const libraries = page.locator('.v2-end');
+  for (const [name, href] of Object.entries({
+    'Start with Mix': '/mix/docs/overview/getting-started/#installation',
+    'Start with Remix': '/remix/docs/getting-started/#your-first-component',
+    'Start with Naked UI': '/naked-ui/docs/#basic-implementation',
+    'Remix checkbox': '/remix/docs/components/checkbox/#basic-implementation',
+    NakedCheckbox: '/naked-ui/docs/widget/checkbox/#basic-implementation',
+  })) {
+    await expect(libraries.getByRole('link', { name, exact: true })).toHaveAttribute('href', href);
   }
+  // Maturity follows the pinned versions: Mix is stable, Remix and Naked UI are prereleases.
+  await expect(libraries.locator('.v2-library-role')).toHaveText(['Styling · Stable release', 'Components · Prerelease', 'Behavior · Prerelease']);
 });
 
 test.describe('live showcase', () => {
@@ -629,6 +760,79 @@ test.describe('live showcase', () => {
     });
   }
 
+  test('hiding and showing the phone preview keeps the one running app and its look', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/v2/');
+    await expect(page.locator('.v2-stage')).toHaveAttribute('data-ready', 'true');
+    await page.evaluate(() => { (window as typeof window & { firstView?: Element | null }).firstView = document.querySelector('flutter-view'); });
+    await observeShowcasePatches(page);
+    const looks = page.locator('[data-chapter="looks"]');
+    await page.locator('.v2-step[data-step="looks"]').click();
+    await looks.getByRole('group', { name: 'Choose a look', exact: true }).getByRole('button', { name: 'Cyber', exact: true }).click();
+    const patches = () => page.evaluate(() => (window as typeof window & { observedPatches?: Record<string, unknown>[] }).observedPatches!);
+    await expect.poll(async () => (await patches()).filter(patch => 'look' in patch).at(-1)?.look).toBe('cyber');
+    const sentBefore = (await patches()).length;
+    const summary = looks.locator('summary').filter({ hasText: 'See the Dart' });
+    await summary.click();
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'hidden');
+    const toggle = page.locator('.v2-preview-toggle');
+    await toggle.click();
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'shown');
+    await toggle.click();
+    await summary.click();
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'shown');
+    await expect(page.locator('flutter-view')).toHaveCount(1);
+    expect(await page.evaluate(() => document.querySelector('flutter-view') === (window as typeof window & { firstView?: Element | null }).firstView)).toBe(true);
+    await expect(looks.getByRole('button', { name: 'Cyber', exact: true }).first()).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('.v2-stage-caption')).toContainText('Cyber');
+    // Hiding is layout only: Flutter receives no new look or chapter state.
+    expect(await patches()).toHaveLength(sentBefore);
+  });
+
+  test('phone demo controls reveal the running preview after reading code', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/v2/');
+    await expect(page.locator('.v2-stage')).toHaveAttribute('data-ready', 'true');
+    await page.evaluate(() => { (window as typeof window & { controlView?: Element | null }).controlView = document.querySelector('flutter-view'); });
+    await observeShowcasePatches(page);
+    await page.locator('.v2-step[data-step="looks"]').click();
+    const looks = page.locator('[data-chapter="looks"]');
+    await looks.locator('.v2-token-lesson > summary').click();
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'hidden');
+
+    // Scroll to the next controls, not a chapter jump that would already show the app.
+    const motion = page.locator('[data-chapter="motion"]');
+    const options = motion.getByRole('group', { name: 'Choose an animation' });
+    const springs = options.getByRole('button', { name: 'Springs', exact: true });
+    await springs.scrollIntoViewIfNeeded();
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'hidden');
+    await springs.click();
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'shown');
+    await expect.poll(() => lastShowcaseState(page)).toMatchObject({ highlight: 'spending' });
+    expect(await springs.evaluate(button => button.getBoundingClientRect().top)).toBeGreaterThanOrEqual(await page.locator('.v2-stage-column').evaluate(column => column.getBoundingClientRect().bottom));
+
+    await motion.locator('details.v2-code > summary').click();
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'hidden');
+    await options.getByRole('button', { name: 'Transitions', exact: true }).click();
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'shown');
+    await page.getByRole('button', { name: 'Hide preview', exact: true }).click();
+    await motion.getByRole('button', { name: 'Animate to Paper', exact: true }).click();
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'shown');
+    await expect(motion.getByRole('button', { name: 'Animate to Paper', exact: true })).toHaveAttribute('aria-pressed', 'true');
+
+    await page.getByRole('button', { name: 'Hide preview', exact: true }).click();
+    const today = page.locator('[data-chapter="blocks"]').getByRole('button', { name: 'Today', exact: false });
+    await today.scrollIntoViewIfNeeded();
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'hidden');
+    await today.click();
+    await expect(page.locator('.v2')).toHaveAttribute('data-preview', 'shown');
+    await expect.poll(() => lastShowcaseState(page)).toMatchObject({ highlight: 'today', naked: false, xray: false });
+    await expect(page.locator('flutter-view')).toHaveCount(1);
+    expect(await page.evaluate(() => document.querySelector('flutter-view') === (window as typeof window & { controlView?: Element | null }).controlView)).toBe(true);
+    await expect(page.locator('.v2-stage')).toHaveJSProperty('inert', false);
+    await expectNoOverflow(page);
+  });
+
   test('a chosen look survives leaving and re-entering the Looks chapter', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/v2/');
@@ -648,9 +852,8 @@ test.describe('live showcase', () => {
     const panel = await openFeature(page, 'tokens');
     await expect(looks.getByRole('group', { name: 'Choose a look', exact: true }).getByRole('button', { name: 'Paper', exact: true })).toHaveAttribute('aria-pressed', 'true');
     await panel.getByRole('button', { name: '2. Provide' }).click();
-    await expect(panel.locator('pre')).toContainText('const paper = Look(');
-    await expect(panel.locator('pre')).toContainText('surface: Color(');
-    await expect(panel.locator('pre')).toContainText('card: 3,');
+    await expect(panel.locator('#v2-token-code pre')).toContainText('const paper = Look(');
+    await expect(panel.locator('#v2-token-code pre')).toContainText('canvas: Color(0xFFF3EDE1)');
     await expect(page.locator('flutter-view')).toHaveCount(1);
   });
 
