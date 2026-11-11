@@ -392,29 +392,54 @@ test.describe('live examples', () => {
   });
 
   test('the keyboard enters a view, operates it, and leaves', async ({ page }) => {
+    const paint = () => page.evaluate(() => new Promise<void>(resolve => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    }));
     await page.goto('/');
     await open(page, 'naked');
+    await page.evaluate(() => {
+      const state = window as typeof window & { __nakedFocused: boolean };
+      state.__nakedFocused = false;
+      const host = window.__mixShowcaseHost!;
+      const onEvent = host.onEvent;
+      host.onEvent = json => {
+        const event = JSON.parse(json);
+        if (event.demo === 'naked' && event.type === 'states') {
+          state.__nakedFocused = event.value.includes('focused');
+        }
+        onEvent(json);
+      };
+    });
+    const focused = () => page.evaluate(() => (window as typeof window & { __nakedFocused: boolean }).__nakedFocused);
     const naked = page.locator('#naked');
     const note = naked.locator('.v2-control-note');
     await expect(note).toContainText('Pro');
     await naked.locator('.v2-code pre').last().focus();
     await page.keyboard.press('Tab');
+    await expect.poll(focused).toBe(true);
     expect(await page.evaluate(() => document.activeElement?.tagName)).toBe('FLUTTER-VIEW');
     await page.keyboard.press('ArrowDown');
     await expect(note).toContainText('Team');
+    // The host reports selection before Flutter rebuilds each group's
+    // traversal policy. Let that frame finish before asking for the next tab stop.
+    await paint();
     // The view holds both drawings: Tab moves to the second group, then out.
     await page.keyboard.press('Tab');
+    await paint();
     expect(await page.evaluate(() => document.activeElement?.tagName)).toBe('FLUTTER-VIEW');
     await page.keyboard.press('Tab');
     // Flutter hands focus back asynchronously. The next page control depends
     // on the browser's tabbing rules, but focus must leave the view and body.
+    await expect.poll(focused).toBe(false);
     await expect.poll(() => page.evaluate(() => document.activeElement?.closest('.v2-view') === null && document.activeElement !== document.body)).toBe(true);
 
     // The select opens, moves and chooses from the keyboard, and Escape cancels.
     await naked.locator('.v2-bench-main').getByText('Select', { exact: true }).click();
     await expect(note).toContainText('Monthly');
+    await expect.poll(focused).toBe(false);
     await naked.locator('.v2-code pre').last().focus();
     await page.keyboard.press('Tab');
+    await expect.poll(focused).toBe(true);
     // Opening moves focus into the menu over a frame or two; a person never
     // types faster than that, so the test waits as long before moving.
     await page.keyboard.press('Enter');

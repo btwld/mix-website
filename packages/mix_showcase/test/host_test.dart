@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mix_showcase/demos/billing_select/billing_select.dart';
@@ -15,6 +16,8 @@ import 'package:mix_showcase/host/views.dart';
 import 'package:mix_showcase/theme.dart';
 import 'package:mix_showcase/ui/ui.dart';
 import 'package:remix/remix.dart';
+
+import 'support.dart';
 
 void main() {
   group('Host', () {
@@ -254,6 +257,42 @@ void main() {
       expect(find.byType(BillingSelect), findsOneWidget);
       expect(find.byType(PlanPicker), findsNothing);
     });
+
+    testWidgets(
+      'naked focus reporting preserves radio traversal and select operation',
+      (tester) async {
+        await pump(tester, 'naked');
+        await focusAround(tester, find.text('Pro').first);
+        await tester.sendKeyEvent(
+          LogicalKeyboardKey.arrowDown,
+        );
+        await tester.pumpAndSettle();
+        expect(host.read('naked', 'plan', ''), 'Team');
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+        final second = Focus.of(
+          tester.element(find.text('Team').last),
+        );
+        expect(second.hasPrimaryFocus, isTrue);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+        expect(second.hasFocus, isFalse);
+
+        host.set('naked', 'widget', 'select');
+        await tester.pumpAndSettle();
+        await focusAround(tester, find.text('Monthly'));
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+        expect(find.text('Yearly'), findsOneWidget);
+        await tester.sendKeyEvent(
+          LogicalKeyboardKey.arrowDown,
+        );
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+        expect(host.read('naked', 'cycle', ''), 'Yearly');
+      },
+    );
 
     testWidgets(
       'choosing a plan is remembered by the host',
