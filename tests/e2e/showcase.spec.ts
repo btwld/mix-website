@@ -182,7 +182,7 @@ test('each library installs from a prerelease-safe command with a complete start
     await expect(start.locator('.v2-code')).toContainText(line);
     await expect(start.locator('.v2-code')).toContainText('void main() => runApp(const App());');
   }
-  await expect(start).toContainText('Needs Flutter 3.44+ · Dart 3.12+');
+  await expect(start).toContainText('Needs Flutter 3.47.9+ · Dart 3.13+');
   // Remix installs its CLI once, then one component before the starter uses it.
   // `remix add` brings in the remix package itself.
   await expect(start.locator('.v2-start-steps > li').first().locator('h3')).toHaveText('Install the CLI, then a component');
