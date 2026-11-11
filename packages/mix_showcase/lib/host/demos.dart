@@ -154,7 +154,10 @@ class _StatesDemo extends StatefulWidget {
 }
 
 class _StatesDemoState extends State<_StatesDemo> {
+  static _StatesDemoState? focusOwner;
   final controller = WidgetStatesController();
+  late final FocusHighlightStrategy
+  previousHighlightStrategy;
   var held = <String>{};
 
   static const names = {
@@ -166,6 +169,9 @@ class _StatesDemoState extends State<_StatesDemo> {
   @override
   void initState() {
     super.initState();
+    previousHighlightStrategy =
+        focusOwner?.previousHighlightStrategy ??
+        FocusManager.instance.highlightStrategy;
     controller.addListener(_tell);
     widget.host.addListener(_hold);
     FocusManager.instance.addHighlightModeListener(_mode);
@@ -178,6 +184,16 @@ class _StatesDemoState extends State<_StatesDemo> {
     FocusManager.instance.removeHighlightModeListener(
       _mode,
     );
+    if (focusOwner == this) {
+      // Focus listeners can rebuild widgets, so wait until unmounting ends.
+      // A replacement holding focus takes ownership before this runs.
+      scheduleMicrotask(() {
+        if (focusOwner != this) return;
+        focusOwner = null;
+        FocusManager.instance.highlightStrategy =
+            previousHighlightStrategy;
+      });
+    }
     HardwareKeyboard.instance.removeHandler(_key);
     widget.host.removeListener(_hold);
     controller.dispose();
@@ -209,10 +225,15 @@ class _StatesDemoState extends State<_StatesDemo> {
     // asking Flutter to treat focus as keyboard focus for the moment.
     if (next.contains('focused') !=
         held.contains('focused')) {
-      FocusManager.instance.highlightStrategy =
-          next.contains('focused')
-          ? FocusHighlightStrategy.alwaysTraditional
-          : FocusHighlightStrategy.automatic;
+      if (next.contains('focused')) {
+        focusOwner = this;
+        FocusManager.instance.highlightStrategy =
+            FocusHighlightStrategy.alwaysTraditional;
+      } else if (focusOwner == this) {
+        focusOwner = null;
+        FocusManager.instance.highlightStrategy =
+            previousHighlightStrategy;
+      }
     }
     held = next;
     // Report after the highlight change: whether focus counts as keyboard

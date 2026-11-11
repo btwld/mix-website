@@ -361,6 +361,72 @@ void main() {
       );
     });
 
+    for (final release in [true, false]) {
+      testWidgets(
+        'focused hold restores the prior strategy when ${release ? 'released' : 'recycled'}',
+        (tester) async {
+          final focus = FocusManager.instance;
+          final original = focus.highlightStrategy;
+          addTearDown(
+            () => focus.highlightStrategy = original,
+          );
+          focus.highlightStrategy =
+              FocusHighlightStrategy.alwaysTouch;
+          host.set('states', 'hold', ['focused']);
+          await pump(tester, 'states');
+          expect(
+            focus.highlightStrategy,
+            FocusHighlightStrategy.alwaysTraditional,
+          );
+
+          if (release) {
+            host.set('states', 'hold', <String>[]);
+            await tester.pumpAndSettle();
+          } else {
+            await pump(tester, 'button');
+          }
+          expect(
+            focus.highlightStrategy,
+            FocusHighlightStrategy.alwaysTouch,
+          );
+        },
+      );
+    }
+
+    testWidgets(
+      'replacing a focused demo preserves its hold and original strategy',
+      (tester) async {
+        final focus = FocusManager.instance;
+        final original = focus.highlightStrategy;
+        addTearDown(
+          () => focus.highlightStrategy = original,
+        );
+        focus.highlightStrategy =
+            FocusHighlightStrategy.alwaysTouch;
+        host.set('states', 'hold', ['focused']);
+        for (final key in ['first', 'replacement']) {
+          await tester.pumpWidget(
+            DemoView(
+              key: ValueKey(key),
+              demo: 'states',
+              host: host,
+            ),
+          );
+          await tester.pumpAndSettle();
+          expect(
+            focus.highlightStrategy,
+            FocusHighlightStrategy.alwaysTraditional,
+          );
+        }
+        host.set('states', 'hold', <String>[]);
+        await tester.pumpAndSettle();
+        expect(
+          focus.highlightStrategy,
+          FocusHighlightStrategy.alwaysTouch,
+        );
+      },
+    );
+
     testWidgets(
       'states restores held states after remount',
       (tester) async {
