@@ -12,7 +12,7 @@ export function projectLayoutOptions(id: ProjectId): BaseLayoutProps {
   options.themeSwitch = { ...options.themeSwitch, enabled: false };
   // The Remix catalog and the Fortal site are separate Flutter apps, even on this origin.
   options.links = options.links?.map(link =>
-    'url' in link && isFlutterAppPath(link.url) ? { ...link, external: true } : link,
+    'url' in link && typeof link.url === 'string' && isFlutterAppPath(link.url) ? { ...link, external: true } : link,
   );
   return options;
 }
