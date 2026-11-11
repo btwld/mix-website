@@ -30,7 +30,10 @@ export function projectConfig(id: ProjectId): DocsConfig {
       ...(id === 'remix' ? { logo: { light: '/remix/assets/logo_light.png', dark: '/remix/assets/logo_dark.png', width: 108, height: 30 } } : {}),
     },
     projects: allProjects,
-    socialLinks: id === 'remix' ? [{ label: 'Component catalog', url: PROJECTS.remix.catalogPath, placement: 'menu' }] : [],
+    socialLinks: id === 'remix' ? [
+      { label: 'Component catalog', url: PROJECTS.remix.catalogPath, placement: 'menu' },
+      { label: 'Fortal design system', url: PROJECTS.remix.fortalPath, placement: 'menu' },
+    ] : [],
   });
 }
 
