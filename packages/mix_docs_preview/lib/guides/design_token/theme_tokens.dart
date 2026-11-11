@@ -52,7 +52,7 @@ class _Example extends StatelessWidget {
 
     return Box(
       style: style,
-      child: MixScope(
+      child: MixScope.inherit(
         colors: {$primaryColor: Colors.red},
         child: StyledText(
           'Hello, World!',
