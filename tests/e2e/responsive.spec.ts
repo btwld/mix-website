@@ -6,6 +6,7 @@ const representative = [
   '/', '/mix/', '/remix/', '/naked-ui/', '/mix/docs/', '/remix/docs/', '/naked-ui/docs/',
   '/mix/docs/guides/animations/', '/remix/docs/tutorials/settings-screen/',
   '/remix/docs/components/button/', '/naked-ui/docs/widget/slider/', '/naked-ui/docs/widget/dialog/',
+  '/remix/docs/open-code/install/', '/remix/docs/open-code/cli/', '/remix/docs/components/calendar/',
 ];
 for (const route of representative) expect(inventory.siteRoutes).toContain(route);
 

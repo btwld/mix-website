@@ -195,6 +195,18 @@ test('each library installs from a prerelease-safe command with a complete start
   await expect(start.locator('.lx-terminal-cmd').first()).toHaveText('flutter pub add "naked_ui:^2.0.0-0"');
 });
 
+test('Remix offers one AI setup link with the released CLI and matching skills command', async ({ page }) => {
+  await page.goto('/#start');
+  await page.locator('#start label[data-tone="remix"]').click();
+  const prompt = page.locator('#start .v2-start-ai').getByRole('link', { name: 'Start with AI' });
+  await expect(prompt).toHaveCount(1);
+  await prompt.click();
+  await expect(page).toHaveURL(/\/remix\/docs\/getting-started\/#start-with-ai$/);
+  await expect(page.getByRole('heading', { name: 'Start with AI', exact: true })).toBeVisible();
+  await expect(page.locator('main')).toContainText("dart pub global activate remix_cli '^1.0.0-rc.1'");
+  await expect(page.locator('main')).toContainText('remix skills install');
+});
+
 test('documentation links from the page resolve, including their sections', async ({ page, request }) => {
   await page.goto('/');
   // Links that depend on a selection are collected in each of their states.
