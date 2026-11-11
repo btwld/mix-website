@@ -16,8 +16,32 @@ import path from 'node:path';
 
 const SOURCE_PATH = 'apps/fortal_landing';
 const PACKAGE = path.resolve('packages/fortal_site');
-// Never part of the app, even if committed by mistake: local evidence and build output.
-const EXCLUDED = /^(?:\.context|\.dart_tool|\.fvm|build|captures?|screenshots?|shots)(?:\/|$)/;
+// Never part of the app, even if committed by mistake: local evidence, build
+// output, and the source repository's working notes (the package carries its
+// own README, written below).
+const EXCLUDED = /^(?:\.context|\.dart_tool|\.fvm|build|captures?|screenshots?|shots|README\.md|SHOWCASE-PLAN\.md)(?:\/|$)/;
+
+const README = `# Fortal site
+
+The Fortal showcase served at \`/fortal/\`: a browsable, slide-by-slide site for
+Fortal, the design system built with Remix, made from real Fortal components.
+
+This package is copied from its source repository; \`SOURCES.json\` records the
+repository and commit. Do not edit it here. Refresh it with
+\`node scripts/migrate/sync-fortal-site.mjs <source checkout> [<commit>]\`, then
+publish and pin the \`fortal-site\` site input
+(\`scripts/site-inputs/produce/fortal-site.sh\`).
+
+## Licences
+
+- **Geist:** SIL Open Font License, in \`assets/fonts/OFL.txt\`.
+- **Roboto Mono:** SIL Open Font License, in \`assets/fonts/OFL-RobotoMono.txt\`.
+- **Shader adaptations (\`shaders/shore.frag\`, \`shaders/dunes.frag\`,
+  \`shaders/horizon.frag\`):** surface optics, cellular foam structure, cloud FBM
+  and dithering adapted from [\`noniv/web-ocean\`](https://github.com/noniv/web-ocean),
+  MIT License (Copyright (c) 2026 Maksymilian Dendura); see
+  \`shaders/LICENSE-web-ocean.txt\`.
+`;
 
 const [checkout, ref = 'HEAD'] = process.argv.slice(2);
 if (!checkout) {
@@ -43,4 +67,5 @@ try {
 
 const files = (await readdir(PACKAGE, { recursive: true, withFileTypes: true })).filter(entry => entry.isFile()).length;
 await writeFile(path.join(PACKAGE, 'SOURCES.json'), JSON.stringify({ repository, commit, path: SOURCE_PATH }, null, 2) + '\n');
+await writeFile(path.join(PACKAGE, 'README.md'), README);
 console.log(`synced ${files} files from ${repository}@${commit.slice(0, 12)}:${SOURCE_PATH}`);
