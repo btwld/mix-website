@@ -11,9 +11,9 @@ const libraries = [
   { name: 'Remix', detail: 'Components', href: '/remix/docs/' },
 ];
 const sections = [
-  { name: 'Mix', href: '/v2/#mix' },
-  { name: 'Naked UI', href: '/v2/#naked' },
-  { name: 'Remix', href: '/v2/#remix' },
+  { name: 'Mix', href: '/#mix' },
+  { name: 'Naked UI', href: '/#naked' },
+  { name: 'Remix', href: '/#remix' },
 ];
 
 /** One header for the page and its source browser. Section links are plain anchors. */
@@ -42,7 +42,7 @@ export function ShowcaseNavigation() {
   return <header className="v2-nav">
     <a className="v2-skip" href="#v2-content">Skip to content</a>
     <nav className="v2-nav-inner" aria-label="Main">
-      <Link className="v2-brand" href="/v2/" aria-label="Mix home">
+      <Link className="v2-brand" href="/" aria-label="Mix home">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/assets/icon_logo.svg" alt="" width={22} height={25} />
         <span>Mix</span>
@@ -51,7 +51,7 @@ export function ShowcaseNavigation() {
         {sections.map(section => <a key={section.href} href={section.href}>{section.name}</a>)}
       </div>
       <div className="v2-nav-actions">
-        <a className="v2-nav-start" href="/v2/#start">Get started</a>
+        <a className="v2-nav-start" href="/#start">Get started</a>
         <details className="v2-docs-menu" ref={docs}>
           <summary aria-label="Documentation">Docs <span aria-hidden="true">⌄</span></summary>
           <div className="v2-docs-panel">
