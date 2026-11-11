@@ -6,6 +6,7 @@ import { PROJECTS } from './lib/projects.mjs';
 const staticPreview = process.env.SITE_BUILD_TARGET === 'static-preview';
 const indexing = process.env.SITE_INDEXING === 'index';
 const catalog = PROJECTS.remix.catalogPath;
+const fortal = PROJECTS.remix.fortalPath;
 
 /** @type {import('next').NextConfig} */
 const config = {
@@ -29,6 +30,8 @@ const config = {
       // browsers revalidate it on every load instead of mixing builds.
       { source: `${catalog}:path*`, headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
       { source: '/v2-flutter/:path*', headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
+      // The Fortal site is a Flutter app with fixed file names, like the catalog.
+      { source: `${fortal}:path*`, headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
       { source: '/__site.json', headers: [{ key: 'Cache-Control', value: 'no-store' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
       { source: '/api/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
     ];
@@ -36,8 +39,8 @@ const config = {
   async rewrites() {
     if (staticPreview) return [];
     return {
-      // Public files have no directory indexes; serve the catalog's own page.
-      beforeFiles: [{ source: catalog, destination: `${catalog}index.html` }],
+      // Public files have no directory indexes; serve each Flutter app's own page.
+      beforeFiles: [catalog, fortal].map(app => ({ source: app, destination: `${app}index.html` })),
     };
   },
   async redirects() {
