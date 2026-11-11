@@ -25,3 +25,11 @@ test('CLI and REST preserve ordered exact redirects and normalize all catch-alls
   assert.ok(cli.redirects.every(row => !row.destination.includes(':path*') && !row.source.includes(':path*/')));
   assert.deepEqual(hostingRedirects([{source:'/old/',destination:'/new/',permanent:true}]), [{source:'/old/',destination:'/new/',type:308}]);
 });
+
+// Mutable Flutter URLs must revalidate when the source panels change.
+test('showcase assets revalidate on both Hosting deployment paths', () => {
+  const cli = hostingConfig('out').headers.find(row => row.source === '/v2-flutter/**');
+  assert.deepEqual(cli.headers, [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }]);
+  const rest = hostingVersionConfig().headers.find(row => row.glob === '/v2-flutter/**');
+  assert.equal(rest.headers['Cache-Control'], 'public, max-age=0, must-revalidate');
+});

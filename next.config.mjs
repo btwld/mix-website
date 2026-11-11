@@ -28,6 +28,7 @@ const config = {
       // The catalog keeps fixed file names under its own base href, so
       // browsers revalidate it on every load instead of mixing builds.
       { source: `${catalog}:path*`, headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
+      { source: '/v2-flutter/:path*', headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
       { source: '/__site.json', headers: [{ key: 'Cache-Control', value: 'no-store' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
       { source: '/api/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
     ];

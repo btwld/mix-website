@@ -12,6 +12,7 @@ out="$(mkdir -p "$3" && cd "$3" && pwd)"
 flutter_json="$(flutter --version --machine)"
 [ "$(node -p 'JSON.parse(process.argv[1]).frameworkVersion' "$flutter_json")" = "$(node -p "require('$here/../toolchains.json').showcase.flutter")" ]
 (cd "$src/packages/mix_showcase" && flutter pub get --enforce-lockfile && flutter build web --release --wasm --no-web-resources-cdn --no-source-maps)
+[ -z "$(git -C "$src" status --porcelain --untracked-files=no)" ] || { echo "Build changed tracked sources; commit them and rebuild." >&2; exit 1; }
 stage="$(mktemp -d)"
 trap 'rm -rf "$stage"' EXIT
 cp -R "$src/packages/mix_showcase/build/web" "$stage/bundle"
