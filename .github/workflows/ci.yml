@@ -74,6 +74,14 @@ jobs:
           flutter pub get --enforce-lockfile
           flutter analyze
           flutter test
+      # Same SDK as packages/fortal_site/.fvmrc. Infos are its generated
+      # adapters' known lint notes; warnings and errors still fail.
+      - name: Check Fortal site sources and tests
+        working-directory: packages/fortal_site
+        run: |
+          flutter pub get --enforce-lockfile
+          flutter analyze --no-fatal-infos
+          flutter test
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.44.0'
