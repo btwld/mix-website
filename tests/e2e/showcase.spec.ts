@@ -202,9 +202,20 @@ test('Remix offers one AI setup link with the released CLI and matching skills c
   await expect(prompt).toHaveCount(1);
   await prompt.click();
   await expect(page).toHaveURL(/\/remix\/docs\/getting-started\/#start-with-ai$/);
-  await expect(page.getByRole('heading', { name: 'Start with AI', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: /^Start with AI/ })).toBeVisible();
   await expect(page.locator('main')).toContainText("dart pub global activate remix_cli '^1.0.0-rc.1'");
   await expect(page.locator('main')).toContainText('remix skills install');
+  await page.setViewportSize({ width: 390, height: 844 });
+  const block = page.locator('#start-with-ai + p + figure');
+  const region = block.getByRole('region');
+  expect(await region.evaluate(element => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+  await expect(page.locator('#your-first-component + p + figure pre')).toHaveCSS('white-space', 'pre');
+  await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', {
+    configurable: true,
+    value: { writeText: async (text: string) => document.body.setAttribute('data-copied-prompt', text) },
+  }));
+  await block.getByRole('button', { name: 'Copy Text', exact: true }).click();
+  await expect(page.locator('body')).toHaveAttribute('data-copied-prompt', /dart pub global activate remix_cli '\^1\.0\.0-rc\.1'/);
 });
 
 test('documentation links from the page resolve, including their sections', async ({ page, request }) => {
