@@ -1,4 +1,5 @@
 {
+  "showcase": { "flutter": "3.47.9", "note": "The showcase lockfile requires Dart 3.13." },
   "mix-previews": {
     "flutter": "3.44.0",
     "note": "The imported Mix preview package is now owned by mix-website. Its committed pubspec.lock only resolves with --enforce-lockfile on 3.44.0 (3.47.9 re-resolves the SDK-pinned meta, matcher, test_api and vector_math), so the producer pins 3.44.0."

@@ -1,5 +1,6 @@
 // Shape checks shared by the producer packer and the website prebuild.
 export const INPUT_NAMES = ['mix-previews', 'remix-docs', 'naked-ui-docs'];
+const OPTIONAL_INPUT_NAMES = ['showcase'];
 
 const COMMIT = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
@@ -21,7 +22,7 @@ function checkSource(source, where) {
 
 export function validateSiteInputMetadata(metadata) {
   if (metadata?.schemaVersion !== 1) fail('site-input.json: unsupported schemaVersion');
-  if (!INPUT_NAMES.includes(metadata.name)) fail(`site-input.json: unknown input name ${JSON.stringify(metadata.name)}`);
+  if (![...INPUT_NAMES, ...OPTIONAL_INPUT_NAMES].includes(metadata.name)) fail(`site-input.json: unknown input name ${JSON.stringify(metadata.name)}`);
   checkSource(metadata.source, `site-input.json (${metadata.name})`);
   return metadata;
 }
@@ -34,7 +35,7 @@ export function validateLock(lock) {
   }
   for (const [name, input] of Object.entries(lock.inputs)) {
     const where = `sources.lock.json inputs.${name}`;
-    if (!INPUT_NAMES.includes(name)) fail(`${where}: unknown input`);
+    if (![...INPUT_NAMES, ...OPTIONAL_INPUT_NAMES].includes(name)) fail(`${where}: unknown input`);
     checkSource(input.source, where);
     if (!input.producer) fail(`${where}: missing producer provenance`);
     {

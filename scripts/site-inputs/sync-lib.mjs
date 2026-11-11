@@ -338,6 +338,15 @@ export async function syncSiteInputs({ root, offline = false, fetchImpl, log = c
   await cp(path.join(p.extracted, 'mix-previews/bundle'), path.join(p.publicPreviews, 'mix', previewId), { recursive: true });
   const { used: usedPreviews, landing: landingPreviews } = await verifyMixPreviews(p.mixContent, path.join(p.publicPreviews, 'mix', previewId), root);
 
+  // The showcase has an independent SDK and bundle, verified against the
+  // same authored sources used to render the page's code panels.
+  if (lock.inputs.showcase) {
+    const bundle = path.join(p.extracted, 'showcase/bundle');
+    await verifyMixBuildInputs(root, bundle, 'mix_showcase');
+    await rm(path.join(root, 'public/v2-flutter'), { recursive: true, force: true });
+    await cp(bundle, path.join(root, 'public/v2-flutter'), { recursive: true });
+  }
+
   // Docs snapshots: only the scoped pages and their navigation.
   const projects = [];
   for (const projectId of IN_REPO_PROJECTS) {

@@ -360,6 +360,57 @@ void main() {
         isNull,
       );
     });
+
+    testWidgets(
+      'states restores held states after remount',
+      (tester) async {
+        WidgetStatesController controller() => tester
+            .widget<ActionButton>(find.byType(ActionButton))
+            .controller!;
+
+        await pump(tester, 'states');
+        host.apply({
+          'demo': 'states',
+          'set': {
+            'hold': ['hovered', 'pressed'],
+          },
+        });
+        await tester.pumpAndSettle();
+        final original = controller();
+        expect(
+          original.value,
+          containsAll([
+            WidgetState.hovered,
+            WidgetState.pressed,
+          ]),
+        );
+
+        await pump(tester, 'button');
+        await pump(tester, 'states');
+        expect(controller(), isNot(same(original)));
+        expect(
+          controller().value,
+          containsAll([
+            WidgetState.hovered,
+            WidgetState.pressed,
+          ]),
+        );
+
+        host.apply({
+          'demo': 'states',
+          'set': {'hold': <String>[]},
+        });
+        await tester.pumpAndSettle();
+        expect(
+          controller().value,
+          isNot(contains(WidgetState.hovered)),
+        );
+        expect(
+          controller().value,
+          isNot(contains(WidgetState.pressed)),
+        );
+      },
+    );
   });
 
   testWidgets('Gallery pumps', (tester) async {

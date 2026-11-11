@@ -6,7 +6,7 @@ from. It is kept apart from `mix_docs_preview` so it can use current APIs withou
 touching the published docs-preview bundle. It is not published to pub.dev.
 
 It uses Mix 2.4.0, Remix 1.0.0-rc.1 and Naked UI 2.0.0-beta.2 from pub.dev.
-It needs Flutter 3.44+ and Dart 3.12+ for dot shorthand.
+It needs Flutter 3.47.9+ and Dart 3.13+ for dot shorthand.
 
 | Path | Holds |
 | --- | --- |
@@ -103,8 +103,9 @@ run one starter: `flutter run -d chrome -t lib/starters/mix.dart`.
 
 ## Run it on the site
 
-The website does not build this app, so `/v2/` needs a local bundle. Without
-one, each example says it did not load and its code stays readable. Copy the
+The website downloads the verified `showcase` input pinned in `sources.lock.json`
+before each build. CI tests this package and exercises its live views. For local
+iteration, build a replacement bundle after syncing the pinned inputs. Copy the
 bundle's contents, not an extra nested `web` directory:
 
 ```bash
@@ -117,7 +118,8 @@ pnpm start --port 3200
 ```
 
 Then open <http://localhost:3200/v2/>. `public/v2-flutter` is ignored build
-output. Browser tests skip their live cases when it is missing.
+output. Published builds require the pinned bundle; local browser tests can still
+exercise the code-only fallback when a bundle is absent.
 
 ## Adding a recipe
 

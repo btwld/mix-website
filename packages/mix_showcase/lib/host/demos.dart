@@ -170,6 +170,7 @@ class _StatesDemoState extends State<_StatesDemo> {
     widget.host.addListener(_hold);
     FocusManager.instance.addHighlightModeListener(_mode);
     HardwareKeyboard.instance.addHandler(_key);
+    _hold();
   }
 
   @override
