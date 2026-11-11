@@ -7,17 +7,22 @@ const FORTAL = '/fortal/';
 const fonts: string[] = JSON.parse(readFileSync('public/fortal/assets/FontManifest.json', 'utf8'))
   .flatMap((family: { fonts: { asset: string }[] }) => family.fonts.map(font => `${FORTAL}assets/${font.asset}`));
 
-/** Watches a page for errors and for the font requests it makes. */
+/**
+ * Watches the Fortal document for errors and for the font requests it makes.
+ * A page being left cancels its own requests; those are not the Fortal site's.
+ */
 function watch(page: Page) {
   const problems: string[] = [];
   const loaded = new Map<string, number>();
-  page.on('console', message => { if (message.type() === 'error') problems.push(message.text()); });
-  page.on('pageerror', error => problems.push(String(error)));
-  page.on('requestfailed', request => problems.push(`${request.url()}: ${request.failure()?.errorText}`));
+  let here = page.url().includes(FORTAL);
+  page.on('framenavigated', frame => { if (frame === page.mainFrame()) here = frame.url().includes(FORTAL); });
+  page.on('console', message => { if (here && message.type() === 'error') problems.push(message.text()); });
+  page.on('pageerror', error => { if (here) problems.push(String(error)); });
+  page.on('requestfailed', request => { if (request.url().includes(FORTAL)) problems.push(`${request.url()}: ${request.failure()?.errorText}`); });
   page.on('response', response => {
     const { pathname } = new URL(response.url());
     if (pathname.startsWith(`${FORTAL}assets/`)) loaded.set(decodeURI(pathname), response.status());
-    if (response.status() >= 400) problems.push(`${response.status()} ${response.url()}`);
+    if (here && response.status() >= 400) problems.push(`${response.status()} ${response.url()}`);
   });
   return { problems, loaded };
 }
