@@ -5,7 +5,7 @@ import { Children, useEffect, useId, useMemo, useState, type CSSProperties, type
 import { ArrowRight } from '@/components/landing/icons';
 import { CopyCommand } from '@/components/landing/copy-command';
 import type { ShowcaseCode, ShowcasePackage } from '@/lib/showcase-source';
-import { ShowcaseProvider, useDemoControls, useDemoEvent, useDemoListener, useShowcase } from './flutter';
+import { ShowcaseProvider, getDemoSelection, useDemoControls, useDemoEvent, useDemoListener, useShowcase } from './flutter';
 import { Bench, Code, DocLink, Heading, Notes, Preview, Segmented, THEMES, ThemeContext, ThemePicker, fileNames, useTheme, type ThemeId } from './ui';
 
 type Props = { code: ShowcaseCode; packages: ShowcasePackage };
@@ -119,7 +119,7 @@ function Exhibit({ id, children }: { id: string; children: ReactNode }) {
 }
 
 function StyleExhibit({ code }: { code: ShowcaseCode }) {
-  const [featured, setFeatured] = useState<'Starter' | 'Pro'>('Pro');
+  const [featured, setFeatured] = useState<'Starter' | 'Pro'>(() => getDemoSelection('style', 'featured', 'Pro'));
   useDemoListener<'Starter' | 'Pro'>('style', 'featured', setFeatured);
   useDemoControls('style', { featured });
   return <Exhibit id="mix-style">

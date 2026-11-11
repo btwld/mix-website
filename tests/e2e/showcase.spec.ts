@@ -334,6 +334,28 @@ test.describe('live examples', () => {
     await expect(checked).toHaveText('Starter');
   });
 
+  for (const featured of ['Pro', 'Starter']) {
+    test(`page-selected featured ${featured} survives returning from the source`, async ({ page }) => {
+      await page.goto('/');
+      const view = await open(page, 'style');
+      const style = page.locator('#mix-style');
+      const controls = style.locator('.v2-preview-controls .v2-segmented');
+      const checked = controls.locator('label[data-checked="true"]');
+      const fromFlutter = featured === 'Pro' ? 'Starter' : 'Pro';
+      const box = (await view.boundingBox())!;
+      await page.mouse.click(box.x + box.width / 2 + (fromFlutter === 'Starter' ? -100 : 100), box.y + box.height / 2);
+      await expect(checked).toHaveText(fromFlutter);
+      await controls.getByText(featured, { exact: true }).click();
+      await expect(checked).toHaveText(featured);
+
+      await style.locator('.v2-code-file a').click();
+      await expect(page).toHaveURL(/\/v2\/source\//);
+      await page.goBack();
+      await open(page, 'style');
+      await expect(checked).toHaveText(featured);
+    });
+  }
+
   test('a held state is reported back by Flutter', async ({ page }) => {
     await page.goto('/');
     await open(page, 'states');
