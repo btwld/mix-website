@@ -360,8 +360,9 @@ test.describe('live examples', () => {
     await page.keyboard.press('Tab');
     expect(await page.evaluate(() => document.activeElement?.tagName)).toBe('FLUTTER-VIEW');
     await page.keyboard.press('Tab');
-    // Which page control comes next depends on the browser's tabbing rules; the point is that focus is not trapped.
-    expect(await page.evaluate(() => document.activeElement?.closest('.v2-view') === null && document.activeElement !== document.body)).toBe(true);
+    // Flutter hands focus back asynchronously. The next page control depends
+    // on the browser's tabbing rules, but focus must leave the view and body.
+    await expect.poll(() => page.evaluate(() => document.activeElement?.closest('.v2-view') === null && document.activeElement !== document.body)).toBe(true);
 
     // The select opens, moves and chooses from the keyboard, and Escape cancels.
     await naked.locator('.v2-bench-main').getByText('Select', { exact: true }).click();
