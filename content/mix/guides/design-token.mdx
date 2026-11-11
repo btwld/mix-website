@@ -28,7 +28,7 @@ MixScope(
   child: MyApp(),
 );
 
-// 3. Reference the token in a style — call() resolves it from MixScope at build time
+// 3. Reference the token; Mix resolves it in the consuming widget's context.
 final style = BoxStyler()
     .color($primary())
     .size(100, 100);
@@ -54,14 +54,26 @@ MixScope(
 );
 ```
 
-Nested `MixScope` widgets override token values for their subtree. The preview below shows an outer scope providing blue, and an inner scope overriding the same token to red for a child widget:
+A plain nested `MixScope` supplies a new token set: it **does not fall back** to values in the outer scope. Reading an omitted token throws. To override a few values while keeping the rest, use `MixScope.inherit`:
 
-<FlutterPreview
-  previewId="guides/design-token.0"
-  title="Nested MixScope with token override"
-  description="Inner MixScope overrides the primary color token for its descendants."
-  height={200}
-/>
+```dart
+const $primary = ColorToken('primary');
+const $spacing = SpaceToken('spacing');
+
+MixScope(
+  colors: {$primary: Colors.blue},
+  spaces: {$spacing: 16},
+  child: MixScope.inherit(
+    colors: {$primary: Colors.red},
+    child: Box(
+      // Red comes from the override; spacing is inherited from the outer scope.
+      style: BoxStyler().color($primary()).padding(.all($spacing())),
+    ),
+  ),
+);
+```
+
+Place a scope above all its consumers. A scope around one panel themes only that panel; for routes and overlays, put it above the Navigator (for example, around `MaterialApp`, or in its `builder` around `child`). A context token that reads Material's `Theme` must resolve below that theme instead.
 
 ## Built-in Token Types
 
@@ -156,6 +168,14 @@ MixScope(
 ```
 
 Every style referencing `$background` or `$foreground` updates automatically when the map changes.
+
+### What updates when values change
+
+Calling `$background()` creates a token reference; it does not read a global color. Mix resolves that reference using the consuming widget's context and registers a dependency on its scope. Rebuilding `MixScope` with different token values notifies dependent styles, even when the style object and child widget are reused.
+
+Keep token declarations stable and rebuild with new values rather than mutating the same maps in place. Token maps compare values using their equality; list-valued tokens use the list's equality too. A `ContextToken` instead tracks the inherited values its resolver reads, such as `Theme.of(context)`.
+
+The preview below swaps two color maps in one `MixScope`.
 
 <FlutterPreview previewId="guides/design-token.1" height={200} />
 

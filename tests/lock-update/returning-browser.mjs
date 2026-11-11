@@ -163,7 +163,7 @@ try {
   // Start at phone width so the desktop nav cannot prefetch Remix from A.
   const landingTab = await context.newPage();
   await landingTab.setViewportSize({ width: 390, height: 844 });
-  await landingTab.goto(`${origin}/`);
+  await landingTab.goto(`${origin}/mix/`);
   const homeView = landingTab.locator('[role="application"][data-preview-id="homepage/styling"]');
   await homeView.locator('..').scrollIntoViewIfNeeded();
   await homeView.and(landingTab.locator('[data-state="ready"]')).waitFor({ timeout: 60_000 });

@@ -15,15 +15,8 @@ class Example extends StatefulWidget {
 }
 
 class _ExampleState extends State<Example> {
-  late FocusNode focusNode1;
-  late FocusNode focusNode2;
-
-  @override
-  void initState() {
-    super.initState();
-    focusNode1 = FocusNode();
-    focusNode2 = FocusNode();
-  }
+  final focusNode1 = FocusNode();
+  final focusNode2 = FocusNode();
 
   @override
   void dispose() {
@@ -36,8 +29,7 @@ class _ExampleState extends State<Example> {
   Widget build(BuildContext context) {
     final style = BoxStyler()
         .color(Colors.red)
-        .height(100)
-        .width(100)
+        .size(100, 100)
         .borderRadius(.circular(10))
         .wrap(.opacity(0.4))
         .onFocused(

@@ -31,6 +31,7 @@ export function hostingConfig(publicPath, site) {
       { source: '/previews/mix/**', headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }] },
       { source: '/remix/catalog/**', headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }] },
       { source: '**/*.wasm', headers: [{ key: 'Content-Type', value: 'application/wasm' }] },
+      { source: '/v2-flutter/**', headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }] },
       { source: '/__site.json', headers: [{ key: 'Cache-Control', value: 'no-store' }] },
     ],
     redirects: hostingRedirects([...legacyRedirects, dashboardRedirect]),

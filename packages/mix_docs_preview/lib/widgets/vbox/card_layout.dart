@@ -19,9 +19,8 @@ class Example extends StatelessWidget {
         .color(Colors.grey.shade50)
         .padding(.horizontal(12).vertical(10))
         .borderRadius(.circular(10))
-        .border(.color(Colors.blueGrey.shade400).width(1))
-        .height(150)
-        .width(120)
+        .border(.color(Colors.blueGrey.shade400))
+        .size(120, 150)
         .shadow(.color(Colors.black12).blurRadius(10));
 
     final iconStyle = IconStyler.icon(

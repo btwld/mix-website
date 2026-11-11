@@ -20,16 +20,7 @@ class Example extends StatelessWidget {
     return FortalScope(
       accent: .green,
       brightness: .dark,
-      child: const DividerPreview(),
+      child: SizedBox(width: 300, child: const FortalDivider()),
     );
-  }
-}
-
-class DividerPreview extends StatelessWidget {
-  const DividerPreview({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(width: 300, child: const FortalDivider());
   }
 }

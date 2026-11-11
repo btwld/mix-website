@@ -20,19 +20,10 @@ class Example extends StatelessWidget {
     return FortalScope(
       accent: .green,
       brightness: .dark,
-      child: const ProgressPreview(),
-    );
-  }
-}
-
-class ProgressPreview extends StatelessWidget {
-  const ProgressPreview({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 300,
-      child: const FortalProgress.surface(value: 0.3),
+      child: SizedBox(
+        width: 300,
+        child: const FortalProgress.surface(value: 0.3),
+      ),
     );
   }
 }

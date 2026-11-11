@@ -136,8 +136,7 @@ final _isExpanded = ValueNotifier(false);
 
 final box = BoxStyler()
     .color(Colors.deepPurple)
-    .height(100)
-    .width(100)
+    .size(100, 100)
     .borderRadius(.circular(40))
     .phaseAnimation(
       trigger: _isExpanded,
@@ -182,8 +181,7 @@ A single trigger drives two tracks (scale and width). The style builder reads bo
 final _trigger = ValueNotifier(false);
 
 final box = BoxStyler()
-    .height(30)
-    .width(40)
+    .size(40, 30)
     .color(Colors.deepPurpleAccent)
     .shapeStadium()
     .keyframeAnimation(
@@ -205,11 +203,7 @@ final box = BoxStyler()
 
 return Center(
   child: Pressable(
-    onPress: () {
-      setState(() {
-        _trigger.value = !_trigger.value;
-      });
-    },
+    onPress: () => _trigger.value = !_trigger.value,
     child: box(),
   ),
 );
@@ -229,7 +223,6 @@ This example shows two advanced patterns:
 ```dart
 final box = BoxStyler()
     .size(60, 60)
-    .alignment(.centerLeft)
     .keyframeAnimation(
       timeline: [
         KeyframeTrack('scale', [

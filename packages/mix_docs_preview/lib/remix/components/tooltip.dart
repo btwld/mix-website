@@ -20,19 +20,10 @@ class Example extends StatelessWidget {
     return FortalScope(
       accent: .green,
       brightness: .dark,
-      child: const TooltipPreview(),
-    );
-  }
-}
-
-class TooltipPreview extends StatelessWidget {
-  const TooltipPreview({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FortalTooltip(
-      tooltipChild: const Text('Fortal tooltip'),
-      child: FortalButton.solid(onPressed: () {}, label: 'Hover me'),
+      child: FortalTooltip(
+        tooltipChild: const Text('Fortal tooltip'),
+        child: FortalButton.solid(onPressed: () {}, label: 'Hover me'),
+      ),
     );
   }
 }

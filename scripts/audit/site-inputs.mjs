@@ -26,10 +26,13 @@ for (const entry of manifest.entries) {
 }
 const site = JSON.parse(await readFile('.generated/site-inputs.json', 'utf8'));
 assert.equal(site.pages.mix.length, 29);
-assert.equal(site.pages.remix.length, 53);
+assert.equal(site.pages.remix.length, 62);
 assert.equal(site.pages['naked-ui'].length, 23);
-// 30 referenced by Mix MDX plus the 13 the landing pages mount.
-assert.equal(site.mix.previewIds.length, 43);
+// 29 referenced by Mix MDX plus the 13 the landing pages mount. The old
+// nested-token preview read spacing from a shadowed scope; the guide now
+// teaches MixScope.inherit with explicit source instead of mounting that input.
+assert.equal(site.mix.previewIds.length, 42);
+assert.ok(!site.mix.previewIds.includes('guides/design-token.0'));
 assert.deepEqual(Object.keys(site.mix.landingPreviews).sort(), [...LANDING_PREVIEW_IDS].sort());
 // Checked here rather than in a unit test: the manifest only exists once the
 // prebuild has staged it, and a cache-backed check could not prove anything.
@@ -42,4 +45,4 @@ for (const [id, locked] of Object.entries(site.mix.landingPreviews)) {
 }
 const inventory = JSON.parse(await readFile('docs/migration/pages.json', 'utf8'));
 for (const project of ['mix', 'remix', 'naked-ui']) assert.equal(site.pages[project].length, inventory.counts[project], `${project} inventory must match the actual staged corpus`);
-console.log(`Verified ${manifest.entries.length} preview entries / ${used.size} authored source files, ${site.mix.previewIds.length} used IDs (${LANDING_PREVIEW_IDS.length} on landings) and all 105 canonical pages.`);
+console.log(`Verified ${manifest.entries.length} preview entries / ${used.size} authored source files, ${site.mix.previewIds.length} used IDs (${LANDING_PREVIEW_IDS.length} on landings) and all 114 canonical pages.`);

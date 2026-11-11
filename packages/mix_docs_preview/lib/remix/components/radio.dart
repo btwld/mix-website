@@ -45,7 +45,6 @@ class _RadioPreviewState extends State<RadioPreview> {
         });
       },
       child: Column(
-        crossAxisAlignment: .center,
         spacing: 16,
         mainAxisSize: .min,
         children: [

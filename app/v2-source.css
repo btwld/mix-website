@@ -1,0 +1,66 @@
+.v2-source { padding-bottom: 96px; }
+.v2-source-shell { width: 100%; max-width: 96rem; margin-inline: auto; padding: 116px clamp(20px, 3.4vw, 56px) 0; }
+.v2-source-back { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; color: var(--lx-ink-dim); }
+.v2-source-back:hover { color: var(--lx-ink); }
+.v2-source-intro { max-width: 48rem; padding-block: 38px 40px; }
+.v2-source-eyebrow { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: .04em; color: rgb(167 139 250); }
+.v2-source-intro h1 { margin-top: 14px; font-size: clamp(40px, 5vw, 64px); font-weight: 600; line-height: 1.06; letter-spacing: -.045em; }
+.v2-source-intro > p:last-child { max-width: 43rem; margin-top: 20px; font-size: 18px; line-height: 1.65; color: var(--lx-ink-dim); }
+.v2-source-browser { position: relative; min-width: 0; border: 1px solid var(--lx-line); border-radius: 14px; background: #0d1117; overflow: hidden; }
+.v2-source-toolbar { display: flex; align-items: end; justify-content: space-between; gap: 20px; padding: 18px 22px; }
+.v2-source-picker { display: grid; gap: 8px; min-width: 0; }
+.v2-source-picker label { font-size: 14px; color: var(--lx-ink-dim); }
+.v2-source-picker select { width: min(100%, 30rem); min-height: 44px; padding: 8px 34px 8px 12px; border: 1px solid var(--lx-line); border-radius: 7px; background: var(--lx-surface); font-family: var(--font-mono); font-size: 13px; color: var(--lx-ink); cursor: pointer; }
+.v2-source-copy { flex: none; min-height: 44px; min-width: 100px; padding: 8px 14px; border: 1px solid var(--lx-line); border-radius: 7px; background: rgb(255 255 255 / 4%); font-size: 13px; font-weight: 500; color: var(--lx-ink); cursor: pointer; }
+.v2-source-copy:hover { background: rgb(255 255 255 / 9%); }
+.v2-source-file-summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; padding: 0 22px 18px; border-bottom: 1px solid var(--lx-line); font-size: 13px; color: var(--lx-ink-dim); }
+.v2-source-file-summary span { font-family: var(--font-mono); font-size: 11.5px; }
+.v2-source-code { max-height: min(76svh, 920px); overflow: auto; overscroll-behavior: contain; }
+.v2-source-code pre { min-width: 100%; width: max-content; margin: 0; padding: 24px; font-family: var(--font-mono); font-size: 13px; line-height: 1.75; tab-size: 2; }
+.v2-source-code code { font: inherit; }
+.v2-source-copy-status { min-height: 31px; padding: 6px 22px; border-top: 1px solid var(--lx-line); font-size: 12px; color: var(--lx-ink-dim); }
+.v2-source-no-script { padding: 12px 22px; font-size: 13px; }
+.v2-source-readme { margin-bottom: 24px; border-block: 1px solid var(--lx-line); }
+.v2-source-readme summary { display: flex; align-items: center; gap: 16px; min-height: 64px; padding-block: 16px; cursor: pointer; list-style: none; }
+.v2-source-readme summary::-webkit-details-marker { display: none; }
+.v2-source-readme summary::before { content: '+'; width: 16px; font-family: var(--font-mono); color: rgb(167 139 250); }
+.v2-source-readme[open] summary::before { content: '−'; }
+.v2-source-readme summary span:first-child { font-size: 15px; font-weight: 500; }
+.v2-source-readme summary span:last-child { margin-left: auto; font-size: 13px; color: var(--lx-ink-dim); }
+.v2-source-setup { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(240px, 1fr); gap: clamp(36px, 7vw, 100px); padding: 0 0 26px 32px; }
+.v2-source-setup > div > p:not(.v2-source-eyebrow) { margin-top: 16px; font-size: 15px; line-height: 1.75; color: var(--lx-ink-dim); }
+.v2-source-setup p code { font-family: var(--font-mono); font-size: .85em; color: var(--lx-ink); overflow-wrap: anywhere; }
+.v2-source-setup pre { margin-top: 18px; padding: 16px 18px; border: 1px solid var(--lx-line); border-radius: 9px; font-family: var(--font-mono); font-size: 14px; background: var(--lx-surface); }
+.v2-source-setup aside { align-self: start; border-top: 1px solid var(--lx-line); padding-top: 22px; }
+.v2-source-setup h3 { font-size: 15px; font-weight: 600; }
+.v2-source-setup dl { margin-top: 12px; }
+.v2-source-setup dl > div { display: flex; justify-content: space-between; gap: 20px; padding-block: 13px; border-bottom: 1px solid var(--lx-line); font-size: 14px; }
+.v2-source-setup dd { font-family: var(--font-mono); font-size: 12px; color: var(--lx-ink-dim); }
+.v2-source-setup aside > p { margin-top: 16px; font-size: 13px; line-height: 1.65; color: var(--lx-ink-dim); }
+.v2-source :is(a, button, select, summary, [tabindex]):focus-visible { outline: 2px solid rgb(167 139 250); outline-offset: 4px; }
+.v2-source-code:focus-visible { outline-offset: -3px; }
+@media (max-width: 40rem) {
+  .v2-source-shell { padding-top: 90px; }
+  .v2-source-intro { padding-block: 26px 28px; }
+  .v2-source-intro > p:last-child { font-size: 16px; }
+  .v2-source-toolbar { gap: 10px; padding: 16px; }
+  .v2-source-picker { flex: 1; }
+  .v2-source-picker select { width: 100%; font-size: 16px; padding-right: 20px; }
+  .v2-source-copy { min-width: 82px; padding-inline: 10px; font-size: 12px; }
+  .v2-source-file-summary { padding: 0 16px 16px; font-size: 12px; }
+  .v2-source-code pre { padding: 18px 16px; font-size: 12px; }
+  .v2-source-readme summary { gap: 10px; }
+  .v2-source-readme summary span:first-child { font-size: 13px; }
+  .v2-source-readme summary span:last-child { font-size: 11px; }
+  .v2-source-setup { grid-template-columns: 1fr; padding-left: 0; }
+}
+
+.v2-source-code pre { padding-inline: 0; }
+/* The docs theme pads code lines too. The full path keeps this gutter whichever sheet loads last. */
+.v2-source .v2-source-code pre code .line { position: relative; display: inline-block; min-width: 100%; min-height: 1lh; padding-inline: 6ch 24px; border-left: 3px solid transparent; scroll-margin-top: 112px; }
+.v2-source-code .line::before { content: attr(data-line); position: absolute; left: 0; width: 4.5ch; text-align: right; color: #8993a5; user-select: none; }
+.v2-source-code .v2-source-highlight { border-left-color: #c4a4ff; background: rgb(167 139 250 / 14%); }
+.v2-source-code .v2-source-highlight::before { color: #e4d8f6; font-weight: 700; }
+.v2-source-file-summary a, .v2-source-setup a { text-decoration: underline; text-underline-offset: 3px; }
+.v2-source-setup pre { max-width: 100%; overflow-x: auto; }
+.v2-source-intro p code { font-family: var(--font-mono); font-size: .86em; color: var(--lx-ink); }

@@ -14,15 +14,6 @@ class Example extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FortalScope(brightness: .dark, child: const _HeroButton());
-  }
-}
-
-class _HeroButton extends StatelessWidget {
-  const _HeroButton();
-
-  @override
-  Widget build(BuildContext context) {
     // #docregion style
     final style = ButtonStyler()
         .color(Colors.black)
@@ -30,10 +21,13 @@ class _HeroButton extends StatelessWidget {
         .paddingX(24)
         .paddingY(11)
         .borderRadius(.circular(2))
-        .border(.color(Colors.cyanAccent.shade400).width(1))
+        .border(.color(Colors.cyanAccent.shade400))
         .shadow(.color(Colors.purpleAccent.shade400).blurRadius(22));
     // #enddocregion style
 
-    return RemixButton(label: 'GET STARTED', onPressed: () {}, style: style);
+    return FortalScope(
+      brightness: .dark,
+      child: RemixButton(label: 'GET STARTED', onPressed: () {}, style: style),
+    );
   }
 }

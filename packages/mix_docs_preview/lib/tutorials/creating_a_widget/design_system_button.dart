@@ -32,62 +32,54 @@ class Example extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final buttonStyle = BoxStyler()
+        .padding(.symmetric(horizontal: 24, vertical: 12))
+        .borderRadius(.circular(8));
+    final labelStyle = TextStyler()
+        .fontSize(16)
+        .fontWeight(.w500)
+        .color(Colors.white);
+
     return Column(
       mainAxisSize: .min,
       children: [
         _buildButton(
           label: 'Filled',
-          boxStyle: .color(
-            Colors.blueAccent,
-          ).padding(.horizontal(24).vertical(12)).borderRadius(.circular(8)),
-          textStyle: .color(Colors.white).fontSize(16).fontWeight(.w500),
+          boxStyle: buttonStyle.color(Colors.blueAccent),
+          textStyle: labelStyle,
         ),
         const SizedBox(height: 12),
         _buildButton(
           label: 'Outlined',
-          boxStyle: .color(Colors.transparent)
-              .border(.color(Colors.blueAccent).width(1.5))
-              .padding(.horizontal(24).vertical(12))
-              .borderRadius(.circular(8)),
-          textStyle: .color(Colors.blueAccent).fontSize(16).fontWeight(.w500),
+          boxStyle: buttonStyle.border(.color(Colors.blueAccent).width(1.5)),
+          textStyle: labelStyle.color(Colors.blueAccent),
         ),
         const SizedBox(height: 12),
         _buildButton(
           label: 'Elevated',
-          boxStyle: .color(Colors.blueAccent)
-              .padding(.horizontal(24).vertical(12))
-              .borderRadius(.circular(8))
+          boxStyle: buttonStyle
+              .color(Colors.blueAccent)
               .shadow(
                 .color(
                   Colors.blueAccent.shade700.withValues(alpha: 0.5),
                 ).offset(x: 0, y: 4).blurRadius(8),
               ),
-          textStyle: .color(Colors.white).fontSize(16).fontWeight(.w500),
+          textStyle: labelStyle,
         ),
         const SizedBox(height: 12),
         _buildButton(
           label: 'Link',
-          boxStyle: .color(
-            Colors.transparent,
-          ).padding(.horizontal(24).vertical(12)).borderRadius(.circular(8)),
-          textStyle: .color(
-            Colors.blueAccent,
-          ).fontSize(16).fontWeight(.w500).decoration(.underline),
+          boxStyle: buttonStyle,
+          textStyle: labelStyle.color(Colors.blueAccent).decoration(.underline),
         ),
         const SizedBox(height: 12),
         Pressable(
           enabled: false,
           child: Box(
-            style: BoxStyler()
-                .color(Colors.blueGrey.shade100)
-                .padding(.horizontal(24).vertical(12))
-                .borderRadius(.circular(8)),
+            style: buttonStyle.color(Colors.blueGrey.shade100),
             child: StyledText(
               'Disabled',
-              style: TextStyler()
-                  .color(Colors.blueGrey.shade700)
-                  .fontSize(16)
-                  .fontWeight(.w500),
+              style: labelStyle.color(Colors.blueGrey.shade700),
             ),
           ),
         ),

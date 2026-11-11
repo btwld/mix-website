@@ -4,12 +4,12 @@
     "mix-previews": {
       "source": {
         "repository": "btwld/mix-website",
-        "commit": "23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7"
+        "commit": "51ceddae3897fcf08c63236fe371263cd2e1d258"
       },
       "artifact": {
-        "url": "https://github.com/btwld/mix-website/releases/download/site-input-mix-previews-23a73c6c0dda/mix-previews-23a73c6c0dda.tar.gz",
-        "sha256": "ba0a0926fab14633193e48df60dc13df9513dd415deb6adce8cdc87a2ded85e5",
-        "size": 1931761
+        "url": "https://github.com/btwld/mix-website/releases/download/site-input-mix-previews-51ceddae3897/mix-previews-51ceddae3897.tar.gz",
+        "sha256": "dcbdefb2e9d1123756d69275a4a7aa7c5ead2355ad28e2ab1496c7112b0bb4f8",
+        "size": 1919535
       },
       "toolchain": {
         "flutter": "3.44.0",
@@ -20,18 +20,18 @@
       "producer": {
         "repository": "btwld/mix-website",
         "script": "scripts/site-inputs/produce/mix-previews.sh",
-        "commit": "23a73c6c0ddad669f2feafa9ede2ba7b7351a4f7"
+        "commit": "51ceddae3897fcf08c63236fe371263cd2e1d258"
       }
     },
     "naked-ui-docs": {
       "source": {
         "repository": "btwld/remix",
-        "commit": "99c6da876de43f54d039bdb097fe5c7b74dce709"
+        "commit": "1bf2c0ab7e1098953befed47fe7f4d215fc32284"
       },
       "artifact": {
-        "url": "https://github.com/btwld/mix-website/releases/download/site-input-naked-ui-docs-99c6da876de4/naked-ui-docs-99c6da876de4.tar.gz",
-        "sha256": "5f48d696d21c6ba265039d56a3f1d730ba248a4c211cff7a31cbe6818f158af1",
-        "size": 40353
+        "url": "https://github.com/btwld/mix-website/releases/download/site-input-naked-ui-docs-1bf2c0ab7e10/naked-ui-docs-1bf2c0ab7e10.tar.gz",
+        "sha256": "1515deebbf92e242b5d68eb1af21ecfd5ebbf7ea8ff068af2ac4f636b63186ac",
+        "size": 40302
       },
       "toolchain": {
         "flutter": "3.44.0",
@@ -41,18 +41,18 @@
       "producer": {
         "repository": "btwld/mix-website",
         "script": "scripts/site-inputs/produce/naked-ui-docs.sh",
-        "commit": "4230ceeed0c0526dbc72769c35cf020b0e803015"
+        "commit": "d7a307986c05ba0421a23e48f8096d11b1730e05"
       }
     },
     "remix-docs": {
       "source": {
         "repository": "btwld/remix",
-        "commit": "ba450dc72223d3ebacee0282b989d4ee2823828f"
+        "commit": "d2798c54475caa1c7e31169dbd0019a7da22c569"
       },
       "artifact": {
-        "url": "https://github.com/btwld/mix-website/releases/download/site-input-remix-docs-ba450dc72223/remix-docs-ba450dc72223.tar.gz",
-        "sha256": "0e93f8f70911f818820e050ea370bbace8ace3cef5293760c5b6570a119e9622",
-        "size": 18500647
+        "url": "https://github.com/btwld/mix-website/releases/download/site-input-remix-docs-d2798c54475c/remix-docs-d2798c54475c.tar.gz",
+        "sha256": "73eeedcd7cfcf234839a5eaf3113600d9d3bcba2e2cdebca77316426e3888ac3",
+        "size": 18296184
       },
       "toolchain": {
         "flutter": "3.44.0",
@@ -63,7 +63,29 @@
       "producer": {
         "repository": "btwld/mix-website",
         "script": "scripts/site-inputs/produce/remix-docs.sh",
-        "commit": "4230ceeed0c0526dbc72769c35cf020b0e803015"
+        "commit": "e9de6d0f2aa0982153d3ba52a78325eb47c73bce"
+      }
+    },
+    "showcase": {
+      "source": {
+        "repository": "btwld/mix-website",
+        "commit": "6e0f780d9871d074a4006090b00d52c63999ae71"
+      },
+      "artifact": {
+        "url": "https://github.com/btwld/mix-website/releases/download/site-input-showcase-6e0f780d9871/showcase-6e0f780d9871.tar.gz",
+        "sha256": "8f8058c8121e6ff6cbba369f26ef3dfdae9acb524ad2c310337272bb1df658f7",
+        "size": 17573753
+      },
+      "toolchain": {
+        "flutter": "3.47.9",
+        "flutterRevision": "c197ca5199e9ee5661e865596c9c07294dfab51c",
+        "dart": "3.13.7",
+        "engineRevision": "89c39edfdfae2949f6806e4a315c0c08522238b7"
+      },
+      "producer": {
+        "repository": "btwld/mix-website",
+        "script": "scripts/site-inputs/produce/showcase.sh",
+        "commit": "6e0f780d9871d074a4006090b00d52c63999ae71"
       }
     }
   }

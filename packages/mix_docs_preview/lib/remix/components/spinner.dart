@@ -20,25 +20,16 @@ class Example extends StatelessWidget {
     return FortalScope(
       accent: .green,
       brightness: .dark,
-      child: const SpinnerPreview(),
-    );
-  }
-}
-
-class SpinnerPreview extends StatelessWidget {
-  const SpinnerPreview({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: .center,
-      mainAxisSize: .min,
-      spacing: 16,
-      children: const [
-        FortalSpinner(size: .size1),
-        FortalSpinner(size: .size2),
-        FortalSpinner(size: .size3),
-      ],
+      child: Row(
+        mainAxisAlignment: .center,
+        mainAxisSize: .min,
+        spacing: 16,
+        children: const [
+          FortalSpinner(size: .size1),
+          FortalSpinner(size: .size2),
+          FortalSpinner(size: .size3),
+        ],
+      ),
     );
   }
 }

@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "context": {
+    "prefix": "Ui",
+    "preset": "vanilla",
+    "uiPath": "lib/ui"
+  },
+  "targets": {
+    "lib/ui/components/badge.dart": "btwld/remix/registry#vanilla/badge",
+    "lib/ui/components/badge.g.dart": "btwld/remix/registry#vanilla/badge",
+    "lib/ui/components/button.dart": "btwld/remix/registry#vanilla/button",
+    "lib/ui/components/button.g.dart": "btwld/remix/registry#vanilla/button",
+    "lib/ui/components/card.dart": "btwld/remix/registry#vanilla/card",
+    "lib/ui/components/card.g.dart": "btwld/remix/registry#vanilla/card",
+    "lib/ui/components/checkbox.dart": "btwld/remix/registry#vanilla/checkbox",
+    "lib/ui/components/checkbox.g.dart": "btwld/remix/registry#vanilla/checkbox",
+    "lib/ui/components/slider.dart": "btwld/remix/registry#vanilla/slider",
+    "lib/ui/components/slider.g.dart": "btwld/remix/registry#vanilla/slider",
+    "lib/ui/components/switch.dart": "btwld/remix/registry#vanilla/switch",
+    "lib/ui/components/switch.g.dart": "btwld/remix/registry#vanilla/switch",
+    "lib/ui/theme/effects.dart": "btwld/remix/registry#vanilla/theme",
+    "lib/ui/theme/theme_data.dart": "btwld/remix/registry#vanilla/theme",
+    "lib/ui/theme/theme_scope.dart": "btwld/remix/registry#vanilla/theme",
+    "lib/ui/theme/tokens.dart": "btwld/remix/registry#vanilla/theme"
+  }
+}

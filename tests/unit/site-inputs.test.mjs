@@ -309,3 +309,21 @@ test('all Flutter inputs, including non-snippet helpers, additions/deletions and
     assert.deepEqual(await mixBuildInputs(root), baseline);
   } finally { await rm(root, { recursive: true }); }
 });
+
+test('showcase bundle is independently invalidated by its source and lock', async () => {
+  const root = await tempDir();
+  try {
+    await writeTree(root, {
+      'packages/mix_showcase/lib/main.dart': 'void main() {}',
+      'packages/mix_showcase/pubspec.lock': 'packages: {}',
+      'packages/mix_docs_preview/lib/main.dart': 'docs',
+    });
+    const original = await mixBuildInputs(root, 'mix_showcase');
+    await writeTree(root, { 'bundle/build-inputs.json': JSON.stringify(original) });
+    await verifyMixBuildInputs(root, path.join(root, 'bundle'), 'mix_showcase');
+    await writeTree(root, { 'packages/mix_docs_preview/lib/main.dart': 'different docs' });
+    assert.deepEqual(await mixBuildInputs(root, 'mix_showcase'), original);
+    await writeTree(root, { 'packages/mix_showcase/lib/main.dart': 'void main() { runApp(app); }' });
+    await assert.rejects(verifyMixBuildInputs(root, path.join(root, 'bundle'), 'mix_showcase'), /Stale Flutter build inputs/);
+  } finally { await rm(root, { recursive: true }); }
+});

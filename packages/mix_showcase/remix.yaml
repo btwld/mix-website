@@ -1,0 +1,12 @@
+schema: 3
+prefix: Ui
+preset: vanilla
+paths:
+  ui: lib/ui
+defaultRegistry: "@remix"
+registries:
+  "@remix":
+    repository: "btwld/remix"
+    path: "registry"
+    ref: "registry-stable"
+    revision: "d2798c54475caa1c7e31169dbd0019a7da22c569"

@@ -38,8 +38,7 @@ class _PhaseTapCompressExampleState extends State<PhaseTapCompressExample> {
   Widget build(BuildContext context) {
     final box = BoxStyler()
         .color(Colors.deepPurple)
-        .height(100)
-        .width(100)
+        .size(100, 100)
         .borderRadius(.circular(40))
         .phaseAnimation(
           trigger: _isExpanded,

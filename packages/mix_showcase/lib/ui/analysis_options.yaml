@@ -1,0 +1,9 @@
+# Installed source keeps Dart's default formatting, the same the Remix CLI
+# uses for `remix add --diff`, so a diff shows only real changes. The narrow
+# page width in the package's analysis_options.yaml is for the examples the
+# website shows beside a live view.
+include: ../../analysis_options.yaml
+
+formatter:
+  page_width: 80
+  trailing_commas: automate

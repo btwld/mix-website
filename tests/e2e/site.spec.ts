@@ -49,9 +49,9 @@ async function changesAfter(host: Locator, action: () => Promise<void>) {
 
 test.describe('direct loads', () => {
   for (const [path, heading] of [
-    // The landings carry their restored editorial headings; /mix/ and
-    // /naked-ui/ stay named after their project.
-    ['/', 'An Expressive Styling System for Flutter'],
+    // The showcase is the homepage; /v2/ remains a working alias.
+    ['/', 'Build your Flutter design system from three libraries.'],
+    ['/v2/', 'Build your Flutter design system from three libraries.'],
     ['/mix/', 'Mix'], ['/remix/', 'The behavior is built in. Style Flutter your way.'], ['/naked-ui/', 'Naked UI'],
     ['/mix/docs/widgets/box/', 'Box'], ['/mix/docs/guides/animations/', 'Animations'],
     ['/remix/docs/components/button/', 'Button'], ['/naked-ui/docs/widget/button/', 'NakedButton'],
@@ -190,7 +190,7 @@ test.describe('Mix previews', () => {
 });
 
 test.describe('Remix', () => {
-  test('the docs embed starts the catalog example and recovers from a reset', async ({ page }) => {
+  test('the docs embed starts the catalog example and recovers from a reset', async ({ page, browserName }) => {
     await page.goto('/remix/docs/components/button/');
     const stage = page.locator('.remix-preview-stage');
     await expect(stage).toHaveAttribute('data-status', 'ready', { timeout: 90_000 });
@@ -198,7 +198,8 @@ test.describe('Remix', () => {
     await expect(frame.locator('flutter-view, flt-glass-pane').first()).toBeAttached();
     // Keyboard: Tab from the Theme control to "Reset example" and activate it.
     await page.getByLabel('Example theme').focus();
-    await page.keyboard.press('Tab');
+    // macOS WebKit uses Option+Tab to include buttons in keyboard navigation.
+    await page.keyboard.press(browserName === 'webkit' && process.platform === 'darwin' ? 'Alt+Tab' : 'Tab');
     await expect(page.getByRole('button', { name: 'Reset example' })).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(stage).not.toHaveAttribute('data-status', 'ready');

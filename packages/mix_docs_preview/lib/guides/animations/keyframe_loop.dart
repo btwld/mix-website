@@ -23,7 +23,6 @@ class KeyframeLoopExample extends StatelessWidget {
   Widget build(BuildContext context) {
     final box = BoxStyler()
         .size(60, 60)
-        .alignment(.centerLeft)
         .keyframeAnimation(
           timeline: [
             KeyframeTrack('scale', [
@@ -42,7 +41,7 @@ class KeyframeLoopExample extends StatelessWidget {
             final opacity = values.get('opacity');
 
             return style
-                .transform(Matrix4.diagonal3Values(scale, scale, 1.0))
+                .scale(scale)
                 .color(values.get('color'))
                 .wrap(.opacity(opacity));
           },

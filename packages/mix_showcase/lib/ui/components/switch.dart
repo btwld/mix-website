@@ -1,0 +1,108 @@
+import 'package:flutter/widgets.dart';
+import 'package:mix_annotations/mix_annotations.dart';
+import 'package:remix/remix.dart';
+
+import '../theme/effects.dart';
+import '../theme/tokens.dart';
+
+part 'switch.g.dart';
+
+/// The application's Switch recipe.
+///
+/// Remix owns the rendering, the toggle behavior, the switch accessibility
+/// role, and — importantly — the thumb's travel: it aligns the thumb to the
+/// leading edge when off and the trailing edge when on. This recipe supplies
+/// only the two boxes' geometry and their colors.
+///
+/// A switch takes a `label`, drawn beside the track inside the switch's own
+/// tap, focus, and semantics target, as a form label: `textSm` at medium
+/// weight, 8px from the track. A switch without one needs a `semanticLabel`.
+@MixWidget(target: RemixSwitch.new)
+SwitchStyler uiSwitchStyle({SwitchStyler style = const SwitchStyler.create()}) {
+  return SwitchStyler()
+      .animate(UiTokens.motion)
+      .size(_trackWidth, _trackHeight)
+      .borderRadius(.all(_pill))
+      .trackColor(_offTrack())
+      // A transparent outline: it holds the pixel the focus fragment turns
+      // `ring`, so focusing a switch never changes its size.
+      .border(.color(_noEdge).width(UiTokens.strokeHairline))
+      // In the effects layer rather than the decoration: the dark off-track
+      // is translucent, and a decoration shadow would show through it.
+      .trackEffects(RemixBoxEffectsMix(behindContent: UiShadow.xs.effects))
+      .thumb(
+        BoxStyler()
+            .size(UiTokens.icon, UiTokens.icon)
+            .borderRadius(.all(_pill))
+            .color(_offThumb()),
+      )
+      .labelSpacing(UiTokens.s2)
+      .label(
+        .style(
+          UiTokens.textSm.mix(),
+        ).fontWeight(FontWeight.w500).color(UiTokens.foreground()),
+      )
+      .onSelected(
+        SwitchStyler().trackColor(UiTokens.primary()).thumbColor(_onThumb()),
+      )
+      .onFocusVisible(_focusVisibleStyle())
+      .onDisabled(_disabledStyle())
+      .merge(style);
+}
+
+/// The track: 32 by 18.4.
+///
+/// The height is off the four-pixel grid on purpose: it is the 16px thumb, the
+/// 1px outline above and below it, and a fifth of a pixel of air on each side,
+/// so the thumb reads as filling the track. The thumb's travel is the track's
+/// inner width less its own, 14px.
+const _trackWidth = UiTokens.s8;
+const _trackHeight = UiTokens.icon + 2 * (UiTokens.strokeHairline + _thumbAir);
+
+/// See [_trackHeight].
+const _thumbAir = 0.2;
+
+/// A radius large enough to round the track and the thumb.
+const _pill = Radius.circular(UiTokens.pill);
+
+/// A color that paints nothing, for the resting outline.
+const _noEdge = Color(0x00000000);
+
+/// The off track: `input`, at 80% in the dark theme.
+final _offTrack = uiTint(UiTokens.input, 1, dark: _darkOffTrackAlpha);
+
+/// See [_offTrack].
+const _darkOffTrackAlpha = 0.8;
+
+/// The thumb while off: the page color on a light page, and `foreground` on a
+/// dark one, where a page-colored thumb would vanish into the track.
+final _offThumb = uiByBrightness(
+  light: UiTokens.background,
+  dark: UiTokens.foreground,
+);
+
+/// The thumb while on: the page color on a light page, and
+/// `primaryForeground` on a dark one, the color that reads on the light dark
+/// `primary` track.
+final _onThumb = uiByBrightness(
+  light: UiTokens.background,
+  dark: UiTokens.primaryForeground,
+);
+
+/// The keyboard focus ring: a 3px band of `ring` at half strength, with
+/// the track's own outline turned `ring`.
+///
+/// An outline rather than a border: `RemixBoxEffects` paints it outside the
+/// track without taking layout space, so focusing a switch never reflows the
+/// row it sits in.
+SwitchStyler _focusVisibleStyle() =>
+    SwitchStyler().trackEffects(uiFocusRing()).border(uiFocusBorder());
+
+/// Declared last so it wins over every other state fragment.
+///
+/// A disabled switch keeps whatever track its state gives it and simply
+/// fades; the focus ring is cleared because a disabled control that still
+/// draws a focus ring reads as actionable.
+SwitchStyler _disabledStyle() => SwitchStyler()
+    .trackEffects(RemixBoxEffectsMix.outline(.style(.none)))
+    .wrap(.opacity(UiTokens.disabledOpacity));

@@ -77,6 +77,8 @@ export interface FlutterMultiViewApp {
  * Flutter loader configuration for initial load.
  */
 export interface FlutterLoaderConfig {
+  /** Self-hosted CanvasKit, for builds made with --no-web-resources-cdn. */
+  canvasKitBaseUrl?: string;
   /** Host element for the app (single-view mode) */
   hostElement?: HTMLElement;
   /** Base URL for entrypoint resolution */

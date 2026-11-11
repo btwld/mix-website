@@ -1,0 +1,64 @@
+name: mix_showcase
+description: The live Flutter examples on the Mix website's /v2/ page.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ">=3.13.0 <4.0.0"
+  flutter: ">=3.47.9"
+
+dependencies:
+  cupertino_icons: ^1.0.9
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  mix: 2.4.0
+  mix_annotations: ^2.2.0-beta.1
+  naked_ui: 2.0.0-rc.1
+  remix: 1.0.0-rc.2
+  remix_ui_fonts: ^0.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  remix_cli: 1.0.0-rc.1
+  build_runner: ^2.10.1
+  mix_generator: ^2.2.0-beta.3
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: Geist
+      fonts:
+        - asset: assets/fonts/Geist-Regular.ttf
+        - asset: assets/fonts/Geist-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Geist-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Geist-Bold.ttf
+          weight: 700
+    - family: GeistMono
+      fonts:
+        - asset: assets/fonts/GeistMono-Regular.ttf
+        - asset: assets/fonts/GeistMono-Medium.ttf
+          weight: 500
+    - family: LibreFranklin
+      fonts:
+        - asset: assets/fonts/LibreFranklin-Regular.ttf
+        - asset: assets/fonts/LibreFranklin-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/LibreFranklin-SemiBold.ttf
+          weight: 600
+    - family: AbrilFatface
+      fonts:
+        - asset: assets/fonts/AbrilFatface-Regular.ttf
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Montserrat-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Montserrat-Bold.ttf
+          weight: 700

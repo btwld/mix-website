@@ -21,8 +21,7 @@ class _ExampleState extends State<Example> {
   Widget build(BuildContext context) {
     // Button style that adapts to dark/light mode
     final buttonStyle = BoxStyler()
-        .height(60)
-        .width(60)
+        .size(60, 60)
         .borderRadius(.circular(30))
         .color(Colors.grey.shade200)
         .animate(.easeInOut(600.ms))

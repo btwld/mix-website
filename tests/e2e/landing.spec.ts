@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
-import { HOME_FEATURE_IDS, MIX_FEATURES, REMIX_BENTO, REMIX_HERO_STYLES } from '../../lib/landing-previews.mjs';
+import { MIX_FEATURES, REMIX_BENTO, REMIX_HERO_STYLES } from '../../lib/landing-previews.mjs';
 
 const site = JSON.parse(readFileSync(new URL('../../.generated/site-inputs.json', import.meta.url), 'utf8'));
 const landingIds: string[] = Object.keys(site.mix.landingPreviews);
@@ -57,8 +57,8 @@ test.describe('dark is the only site theme', () => {
       await expectDark(page, route);
     }
     await page.goto('/');
-    await page.locator('.site-nav-menu summary').click();
-    await expect(page.locator('.site-nav-panel').getByRole('link', { name: 'Naked UI' })).toBeVisible();
+    await page.locator('.v2-docs-menu summary').click();
+    await expect(page.locator('.v2-docs-panel').getByRole('link', { name: 'Naked UI' })).toBeVisible();
     await context.close();
   });
 
@@ -90,7 +90,7 @@ test.describe('dark is the only site theme', () => {
       }
       if (width === 390) {
         await page.goto('/');
-        await page.locator('.site-nav-menu summary').click();
+        await page.locator('.v2-docs-menu summary').click();
         await expect(switches(page)).toHaveCount(0);
         await page.goto('/mix/docs/');
         await page.getByRole('button', { name: 'Open Sidebar', exact: true }).click();
@@ -136,7 +136,7 @@ test.describe('floating navigation', () => {
   test('phone controls are 44px and the menu reaches every project', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 320, height: 700 });
-    await page.goto('/');
+    await page.goto('/mix/');
     // Escape and outside-click handling attach on hydration.
     await page.waitForLoadState('networkidle');
     const search = page.locator('.site-nav').getByRole('button', { name: 'Search' });
@@ -179,23 +179,26 @@ test.describe('floating navigation', () => {
 });
 
 test.describe('restored composition', () => {
-  test('the historical Mix hero leads into live features with balanced branding', async ({ page }) => {
+  test('the homepage introduces all three libraries and switches preview/source on a phone', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/');
-    const media = (await page.locator('.lx-band-media').boundingBox())!;
-    const features = (await page.locator('#home-features').boundingBox())!;
-    expect(media.y + media.height, 'the backdrop reaches the feature heading').toBeGreaterThan(features.y + features.height);
-    expect(media.height).toBeLessThanOrEqual(1100);
-    expect((await page.locator('.lx-mark').boundingBox())!.width).toBe(95);
-    const heading = page.getByRole('heading', { level: 1 });
-    const subtitle = page.getByText('Effortlessly style your widgets and build design systems.', { exact: true });
-    await expect(heading).toHaveCSS('font-size', '70px');
-    await expect(subtitle).toHaveCSS('font-size', '25.6px');
-    await page.setViewportSize({ width: 320, height: 700 });
-    await expect(heading).toHaveCSS('font-size', '40px');
-    await expect(subtitle).toHaveCSS('font-size', '18px');
-    expect((await page.locator('.lx-mark').boundingBox())!.width).toBeGreaterThanOrEqual(72);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Build your Flutter design system from three libraries.');
+    const hero = page.locator('#hello');
+    await expect(hero.locator('.v2-code')).toBeVisible();
+    await expect(hero.locator('.v2-view')).toBeVisible();
+    await page.setViewportSize({ width: 390, height: 844 });
+    const tabs = hero.locator('.v2-bench-tabs');
+    await expect(tabs.getByText('Preview', { exact: true })).toBeVisible();
+    await tabs.getByText('style.dart', { exact: true }).click();
+    await expect(hero.locator('.v2-code')).toBeVisible();
+    await expect(hero.locator('.v2-code')).toContainText('final button = BoxStyler()');
+    await expect(hero.locator('.v2-view')).toBeHidden();
+    await tabs.getByText('upgrade_button.dart', { exact: true }).click();
+    await expect(hero.locator('.v2-code')).toContainText('class UpgradeButton');
+    await tabs.getByText('Preview', { exact: true }).click();
+    await expect(hero.locator('.v2-view')).toBeVisible();
+    await expect(hero.locator('.v2-code')).toBeHidden();
   });
 
   test('the Remix backdrop reaches behind the preview window', async ({ page }) => {
@@ -209,25 +212,15 @@ test.describe('restored composition', () => {
 });
 
 test.describe('landings', () => {
-  test('landing layouts have one main landmark and no orphaned welcome feature', async ({ page }) => {
+  test('landing layouts have one main landmark and no phone overflow', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto('/');
-    const boxes = await page.locator('.lx-feature').evaluateAll(nodes => nodes.map(node => {
-      const { top, width } = node.getBoundingClientRect();
-      return { top: Math.round(top), width: Math.round(width) };
-    }));
-    expect(boxes).toHaveLength(3);
-    expect(new Set(boxes.map(box => box.top)).size, 'all welcome demos share one row').toBe(1);
-    expect(new Set(boxes.map(box => box.width)).size, 'all welcome demos have equal weight').toBe(1);
-
     await page.setViewportSize({ width: 320, height: 844 });
     for (const route of ['/', '/mix/', '/remix/', '/naked-ui/']) {
       await page.goto(route);
       await expect(page.getByRole('main')).toHaveCount(1);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       expect(overflow, `${route} stays inside a narrow phone`).toBeLessThanOrEqual(1);
-      if (route === '/' || route === '/mix/') {
+      if (route === '/mix/') {
         const terminal = page.locator('.lx-terminal');
         const clipped = await terminal.evaluate(el => {
           const button = el.querySelector('button')!.getBoundingClientRect();
@@ -265,26 +258,20 @@ test.describe('landings', () => {
     await expect(page.getByRole('tabpanel', { name: 'Gradient' })).toBeVisible();
   });
 
-  test('the apex leads with Mix and reaches every project', async ({ page }) => {
+  test('the homepage reaches every library and its installation section', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle('Flutter Mix');
-    await expect(page.getByRole('heading', { level: 1, name: 'An Expressive Styling System for Flutter' })).toBeVisible();
-
-    // The restored hero media, served from this repository with recorded bytes.
-    const poster = page.locator('.lx-band-media img');
-    await expect(poster).toHaveAttribute('src', '/assets/concepta-hero-poster.jpg');
-    expect((await page.request.get('/assets/concepta-hero-poster.jpg')).status()).toBe(200);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Build your Flutter design system from three libraries.');
     await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', '/assets/icon_logo.svg');
     expect((await page.request.get('/assets/icon_logo.svg')).status()).toBe(200);
-
-    await expectViewsAligned(page, HOME_FEATURE_IDS);
-
-    // Sibling access is the apex's job; each card keeps its own entry point.
-    for (const name of ['Mix', 'Remix', 'Naked UI']) {
-      await expect(page.getByRole('region', { name, exact: true })).toBeVisible();
-    }
-    await page.getByRole('link', { name: 'Get started', exact: true }).first().click();
-    await expect(page).toHaveURL('/mix/docs/overview/getting-started/');
+    for (const section of ['mix', 'naked', 'remix']) await expect(page.locator(`#${section}`)).toBeAttached();
+    const navigation = page.getByRole('navigation', { name: 'Main' });
+    await navigation.getByRole('link', { name: 'Get started', exact: true }).click();
+    await expect(page).toHaveURL(/\/#start$/);
+    await expect(page.locator('#start h2')).toBeVisible();
+    await navigation.locator('.v2-docs-menu summary').click();
+    await navigation.locator('.v2-docs-panel').getByRole('link', { name: 'Naked UI' }).click();
+    await expect(page).toHaveURL('/naked-ui/docs/');
   });
 
   test('the Mix landing runs every feature demo beside its locked source', async ({ page }) => {
@@ -326,7 +313,7 @@ test.describe('landings', () => {
 
   test('every landing preview ID is mounted by a landing', async ({ page }) => {
     const mounted = new Set<string>();
-    for (const route of ['/', '/mix/', '/remix/']) {
+    for (const route of ['/mix/', '/remix/']) {
       await page.goto(route);
       await expect(page.locator('[data-preview-id]').first()).toBeAttached();
       for (const id of await page.locator('[data-preview-id]').evaluateAll(nodes => nodes.map(n => n.getAttribute('data-preview-id')!))) mounted.add(id);
@@ -380,7 +367,7 @@ test.describe('landings', () => {
   test('reduced motion removes the video and keeps every section visible', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await context.newPage();
-    await page.goto('/');
+    await page.goto('/mix/');
     await expect(page.locator('.lx-band-media video')).toHaveCount(0);
     await expect(page.locator('.lx-motion-toggle')).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.classList.contains('lx-js'))).toBe(false);
@@ -392,7 +379,7 @@ test.describe('landings', () => {
   });
 
   test('turning on reduced motion after load reveals every section', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/mix/');
     expect(await page.evaluate(() => document.documentElement.classList.contains('lx-js'))).toBe(true);
     // The class stays, so the stylesheet alone has to honour the new preference.
     await page.emulateMedia({ reducedMotion: 'reduce' });

@@ -59,6 +59,9 @@ Failures retain screenshots, videos and traces. On a non-Ubuntu Linux host,
 WebKit can run in `mcr.microsoft.com/playwright:v1.64.1-noble` using host networking.
 Local evidence belongs in `.context/`, never in commits.
 
+The `/v2/` page runs its live examples from a separate Flutter app. See
+[`packages/mix_showcase`](packages/mix_showcase/README.md) for its local build.
+
 ## Reproducible site inputs
 
 Flutter runs in independent input producers, not the website build. Each input

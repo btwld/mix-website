@@ -8,8 +8,7 @@ final chipButtonLabel = TextStyler(
 );
 
 final chipButtonContainer = BoxStyler()
-    .height(40)
-    .width(120)
+    .size(120, 40)
     .color(Colors.blue)
     .borderRadius(.circular(20))
     .onHovered(.color(Colors.blue.shade700))
