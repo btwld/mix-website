@@ -24,6 +24,8 @@ mkdir -p "$stage/bundle/licenses"
 cp "$pkg/assets/fonts/OFL.txt" "$stage/bundle/licenses/Geist-OFL.txt"
 cp "$pkg/assets/fonts/OFL-RobotoMono.txt" "$stage/bundle/licenses/RobotoMono-OFL.txt"
 cp "$pkg/shaders/LICENSE-web-ocean.txt" "$stage/bundle/licenses/web-ocean-MIT.txt"
+# The photograph is CC BY; its credit ships with it, as well as on the slide.
+cp "$pkg/assets/photos/CREDIT.md" "$stage/bundle/licenses/photo-credit.md"
 node --input-type=module - "$src" "$stage" "$commit" "$flutter_json" "$here" <<'NODE'
 import { readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';

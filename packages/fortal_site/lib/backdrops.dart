@@ -1,18 +1,25 @@
 // The backgrounds behind the slides after the shore. Each takes a view from
 // the beira-mar and Ceará coast: wind-sculpted sand dunes, interdune lagoons,
-// the seafront horizon, and the sea after dark.
+// the seafront horizon, the sea after dark, and a photograph of the Beira-Mar
+// with its sea in motion.
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'hold.dart';
+import 'kit.dart' show Gap, SlideFrame, gutter;
 import 'shore.dart' show shoreLoop;
 import 'theme.dart';
 import 'ui/ui.dart';
 
 const _sandLight = Color(0xFFF0E3CB);
+
+/// Mar's darkest green, the wash over the Beira-Mar photo in the video.
+const _wash = Color(0xFF0D3D38);
 const _sand = Color(0xFFE9DAC0);
 const _stillAt = 2.2;
 
@@ -611,4 +618,339 @@ class _HorizonShaderPainter extends CustomPainter {
   @override
   bool shouldRepaint(_HorizonShaderPainter old) =>
       old.shader != shader || old.colors != colors || old.mode != mode;
+}
+
+/// The Beira-Mar photograph, a mask of its water, and the shader that moves
+/// that water. Loaded once, after the first frame, and shared by both layouts.
+class CityPhoto {
+  const CityPhoto(this.program, this.photo, this.sea);
+
+  final ui.FragmentProgram program;
+  final ui.Image photo;
+  final ui.Image sea;
+
+  /// “Fortaleza, Brazil (6)”, ME/Portal da Copa, CC BY 3.0 BR; see
+  /// `assets/photos/CREDIT.md`.
+  static const photoAsset = 'assets/photos/fortaleza-beira-mar.jpg';
+  static const seaAsset = 'assets/photos/fortaleza-beira-mar-sea.png';
+
+  /// The credit the licence asks for, shown wherever the photo is.
+  static const credit =
+      'Photo: “Fortaleza, Brazil (6)”, ME/Portal da Copa, CC BY 3.0 BR. '
+      'Cropped, tinted green, water animated.';
+
+  static Future<CityPhoto>? _loading;
+
+  static Future<CityPhoto> load() => _loading ??= () async {
+    final (program, photo, sea) = await (
+      ui.FragmentProgram.fromAsset('shaders/city.frag'),
+      _decode(photoAsset),
+      _decode(seaAsset),
+    ).wait;
+    return CityPhoto(program, photo, sea);
+  }();
+
+  static Future<ui.Image> _decode(String asset) async {
+    final data = await rootBundle.load(asset);
+    final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+    final frame = await codec.getNextFrame();
+    codec.dispose();
+    return frame.image;
+  }
+}
+
+/// Keeps one Beira-Mar photo, and its credit, fixed behind the closing slides
+/// while their content moves, as [SharedSandBackdrop] does for the dunes.
+/// [shown] is whether those slides are on screen; [CityBackdrop]s inside draw
+/// nothing of their own.
+class SharedCityBackdrop extends StatelessWidget {
+  const SharedCityBackdrop({
+    super.key,
+    required this.shown,
+    this.active = true,
+    this.photo,
+    required this.child,
+  });
+
+  final ValueListenable<bool> shown;
+  final bool active;
+
+  /// Supplied by tests; otherwise [CityPhoto.load] provides it.
+  final CityPhoto? photo;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    children: [
+      Positioned.fill(
+        child: ValueListenableBuilder(
+          valueListenable: shown,
+          builder: (context, shown, layer) =>
+              Offstage(offstage: !shown, child: layer),
+          child: SlideFrame(
+            backdrop: _CityField(active: active, compact: false, photo: photo),
+            child: const Stack(
+              children: [
+                Positioned(right: gutter, bottom: Gap.x4, child: CityCredit()),
+              ],
+            ),
+          ),
+        ),
+      ),
+      _SharedCityScope(child: child),
+    ],
+  );
+}
+
+class _SharedCityScope extends InheritedWidget {
+  const _SharedCityScope({required super.child});
+
+  @override
+  bool updateShouldNotify(_SharedCityScope oldWidget) => false;
+}
+
+/// The credit the photo's licence asks for, wherever the photo shows.
+class CityCredit extends StatelessWidget {
+  const CityCredit({super.key});
+
+  @override
+  Widget build(BuildContext context) => const Text(
+    CityPhoto.credit,
+    style: TextStyle(fontSize: 12, height: 1.4, color: Color(0xD9FFFFFF)),
+  );
+}
+
+/// The Beira-Mar from the air behind the closing slides, under the dark green
+/// wash the presentation's Fortal scene puts over the same photo. Only its sea
+/// moves. Green shows until the photo has loaded, then the photo fades in.
+class CityBackdrop extends StatelessWidget {
+  const CityBackdrop({
+    super.key,
+    this.active = true,
+    this.compact = false,
+    this.photo,
+  });
+
+  final bool active;
+
+  /// The narrow layout's taller, stacked section: a fuller wash, since its
+  /// text sits over more of the photo.
+  final bool compact;
+
+  /// Supplied by tests; otherwise [CityPhoto.load] provides it.
+  final CityPhoto? photo;
+
+  @override
+  Widget build(BuildContext context) {
+    if (context.dependOnInheritedWidgetOfExactType<_SharedCityScope>() !=
+        null) {
+      return const SizedBox.expand();
+    }
+    return _CityField(active: active, compact: compact, photo: photo);
+  }
+}
+
+class _CityField extends StatefulWidget {
+  const _CityField({
+    required this.active,
+    required this.compact,
+    required this.photo,
+  });
+
+  final bool active;
+  final bool compact;
+  final CityPhoto? photo;
+
+  @override
+  State<_CityField> createState() => _CityFieldState();
+}
+
+class _CityFieldState extends State<_CityField>
+    with SingleTickerProviderStateMixin {
+  CityPhoto? _photo;
+  ui.FragmentShader? _shader;
+  final _time = ValueNotifier<double>(_stillAt);
+  var _before = _stillAt;
+  late final Ticker _ticker = createTicker(
+    (elapsed) =>
+        _time.value = (_before + elapsed.inMicroseconds / 1e6) % shoreLoop,
+  );
+  final _held = double.tryParse(Uri.base.queryParameters['t'] ?? '');
+  void Function()? _unlisten;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_held != null) {
+      _unlisten = exposeShoreClock((t) => _time.value = t % shoreLoop);
+    }
+    final given = widget.photo;
+    if (given != null) {
+      _adopt(given);
+    } else {
+      CityPhoto.load().then(
+        (photo) {
+          if (!mounted) return;
+          setState(() => _adopt(photo));
+          _run();
+        },
+        onError: (Object error, StackTrace stack) => FlutterError.reportError(
+          FlutterErrorDetails(
+            exception: error,
+            stack: stack,
+            library: 'fortal_landing',
+            context: ErrorDescription('loading the Beira-Mar photo'),
+          ),
+        ),
+      );
+    }
+  }
+
+  void _adopt(CityPhoto photo) {
+    _photo = photo;
+    _shader = photo.program.fragmentShader();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _run();
+  }
+
+  @override
+  void didUpdateWidget(_CityField old) {
+    super.didUpdateWidget(old);
+    _run();
+  }
+
+  void _run() {
+    if (_shader == null) return;
+    final still =
+        _held ?? (MediaQuery.disableAnimationsOf(context) ? _stillAt : null);
+    if (still != null) {
+      _ticker.stop();
+      _time.value = still;
+      _before = still;
+    } else if (widget.active && !_ticker.isActive) {
+      _ticker.start();
+    } else if (!widget.active && _ticker.isActive) {
+      _before = _time.value;
+      _ticker.stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _unlisten?.call();
+    _ticker.dispose();
+    _time.dispose();
+    _shader?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final photo = _photo;
+    final shader = _shader;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        const ColoredBox(color: _wash),
+        if (photo != null && shader != null)
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: 1),
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 600),
+            builder: (context, shown, child) =>
+                Opacity(opacity: shown, child: child),
+            child: RepaintBoundary(
+              child: CustomPaint(
+                painter: _CityShaderPainter(
+                  shader: shader,
+                  photo: photo,
+                  time: _time,
+                  // Keep the bay in view when a tall screen crops the sides.
+                  align: const Offset(0.3, 0.5),
+                ),
+                size: Size.infinite,
+              ),
+            ),
+          ),
+        // The dark green wash of the presentation's Fortal scene (Mar's
+        // darkest green), deepening towards the foot as it does there, a
+        // little lighter so the moving sea shows, and darker at the top and
+        // left, behind the heading's white text.
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                for (final a
+                    in widget.compact
+                        ? const [0.86, 0.74, 0.78]
+                        : const [0.82, 0.70, 0.36, 0.36, 0.68])
+                  _wash.withValues(alpha: a),
+              ],
+              stops: widget.compact
+                  ? const [0, 0.2, 1]
+                  : const [0, 0.27, 0.42, 0.68, 1],
+            ),
+          ),
+        ),
+        if (!widget.compact)
+          FractionallySizedBox(
+            alignment: Alignment.centerLeft,
+            widthFactor: 0.5,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    _wash.withValues(alpha: 0.40),
+                    _wash.withValues(alpha: 0.18),
+                    _wash.withValues(alpha: 0),
+                  ],
+                  stops: const [0, 0.6, 1],
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _CityShaderPainter extends CustomPainter {
+  _CityShaderPainter({
+    required this.shader,
+    required this.photo,
+    required this.time,
+    required this.align,
+  }) : super(repaint: time);
+
+  final ui.FragmentShader shader;
+  final CityPhoto photo;
+  final ValueNotifier<double> time;
+  final Offset align;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    shader.getUniformFloat('uSize', 0).set(size.width);
+    shader.getUniformFloat('uSize', 1).set(size.height);
+    shader.getUniformFloat('uTime').set(time.value);
+    shader.getUniformFloat('uImage', 0).set(photo.photo.width.toDouble());
+    shader.getUniformFloat('uImage', 1).set(photo.photo.height.toDouble());
+    shader.getUniformFloat('uAlign', 0).set(align.dx);
+    shader.getUniformFloat('uAlign', 1).set(align.dy);
+    // Samplers in the shader's order. Smooth sampling: the default, nearest,
+    // would show the photo's pixels.
+    shader.setImageSampler(0, photo.photo, filterQuality: FilterQuality.medium);
+    shader.setImageSampler(1, photo.sea, filterQuality: FilterQuality.low);
+    canvas.drawRect(Offset.zero & size, Paint()..shader = shader);
+  }
+
+  @override
+  bool shouldRepaint(_CityShaderPainter old) =>
+      old.shader != shader || old.photo != photo || old.align != align;
 }

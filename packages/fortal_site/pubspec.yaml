@@ -25,10 +25,14 @@ dev_dependencies:
 
 flutter:
   uses-material-design: false
+  assets:
+    - assets/photos/fortaleza-beira-mar.jpg
+    - assets/photos/fortaleza-beira-mar-sea.png
   shaders:
     - shaders/shore.frag
     - shaders/horizon.frag
     - shaders/dunes.frag
+    - shaders/city.frag
   fonts:
     - family: Geist
       fonts:

@@ -279,9 +279,9 @@ void main() {
     final cardTitles = all((c) => c.cardTitles);
     final cardDetails = all((c) => c.cardDetails);
 
-    // Enough was found that the limits mean something: seven slides (the
+    // Enough was found that the limits mean something: eight slides (the
     // first has no heading) and every card.
-    expect(slideTitles.length, greaterThanOrEqualTo(6));
+    expect(slideTitles.length, greaterThanOrEqualTo(7));
     expect(cardTitles.length, greaterThanOrEqualTo(8 + 12 + 3));
     expect(all((c) => c.unreadable.map((u) => (u, '')).toList()), isEmpty);
 

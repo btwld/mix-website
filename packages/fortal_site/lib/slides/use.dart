@@ -1,7 +1,6 @@
-// The "use it" slide: how Fortal gets into an app, in three steps, with the
-// result of the last one running beside its code.
-import 'dart:ui' as ui;
-
+// The "use it" slide, the last: how Fortal gets into an app, in three steps,
+// with the result of the last one running beside its code, over the Beira-Mar
+// photo it shares with the foundations slide before it.
 import 'package:flutter/widgets.dart';
 
 import '../backdrops.dart';
@@ -10,14 +9,8 @@ import '../theme.dart';
 import '../ui/ui.dart';
 
 class UseSlide extends StatelessWidget {
-  const UseSlide({
-    super.key,
-    this.horizonProgram,
-    this.active = true,
-    this.compact = false,
-  });
+  const UseSlide({super.key, this.active = true, this.compact = false});
 
-  final ui.FragmentProgram? horizonProgram;
   final bool active;
   final bool compact;
 
@@ -121,7 +114,16 @@ class UseSlide extends StatelessWidget {
         ],
       ),
     );
-    final backdrop = NightSeaBackdrop(program: horizonProgram, active: active);
+    final backdrop = CityBackdrop(active: active, compact: compact);
+    // The site's closing line, white over the photo's dark green wash.
+    const closing = Text(
+      'Built with Mix and Remix.',
+      style: TextStyle(
+        fontSize: 17,
+        fontWeight: FontWeight.w600,
+        color: Color(0xF2FFFFFF),
+      ),
+    );
     // What "installed as source" means, under the two steps that do it.
     final note = Text(
       'The files land in lib/ui, and are yours to edit.',
@@ -134,7 +136,7 @@ class UseSlide extends StatelessWidget {
     if (compact) {
       return NarrowSection(
         backdrop: backdrop,
-        children: [heading, setUp, add, note, use],
+        children: [heading, setUp, add, note, use, closing, const CityCredit()],
       );
     }
     return SlideFrame(
@@ -174,6 +176,8 @@ class UseSlide extends StatelessWidget {
               ],
             ),
           ),
+          // The closing line, over the bay below the steps.
+          Positioned(left: gutter, bottom: 900 - 785 + Gap.x12, child: closing),
         ],
       ),
     );

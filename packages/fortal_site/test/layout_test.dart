@@ -1,7 +1,7 @@
 // Every slide laid out in both layouts, at each scaling and radius a visitor
 // can pick: nothing may overflow, and on the wide slides after the first,
 // every card must end at least 48 above the canvas's foot (12 at 110%, where
-// the components slides take that room).
+// the components and agents slides take that room).
 //
 // The site's own fonts are loaded, so text is measured as in a browser; the
 // shore's shader is loaded but not judged. This checks layout only: not how a
@@ -14,6 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fortal_landing/bento.dart';
 import 'package:fortal_landing/kit.dart';
 import 'package:fortal_landing/shore.dart';
+import 'package:fortal_landing/slides/agents.dart';
 import 'package:fortal_landing/slides/charts.dart';
 import 'package:fortal_landing/slides/foundations.dart';
 import 'package:fortal_landing/slides/gallery.dart';
@@ -61,6 +62,7 @@ void main() {
     'Components': ControlsSlide(onNext: () {}, compact: compact),
     'Components, continued': DetailsSlide(onNext: () {}, compact: compact),
     'Charts': ChartsSlide(compact: compact),
+    'Agents': AgentsSlide(compact: compact),
     'Themes': ThemesSlide(compact: compact),
     'Use it': UseSlide(compact: compact),
     'Foundations': FoundationsSlide(compact: compact),

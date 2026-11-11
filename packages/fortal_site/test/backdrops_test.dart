@@ -139,4 +139,99 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(tester.binding.hasScheduledFrame, isFalse);
   });
+
+  testWidgets('Beira-Mar sea moves, pauses, holds still and disposes', (
+    tester,
+  ) async {
+    final photo = (await tester.runAsync(CityPhoto.load))!;
+    Widget host({bool active = true, bool reduced = false}) => Directionality(
+      textDirection: TextDirection.ltr,
+      child: MediaQuery(
+        data: MediaQueryData(disableAnimations: reduced),
+        child: SizedBox(
+          width: 400,
+          height: 300,
+          child: CityBackdrop(photo: photo, active: active),
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(host());
+    final paint = find.descendant(
+      of: find.byType(CityBackdrop),
+      matching: find.byType(CustomPaint),
+    );
+    expect(paint, findsOneWidget);
+    final painter = tester.widget<CustomPaint>(paint).painter!;
+    var repaints = 0;
+    void onRepaint() => repaints++;
+    painter.addListener(onRepaint);
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(repaints, greaterThan(0));
+
+    for (final reduced in [false, true]) {
+      await tester.pumpWidget(host(active: reduced, reduced: reduced));
+      await tester.pumpAndSettle();
+      final paused = repaints;
+      await tester.pump(const Duration(seconds: 1));
+      expect(repaints, paused);
+      expect(tester.binding.hasScheduledFrame, isFalse);
+
+      await tester.pumpWidget(host());
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(repaints, greaterThan(paused));
+    }
+    painter.removeListener(onRepaint);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(tester.binding.hasScheduledFrame, isFalse);
+  });
+
+  testWidgets('the last two slides share one Beira-Mar photo', (tester) async {
+    final photo = (await tester.runAsync(CityPhoto.load))!;
+    final shown = ValueNotifier(true);
+    addTearDown(shown.dispose);
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: MediaQuery(
+          data: const MediaQueryData(disableAnimations: true),
+          child: SharedCityBackdrop(
+            shown: shown,
+            photo: photo,
+            child: const Column(
+              children: [
+                Expanded(child: CityBackdrop()),
+                Expanded(child: CityBackdrop()),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // The slides' own backdrops defer to the one fixed photo and its credit.
+    final canvas = find.descendant(
+      of: find.byType(SharedCityBackdrop),
+      matching: find.byType(CustomPaint),
+    );
+    expect(canvas, findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(CityBackdrop),
+        matching: find.byType(CustomPaint),
+      ),
+      findsNothing,
+    );
+    expect(find.text(CityPhoto.credit), findsOneWidget);
+
+    // Away from those slides the photo is not painted.
+    shown.value = false;
+    await tester.pump();
+    expect(canvas, findsNothing);
+    expect(find.text(CityPhoto.credit), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+    expect(tester.takeException(), isNull);
+  });
 }

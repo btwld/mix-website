@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 
 import 'backdrops.dart';
 import 'kit.dart';
+import 'slides/agents.dart';
 import 'slides/charts.dart';
 import 'slides/foundations.dart';
 import 'slides/gallery.dart';
@@ -23,18 +24,25 @@ const _slides = [
   (section: 'Components', dark: false),
   (section: 'Components', dark: false),
   (section: 'Charts', dark: false),
+  (section: 'Agents', dark: false),
   (section: 'Themes', dark: false),
+  (section: 'Foundations', dark: true),
   (section: 'Use it', dark: true),
-  (section: 'Foundations', dark: false),
 ];
+
+// Foundations and Use it, the last two slides, share the Beira-Mar photo. The
+// slide before them draws its own backdrop, so no other slide shares the
+// screen with them in a turn.
+const _firstCitySlide = 6;
 
 // The links at the top, and the slide each opens.
 const _links = [
   (section: 'Components', slide: 1),
   (section: 'Charts', slide: 3),
-  (section: 'Themes', slide: 4),
-  (section: 'Use it', slide: 5),
+  (section: 'Agents', slide: 4),
+  (section: 'Themes', slide: 5),
   (section: 'Foundations', slide: 6),
+  (section: 'Use it', slide: 7),
 ];
 
 const _turn = Duration(milliseconds: 620);
@@ -53,8 +61,15 @@ class _SiteState extends State<Site> {
   // `?slide=2` opens on that slide.
   late var _at = (int.tryParse(Uri.base.queryParameters['slide'] ?? '') ?? 0)
       .clamp(0, _slides.length - 1);
-  late final _pages = PageController(initialPage: _at);
+  late final _pages = PageController(initialPage: _at)..addListener(_showCity);
+  late final _cityShown = ValueNotifier(_at >= _firstCitySlide);
   var _turning = false;
+
+  // The shared photo shows once the turn has left the slide before it.
+  void _showCity() {
+    final page = _pages.hasClients ? _pages.page : null;
+    if (page != null) _cityShown.value = page > _firstCitySlide - 1;
+  }
 
   Future<void> _go(int slide) async {
     final to = slide.clamp(0, _slides.length - 1);
@@ -79,6 +94,7 @@ class _SiteState extends State<Site> {
   @override
   void dispose() {
     _pages.dispose();
+    _cityShown.dispose();
     super.dispose();
   }
 
@@ -126,6 +142,10 @@ class _SiteState extends State<Site> {
                   child: const ChartsSlide(active: false, compact: true),
                 ),
                 KeyedSubtree(
+                  key: _sections['Agents'],
+                  child: const AgentsSlide(active: false, compact: true),
+                ),
+                KeyedSubtree(
                   key: _sections['Themes'],
                   child: ThemesSlide(
                     horizonProgram: widget.horizonProgram,
@@ -134,16 +154,12 @@ class _SiteState extends State<Site> {
                   ),
                 ),
                 KeyedSubtree(
-                  key: _sections['Use it'],
-                  child: UseSlide(
-                    horizonProgram: widget.horizonProgram,
-                    active: false,
-                    compact: true,
-                  ),
-                ),
-                KeyedSubtree(
                   key: _sections['Foundations'],
                   child: const FoundationsSlide(active: false, compact: true),
+                ),
+                KeyedSubtree(
+                  key: _sections['Use it'],
+                  child: const UseSlide(active: false, compact: true),
                 ),
               ],
             ),
@@ -154,23 +170,47 @@ class _SiteState extends State<Site> {
     ),
   );
 
-  Widget _wide() => CallbackShortcuts(
-    bindings: {
-      const SingleActivator(LogicalKeyboardKey.arrowDown): () => _go(_at + 1),
-      const SingleActivator(LogicalKeyboardKey.pageDown): () => _go(_at + 1),
-      const SingleActivator(LogicalKeyboardKey.arrowUp): () => _go(_at - 1),
-      const SingleActivator(LogicalKeyboardKey.pageUp): () => _go(_at - 1),
-      const SingleActivator(LogicalKeyboardKey.home): () => _go(0),
-      const SingleActivator(LogicalKeyboardKey.end): () =>
-          _go(_slides.length - 1),
-    },
+  // The keys that move between slides. While a text field has focus (the
+  // agents slide's composer) they are left to it, to move the caret.
+  late final _keys = {
+    const SingleActivator(LogicalKeyboardKey.arrowDown): () => _go(_at + 1),
+    const SingleActivator(LogicalKeyboardKey.pageDown): () => _go(_at + 1),
+    const SingleActivator(LogicalKeyboardKey.arrowUp): () => _go(_at - 1),
+    const SingleActivator(LogicalKeyboardKey.pageUp): () => _go(_at - 1),
+    const SingleActivator(LogicalKeyboardKey.home): () => _go(0),
+    const SingleActivator(LogicalKeyboardKey.end): () =>
+        _go(_slides.length - 1),
+  };
+
+  KeyEventResult _key(FocusNode node, KeyEvent event) {
+    final focused = FocusManager.instance.primaryFocus?.context;
+    if (focused?.findAncestorWidgetOfExactType<EditableText>() != null) {
+      return KeyEventResult.ignored;
+    }
+    for (final MapEntry(key: keys, value: go) in _keys.entries) {
+      if (keys.accepts(event, HardwareKeyboard.instance)) {
+        go();
+        return KeyEventResult.handled;
+      }
+    }
+    return KeyEventResult.ignored;
+  }
+
+  Widget _wide() => Focus(
+    canRequestFocus: false,
+    skipTraversal: true,
+    onKeyEvent: _key,
     child: Focus(
       autofocus: true,
       child: Listener(
-        // One wheel turn moves one slide.
+        // One wheel turn moves one slide, unless something under the
+        // pointer scrolls with it (the agents slide's conversation).
         onPointerSignal: (signal) {
           if (signal is PointerScrollEvent && signal.scrollDelta.dy.abs() > 4) {
-            _go(_at + (signal.scrollDelta.dy > 0 ? 1 : -1));
+            GestureBinding.instance.pointerSignalResolver.register(
+              signal,
+              (_) => _go(_at + (signal.scrollDelta.dy > 0 ? 1 : -1)),
+            );
           }
         },
         child: GestureDetector(
@@ -183,30 +223,32 @@ class _SiteState extends State<Site> {
             children: [
               SharedSandBackdrop(
                 active:
-                    _turning || _at == 1 || _at == 2 || _at == 3 || _at == 6,
-                child: PageView(
-                  controller: _pages,
-                  scrollDirection: Axis.vertical,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    HeroSlide(
-                      program: widget.program,
-                      active: _at == 0,
-                      onGo: _go,
-                    ),
-                    ControlsSlide(onNext: () => _go(2), active: _at == 1),
-                    DetailsSlide(onNext: () => _go(3), active: _at == 2),
-                    ChartsSlide(active: _at == 3),
-                    ThemesSlide(
-                      horizonProgram: widget.horizonProgram,
-                      active: _at == 4,
-                    ),
-                    UseSlide(
-                      horizonProgram: widget.horizonProgram,
-                      active: _at == 5,
-                    ),
-                    FoundationsSlide(active: _at == 6),
-                  ],
+                    _turning || _at == 1 || _at == 2 || _at == 3 || _at == 4,
+                child: SharedCityBackdrop(
+                  shown: _cityShown,
+                  active: _at >= _firstCitySlide,
+                  child: PageView(
+                    controller: _pages,
+                    scrollDirection: Axis.vertical,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      HeroSlide(
+                        program: widget.program,
+                        active: _at == 0,
+                        onGo: _go,
+                      ),
+                      ControlsSlide(onNext: () => _go(2), active: _at == 1),
+                      DetailsSlide(onNext: () => _go(3), active: _at == 2),
+                      ChartsSlide(active: _at == 3),
+                      AgentsSlide(active: _at == 4),
+                      ThemesSlide(
+                        horizonProgram: widget.horizonProgram,
+                        active: _at == 5,
+                      ),
+                      FoundationsSlide(active: _at == 6),
+                      UseSlide(active: _at == 7),
+                    ],
+                  ),
                 ),
               ),
               Positioned.fill(

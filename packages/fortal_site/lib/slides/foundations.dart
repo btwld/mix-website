@@ -1,5 +1,6 @@
 // The foundations slide: the colour, type and shape every component is built
-// from, each read live from the current theme.
+// from, each read live from the current theme. It and the "use it" slide after
+// it share the Beira-Mar photo, with its sea in motion.
 import 'package:flutter/widgets.dart';
 import 'package:remix/remix.dart';
 
@@ -20,26 +21,25 @@ class FoundationsSlide extends StatelessWidget {
       label: 'Foundations',
       title: 'One set of tokens behind it all.',
       detail: 'Colour, type and shape come from tokens, so a theme changes them together.',
+      onDark: true,
       compact: compact,
     );
-    final credit = Builder(
-      builder: (context) => Text(
-        'Built with Mix and Remix.',
-        style: TextStyle(
-          fontSize: 17,
-          fontWeight: FontWeight.w600,
-          color: tokenColor(context, UiTokens.gray11),
-        ),
-      ),
-    );
+    final backdrop = CityBackdrop(active: active, compact: compact);
     if (compact) {
       return NarrowSection(
-        backdrop: SandBackdrop(scene: 2, shore: true, active: active),
-        children: [heading, _colour(), _type(), _shape(), _spacing(), credit],
+        backdrop: backdrop,
+        children: [
+          heading,
+          _colour(),
+          _type(),
+          _shape(),
+          _spacing(),
+          const CityCredit(),
+        ],
       );
     }
     return SlideFrame(
-      backdrop: SandBackdrop(scene: 2, shore: true, active: active),
+      backdrop: backdrop,
       child: Stack(
         children: [
           Positioned(left: gutter, top: headingTop, width: 900, child: heading),
@@ -61,9 +61,6 @@ class FoundationsSlide extends StatelessWidget {
               ),
             ),
           ),
-          // The closing line, 48 above the water's edge, which the sand
-          // backdrop draws at about 785 at its highest.
-          Positioned(left: gutter, bottom: 900 - 785 + Gap.x12, child: credit),
         ],
       ),
     );

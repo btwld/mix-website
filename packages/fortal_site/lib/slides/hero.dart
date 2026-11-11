@@ -313,7 +313,7 @@ class _Page extends StatelessWidget {
                 label: 'Get started',
                 size: .size3,
                 trailingIcon: RemixIcons.arrowRight,
-                onPressed: () => onGo?.call(5),
+                onPressed: () => onGo?.call(6),
               ),
             ],
           ),

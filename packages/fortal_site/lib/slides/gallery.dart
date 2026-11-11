@@ -55,8 +55,7 @@ class DetailsSlide extends StatelessWidget {
   @override
   Widget build(BuildContext context) => _Gallery(
     title: 'Dates, data and the small details.',
-    detail:
-        'Forty-one Fortal components are installed here. These are a few more.',
+    detail: 'Forty-nine Fortal components are installed here. These are a few more.',
     next: 'See the themes',
     onNext: onNext,
     scene: 2,

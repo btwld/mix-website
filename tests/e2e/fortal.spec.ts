@@ -60,7 +60,7 @@ test.describe('Fortal site', () => {
       expect(response.status(), file).toBe(200);
       expect(response.headers()['content-type'], file).toContain(type);
     }
-    for (const file of ['Geist-OFL.txt', 'RobotoMono-OFL.txt', 'web-ocean-MIT.txt']) {
+    for (const file of ['Geist-OFL.txt', 'RobotoMono-OFL.txt', 'web-ocean-MIT.txt', 'photo-credit.md']) {
       expect((await request.get(`${FORTAL}licenses/${file}`)).status(), file).toBe(200);
     }
   });

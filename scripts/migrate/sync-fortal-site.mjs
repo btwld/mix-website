@@ -10,7 +10,7 @@
 // The source repository and commit are recorded in packages/fortal_site/SOURCES.json.
 // Commit the result, then rebuild and pin the fortal-site input.
 import { execFileSync } from 'node:child_process';
-import { mkdtemp, readdir, rm, writeFile, cp } from 'node:fs/promises';
+import { mkdtemp, readdir, readFile, rm, writeFile, cp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -21,7 +21,7 @@ const PACKAGE = path.resolve('packages/fortal_site');
 // own README, written below).
 const EXCLUDED = /^(?:\.context|\.dart_tool|\.fvm|build|captures?|screenshots?|shots|README\.md|SHOWCASE-PLAN\.md)(?:\/|$)/;
 
-const README = `# Fortal site
+const readme = licences => `# Fortal site
 
 The Fortal showcase served at \`/fortal/\`: a browsable, slide-by-slide site for
 Fortal, the design system built with Remix, made from real Fortal components.
@@ -32,15 +32,7 @@ repository and commit. Do not edit it here. Refresh it with
 publish and pin the \`fortal-site\` site input
 (\`scripts/site-inputs/produce/fortal-site.sh\`).
 
-## Licences
-
-- **Geist:** SIL Open Font License, in \`assets/fonts/OFL.txt\`.
-- **Roboto Mono:** SIL Open Font License, in \`assets/fonts/OFL-RobotoMono.txt\`.
-- **Shader adaptations (\`shaders/shore.frag\`, \`shaders/dunes.frag\`,
-  \`shaders/horizon.frag\`):** surface optics, cellular foam structure, cloud FBM
-  and dithering adapted from [\`noniv/web-ocean\`](https://github.com/noniv/web-ocean),
-  MIT License (Copyright (c) 2026 Maksymilian Dendura); see
-  \`shaders/LICENSE-web-ocean.txt\`.
+${licences}
 `;
 
 const [checkout, ref = 'HEAD'] = process.argv.slice(2);
@@ -54,11 +46,18 @@ const remote = git('remote', 'get-url', 'origin').trim();
 const repository = /github\.com[:/]([^/]+\/[^/]+?)(?:\.git)?$/.exec(remote)?.[1];
 if (!repository) throw new Error(`Cannot read owner/name from the origin remote ${remote}`);
 
+let licences;
 const temporary = await mkdtemp(path.join(tmpdir(), 'fortal-site-'));
 try {
   const archive = execFileSync('git', ['-C', path.resolve(checkout), 'archive', commit, SOURCE_PATH], { maxBuffer: 256 * 1024 * 1024 });
   execFileSync('tar', ['-x', '-C', temporary], { input: archive });
   const from = path.join(temporary, SOURCE_PATH);
+  // The source README is working notes and stays out; only its licence section,
+  // which credits every font, image and shader the app ships, is carried over.
+  const notes = await readFile(path.join(from, 'README.md'), 'utf8');
+  const section = /^## Licences\n[\s\S]*?(?=^## |(?![\s\S]))/m.exec(notes)?.[0];
+  if (!section) throw new Error('The source README has no "## Licences" section to carry over.');
+  licences = section.trimEnd();
   await rm(PACKAGE, { recursive: true, force: true });
   await cp(from, PACKAGE, { recursive: true, filter: file => !EXCLUDED.test(path.relative(from, file)) });
 } finally {
@@ -67,5 +66,5 @@ try {
 
 const files = (await readdir(PACKAGE, { recursive: true, withFileTypes: true })).filter(entry => entry.isFile()).length;
 await writeFile(path.join(PACKAGE, 'SOURCES.json'), JSON.stringify({ repository, commit, path: SOURCE_PATH }, null, 2) + '\n');
-await writeFile(path.join(PACKAGE, 'README.md'), README);
+await writeFile(path.join(PACKAGE, 'README.md'), readme(licences));
 console.log(`synced ${files} files from ${repository}@${commit.slice(0, 12)}:${SOURCE_PATH}`);

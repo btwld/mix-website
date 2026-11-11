@@ -8,6 +8,7 @@ and saves OUT_DIR/shore-<time>.png. SHOT_SIZE=1200x800 and SHOT_SCALE=2 change t
 SHOT_GPU=1 draws on the graphics card instead of in software: much faster, for dense sequences.
 
     uv run ... tool/shots.py OUT_DIR slides          # one picture of each slide, as OUT_DIR/slide-<n>.png
+    uv run ... tool/shots.py OUT_DIR slides 4 7      # only slides 4 and 7
 """
 import asyncio, functools, http.server, os, sys, threading
 from pathlib import Path
@@ -18,7 +19,7 @@ APP = Path(__file__).resolve().parent.parent
 W, H = (int(v) for v in os.environ.get('SHOT_SIZE', '1440x900').split('x'))
 SCALE = float(os.environ.get('SHOT_SCALE', '1'))
 GPU = os.environ.get('SHOT_GPU') == '1'
-SLIDES = 7
+SLIDES = 8
 CACHED = Path.home() / 'Library/Caches/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell'
 
 
@@ -63,8 +64,8 @@ async def main(out, wanted):
         await page.wait_for_selector('flutter-view', timeout=60000)
         await asyncio.sleep(2)
         errors.clear()
-        if wanted == 'slides':
-            for n in range(SLIDES):
+        if isinstance(wanted, tuple):
+            for n in wanted:
                 await page.goto(f'{base}?t=2.2&slide={n}')
                 await page.wait_for_selector('flutter-view', timeout=60000)
                 await asyncio.sleep(2.5 if GPU else 5)
@@ -93,4 +94,6 @@ async def main(out, wanted):
 
 
 if __name__ == '__main__':
-    asyncio.run(main(Path(sys.argv[1]), 'slides' if sys.argv[2:] == ['slides'] else list(times(sys.argv[2:]))))
+    slides = sys.argv[2:3] == ['slides']
+    wanted = tuple(int(n) for n in sys.argv[3:]) or tuple(range(SLIDES)) if slides else list(times(sys.argv[2:]))
+    asyncio.run(main(Path(sys.argv[1]), wanted))
