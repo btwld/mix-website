@@ -32,19 +32,19 @@ async function open(page: Page, example: string) {
 test('the page reads in order without JavaScript, with its code', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
-  await page.goto('/v2/');
+  await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Flutter design system');
   const headings = await page.locator('.v2 h2').allTextContents();
   expect(headings).toEqual(['Three layers. Use one, or all of them.', 'A style is a value.', 'The behavior of a control, with nothing drawn.', 'Components you install, compose and own.', 'Add one to your app.']);
   for (const id of ['mix', 'naked', 'remix', 'start', 'mix-style', 'mix-tokens', 'mix-states', 'mix-responsive', 'mix-motion']) await expect(page.locator(`#${id}`)).toHaveCount(1);
   expect(await page.locator('#mix .v2-exhibit').evaluateAll(exhibits => exhibits.map(exhibit => exhibit.id))).toEqual(['mix-style', 'mix-states', 'mix-responsive', 'mix-motion', 'mix-tokens']);
   await expect(page.locator('#hello .v2-code')).toContainText('final button = BoxStyler()');
-  await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Get started' })).toHaveAttribute('href', '/v2/#start');
+  await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Get started' })).toHaveAttribute('href', '/#start');
   await context.close();
 });
 
 test('every code block is the source it names, line for line', async ({ page }) => {
-  await page.goto('/v2/');
+  await page.goto('/');
   const blocks = await shownCode(page);
   // Then the other half of every Style / Widget pair.
   for (const tab of await page.locator('.v2-code-tabs label:not([data-checked="true"])').all()) await tab.click();
@@ -66,7 +66,7 @@ test('every code block is the source it names, line for line', async ({ page }) 
 });
 
 test('an excerpt links to its exact lines in the complete file', async ({ page }) => {
-  await page.goto('/v2/');
+  await page.goto('/');
   const link = page.locator('#mix-tokens .v2-code-file a').first();
   const href = await link.getAttribute('href');
   expect(href).toMatch(/^\/v2\/source\/\?file=theme\.dart#L\d+-L\d+$/);
@@ -79,7 +79,7 @@ test('an excerpt links to its exact lines in the complete file', async ({ page }
 
 test('controls change the code they point at, with or without Flutter', async ({ page }) => {
   await page.route('**/v2-flutter/**', route => route.abort());
-  await page.goto('/v2/');
+  await page.goto('/');
 
   // Tokens: step 2 follows the chosen theme; the other steps stay as they are.
   const tokens = page.locator('#mix-tokens');
@@ -151,13 +151,13 @@ test('controls change the code they point at, with or without Flutter', async ({
   await remix.getByText('Install', { exact: true }).click();
   await expect(remix.locator('.v2-steps h4')).toHaveText(['Install the CLI once', 'Set up the project', 'Add the components you need', 'Place the theme once, below your app host']);
   // The CLI is installed once, globally, so every command is plain `remix`.
-  await expect(remix.locator('.lx-terminal-cmd')).toHaveText(['dart pub global activate remix_cli "^1.0.0-beta.1"', 'remix init', 'remix add card button switch slider checkbox badge']);
+  await expect(remix.locator('.lx-terminal-cmd')).toHaveText(['dart pub global activate remix_cli "^1.0.0-rc.1"', 'remix init', 'remix add card button switch slider checkbox badge']);
   await expect(remix.locator('.v2-snippet')).toContainText('builder: (context, _) => const UiTheme(child: HomeScreen()),');
 });
 
 test('a failed Flutter load says so and leaves the code readable', async ({ page }) => {
   await page.route('**/v2-flutter/**', route => route.abort());
-  await page.goto('/v2/');
+  await page.goto('/');
   const view = page.locator('.v2-view[data-demo="button"]');
   await expect(view).toHaveAttribute('data-state', 'failed');
   await expect(view.getByRole('status')).toContainText('The live example didn’t load.');
@@ -166,12 +166,12 @@ test('a failed Flutter load says so and leaves the code readable', async ({ page
 });
 
 test('each library installs from a prerelease-safe command with a complete starter', async ({ page }) => {
-  await page.goto('/v2/#start');
+  await page.goto('/#start');
   const start = page.locator('#start');
   const expected = [
     ['mix', 'flutter pub add mix', 'lib/starters/mix.dart', "import 'package:mix/mix.dart';"],
     ['naked', 'flutter pub add "naked_ui:^2.0.0-0"', 'lib/starters/naked_ui.dart', "import 'package:naked_ui/naked_ui.dart';"],
-    ['remix', 'dart pub global activate remix_cli "^1.0.0-beta.1"', 'lib/remix_starter.dart', "import 'ui/ui.dart';"],
+    ['remix', 'dart pub global activate remix_cli "^1.0.0-rc.1"', 'lib/remix_starter.dart', "import 'ui/ui.dart';"],
   ];
   for (const [tone, command, file, line] of expected) {
     // The radio itself is visually hidden; its label is what a reader clicks.
@@ -183,10 +183,11 @@ test('each library installs from a prerelease-safe command with a complete start
     await expect(start.locator('.v2-code')).toContainText('void main() => runApp(const App());');
   }
   await expect(start).toContainText('Needs Flutter 3.47.9+ · Dart 3.13+');
+  await expect(start.locator('.v2-start-ai').getByRole('link', { name: 'Start with AI' })).toHaveAttribute('href', '/remix/docs/getting-started/#start-with-ai');
   // Remix installs its CLI once, then one component before the starter uses it.
   // `remix add` brings in the remix package itself.
   await expect(start.locator('.v2-start-steps > li').first().locator('h3')).toHaveText('Install the CLI, then a component');
-  await expect(start.locator('.lx-terminal-cmd')).toHaveText(['dart pub global activate remix_cli "^1.0.0-beta.1"', 'remix init', 'remix add button', 'flutter run']);
+  await expect(start.locator('.lx-terminal-cmd')).toHaveText(['dart pub global activate remix_cli "^1.0.0-rc.1"', 'remix init', 'remix add button', 'flutter run']);
   // Arrow keys move through the three choices like any radio group.
   await start.locator('label[data-tone="mix"] input').focus();
   await page.keyboard.press('ArrowDown');
@@ -194,8 +195,31 @@ test('each library installs from a prerelease-safe command with a complete start
   await expect(start.locator('.lx-terminal-cmd').first()).toHaveText('flutter pub add "naked_ui:^2.0.0-0"');
 });
 
+test('Remix offers one AI setup link with the released CLI and matching skills command', async ({ page }) => {
+  await page.goto('/#start');
+  await page.locator('#start label[data-tone="remix"]').click();
+  const prompt = page.locator('#start .v2-start-ai').getByRole('link', { name: 'Start with AI' });
+  await expect(prompt).toHaveCount(1);
+  await prompt.click();
+  await expect(page).toHaveURL(/\/remix\/docs\/getting-started\/#start-with-ai$/);
+  await expect(page.getByRole('heading', { level: 2, name: /^Start with AI/ })).toBeVisible();
+  await expect(page.locator('main')).toContainText("dart pub global activate remix_cli '^1.0.0-rc.1'");
+  await expect(page.locator('main')).toContainText('remix skills install');
+  await page.setViewportSize({ width: 390, height: 844 });
+  const block = page.locator('#start-with-ai + p + figure');
+  const region = block.getByRole('region');
+  expect(await region.evaluate(element => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+  await expect(page.locator('#your-first-component + p + figure pre')).toHaveCSS('white-space', 'pre');
+  await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', {
+    configurable: true,
+    value: { writeText: async (text: string) => document.body.setAttribute('data-copied-prompt', text) },
+  }));
+  await block.getByRole('button', { name: 'Copy Text', exact: true }).click();
+  await expect(page.locator('body')).toHaveAttribute('data-copied-prompt', /dart pub global activate remix_cli '\^1\.0\.0-rc\.1'/);
+});
+
 test('documentation links from the page resolve, including their sections', async ({ page, request }) => {
-  await page.goto('/v2/');
+  await page.goto('/');
   // Links that depend on a selection are collected in each of their states.
   await page.locator('#naked .v2-bench-main').getByText('Select', { exact: true }).click();
   await page.locator('#start label[data-tone="remix"]').click();
@@ -213,7 +237,7 @@ for (const width of [320, 390, 820, 1440]) {
   test(`the page fits a ${width}px screen`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.route('**/v2-flutter/**', route => route.abort());
-    await page.goto('/v2/');
+    await page.goto('/');
     await expectNoOverflow(page);
     // Where the example and its code cannot sit side by side, they share a tab
     // bar that opens on the example; the files are the other tabs.
@@ -240,7 +264,7 @@ for (const width of [320, 390, 820, 1440]) {
 test('a phone shows the lines a long listing points at', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.route('**/v2-flutter/**', route => route.abort());
-  await page.goto('/v2/');
+  await page.goto('/');
   // The Remix form is the longest listing; its highlighted lines run to the end.
   // On a phone the example opens first; its files are the other tabs.
   await expect(page.locator('#remix .v2-bench-tabs label').first()).toHaveText('Preview');
@@ -278,7 +302,7 @@ test.describe('live examples', () => {
     // A lost or refused WebGL context is how a view goes blank.
     page.on('console', message => { if (message.type() === 'error' || /too many active webgl|context (was )?lost/i.test(message.text())) problems.push(message.text()); });
     page.on('pageerror', error => problems.push(String(error)));
-    await page.goto('/v2/');
+    await page.goto('/');
     for (const example of [...EXAMPLES, ...[...EXAMPLES].reverse()]) {
       const view = await open(page, example);
       // The view is in place, visible, and the size of every other view.
@@ -291,14 +315,14 @@ test.describe('live examples', () => {
   });
 
   test('a view that appears does not take keyboard focus', async ({ page }) => {
-    await page.goto('/v2/');
+    await page.goto('/');
     await open(page, 'button');
     await open(page, 'tokens');
     expect(await page.evaluate(() => document.activeElement?.tagName)).toBe('BODY');
   });
 
   test('hovering and pressing the first button marks the lines that handle it', async ({ page }) => {
-    await page.goto('/v2/');
+    await page.goto('/');
     const view = await open(page, 'button');
     const box = (await view.boundingBox())!;
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
@@ -311,7 +335,7 @@ test.describe('live examples', () => {
   });
 
   test('the theme reaches the tokens example and no other', async ({ page }) => {
-    await page.goto('/v2/');
+    await page.goto('/');
     const view = await open(page, 'tokens');
     const before = await view.screenshot();
     await page.locator('#mix-tokens .v2-preview-controls').getByText('Pop', { exact: true }).click();
@@ -325,7 +349,7 @@ test.describe('live examples', () => {
   });
 
   test('a choice made inside Flutter updates the page control', async ({ page }) => {
-    await page.goto('/v2/');
+    await page.goto('/');
     const view = await open(page, 'style');
     const checked = page.locator('#mix-style .v2-segmented label[data-checked="true"]');
     await expect(checked).toHaveText('Pro');
@@ -334,8 +358,30 @@ test.describe('live examples', () => {
     await expect(checked).toHaveText('Starter');
   });
 
+  for (const featured of ['Pro', 'Starter']) {
+    test(`page-selected featured ${featured} survives returning from the source`, async ({ page }) => {
+      await page.goto('/');
+      const view = await open(page, 'style');
+      const style = page.locator('#mix-style');
+      const controls = style.locator('.v2-preview-controls .v2-segmented');
+      const checked = controls.locator('label[data-checked="true"]');
+      const fromFlutter = featured === 'Pro' ? 'Starter' : 'Pro';
+      const box = (await view.boundingBox())!;
+      await page.mouse.click(box.x + box.width / 2 + (fromFlutter === 'Starter' ? -100 : 100), box.y + box.height / 2);
+      await expect(checked).toHaveText(fromFlutter);
+      await controls.getByText(featured, { exact: true }).click();
+      await expect(checked).toHaveText(featured);
+
+      await style.locator('.v2-code-file a').click();
+      await expect(page).toHaveURL(/\/v2\/source\//);
+      await page.goBack();
+      await open(page, 'style');
+      await expect(checked).toHaveText(featured);
+    });
+  }
+
   test('a held state is reported back by Flutter', async ({ page }) => {
-    await page.goto('/v2/');
+    await page.goto('/');
     await open(page, 'states');
     const states = page.locator('#mix-states');
     await states.getByRole('button', { name: 'Hovered' }).click();
@@ -346,7 +392,7 @@ test.describe('live examples', () => {
   });
 
   test('the keyboard enters a view, operates it, and leaves', async ({ page }) => {
-    await page.goto('/v2/');
+    await page.goto('/');
     await open(page, 'naked');
     const naked = page.locator('#naked');
     const note = naked.locator('.v2-control-note');
@@ -360,8 +406,9 @@ test.describe('live examples', () => {
     await page.keyboard.press('Tab');
     expect(await page.evaluate(() => document.activeElement?.tagName)).toBe('FLUTTER-VIEW');
     await page.keyboard.press('Tab');
-    // Which page control comes next depends on the browser's tabbing rules; the point is that focus is not trapped.
-    expect(await page.evaluate(() => document.activeElement?.closest('.v2-view') === null && document.activeElement !== document.body)).toBe(true);
+    // Flutter hands focus back asynchronously. The next page control depends
+    // on the browser's tabbing rules, but focus must leave the view and body.
+    await expect.poll(() => page.evaluate(() => document.activeElement?.closest('.v2-view') === null && document.activeElement !== document.body)).toBe(true);
 
     // The select opens, moves and chooses from the keyboard, and Escape cancels.
     await naked.locator('.v2-bench-main').getByText('Select', { exact: true }).click();
@@ -382,8 +429,41 @@ test.describe('live examples', () => {
     await expect(note).toContainText('Yearly');
   });
 
+  test('Naked UI selections are reported after returning from the source', async ({ page }) => {
+    await page.goto('/');
+    await open(page, 'naked');
+    const naked = page.locator('#naked');
+    const note = naked.locator('.v2-control-note');
+    const select = () => naked.locator('.v2-bench-main').getByText('Select', { exact: true }).click();
+    const visitSource = async () => {
+      await naked.locator('.v2-code-file a').first().click();
+      await expect(page).toHaveURL(/\/v2\/source\//);
+      await page.goBack();
+      await open(page, 'naked');
+    };
+
+    await naked.locator('.v2-code pre').last().focus();
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('ArrowDown');
+    await expect(note).toContainText('Team');
+    await visitSource();
+    await expect(note).toContainText('Team');
+
+    await select();
+    await naked.locator('.v2-code pre').last().focus();
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(250);
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter');
+    await expect(note).toContainText('Yearly');
+    await visitSource();
+    await select();
+    await expect(note).toContainText('Yearly');
+  });
+
   test('leaving for the source and coming back keeps the examples running', async ({ page }) => {
-    await page.goto('/v2/');
+    await page.goto('/');
     await open(page, 'button');
     await page.locator('#hello .v2-code-file a').click();
     await expect(page).toHaveURL(/\/v2\/source\/\?file=demos\/upgrade_button\/style\.dart/);
@@ -394,7 +474,7 @@ test.describe('live examples', () => {
   });
 
   test('docs previews start after arriving from the examples', async ({ page }) => {
-    await page.goto('/v2/');
+    await page.goto('/');
     await open(page, 'button');
     await page.locator('#mix-style').getByRole('link', { name: /Composition in the styling guide/ }).click();
     await expect(page).toHaveURL(/\/mix\/docs\/guides\/styling\//);

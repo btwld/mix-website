@@ -5,7 +5,7 @@ Naked UI and Remix in eight live views, each shown on the page next to the sourc
 from. It is kept apart from `mix_docs_preview` so it can use current APIs without
 touching the published docs-preview bundle. It is not published to pub.dev.
 
-It uses Mix 2.4.0, Remix 1.0.0-rc.1 and Naked UI 2.0.0-beta.2 from pub.dev.
+It uses Mix 2.4.0, Remix 1.0.0-rc.2 and Naked UI 2.0.0-rc.1 from pub.dev.
 It needs Flutter 3.47.9+ and Dart 3.13+ for dot shorthand.
 
 | Path | Holds |

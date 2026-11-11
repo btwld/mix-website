@@ -2,7 +2,7 @@
   "definition": "Canonical MDX pages at the exact input revisions; generated folder indexes and product landings are counted separately.",
   "counts": {
     "mix": 29,
-    "remix": 53,
+    "remix": 62,
     "naked-ui": 23
   },
   "pages": {
@@ -155,6 +155,11 @@
     ],
     "remix": [
       {
+        "path": "/remix/docs/",
+        "source": "docs/index.mdx",
+        "owner": "btwld/remix"
+      },
+      {
         "path": "/remix/docs/agent/activity/",
         "source": "docs/agent/activity.mdx",
         "owner": "btwld/remix"
@@ -220,6 +225,11 @@
         "owner": "btwld/remix"
       },
       {
+        "path": "/remix/docs/components/calendar/",
+        "source": "docs/components/calendar.mdx",
+        "owner": "btwld/remix"
+      },
+      {
         "path": "/remix/docs/components/callout/",
         "source": "docs/components/callout.mdx",
         "owner": "btwld/remix"
@@ -240,6 +250,11 @@
         "owner": "btwld/remix"
       },
       {
+        "path": "/remix/docs/components/combobox/",
+        "source": "docs/components/combobox.mdx",
+        "owner": "btwld/remix"
+      },
+      {
         "path": "/remix/docs/components/data_list/",
         "source": "docs/components/data_list.mdx",
         "owner": "btwld/remix"
@@ -247,6 +262,16 @@
       {
         "path": "/remix/docs/components/data_table/",
         "source": "docs/components/data_table.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/date_picker/",
+        "source": "docs/components/date_picker.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/date_range_picker/",
+        "source": "docs/components/date_range_picker.mdx",
         "owner": "btwld/remix"
       },
       {
@@ -292,6 +317,11 @@
       {
         "path": "/remix/docs/components/radio/",
         "source": "docs/components/radio.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/components/range_calendar/",
+        "source": "docs/components/range_calendar.mdx",
         "owner": "btwld/remix"
       },
       {
@@ -365,6 +395,11 @@
         "owner": "btwld/remix"
       },
       {
+        "path": "/remix/docs/fortal/",
+        "source": "docs/fortal.mdx",
+        "owner": "btwld/remix"
+      },
+      {
         "path": "/remix/docs/fortal/catalog/",
         "source": "docs/fortal/catalog.mdx",
         "owner": "btwld/remix"
@@ -372,11 +407,6 @@
       {
         "path": "/remix/docs/fortal/typography/",
         "source": "docs/fortal/typography.mdx",
-        "owner": "btwld/remix"
-      },
-      {
-        "path": "/remix/docs/fortal/",
-        "source": "docs/fortal.mdx",
         "owner": "btwld/remix"
       },
       {
@@ -400,13 +430,28 @@
         "owner": "btwld/remix"
       },
       {
-        "path": "/remix/docs/",
-        "source": "docs/index.mdx",
+        "path": "/remix/docs/open-code/",
+        "source": "docs/open-code.mdx",
         "owner": "btwld/remix"
       },
       {
-        "path": "/remix/docs/open-code/",
-        "source": "docs/open-code.mdx",
+        "path": "/remix/docs/open-code/catalog/",
+        "source": "docs/open-code/catalog.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/open-code/cli/",
+        "source": "docs/open-code/cli.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/open-code/install/",
+        "source": "docs/open-code/install.mdx",
+        "owner": "btwld/remix"
+      },
+      {
+        "path": "/remix/docs/open-code/updating/",
+        "source": "docs/open-code/updating.mdx",
         "owner": "btwld/remix"
       },
       {
@@ -618,12 +663,16 @@
     "/remix/docs/components/avatar/",
     "/remix/docs/components/badge/",
     "/remix/docs/components/button/",
+    "/remix/docs/components/calendar/",
     "/remix/docs/components/callout/",
     "/remix/docs/components/card/",
     "/remix/docs/components/checkbox/",
     "/remix/docs/components/checkbox_group/",
+    "/remix/docs/components/combobox/",
     "/remix/docs/components/data_list/",
     "/remix/docs/components/data_table/",
+    "/remix/docs/components/date_picker/",
+    "/remix/docs/components/date_range_picker/",
     "/remix/docs/components/dialog/",
     "/remix/docs/components/disclosure/",
     "/remix/docs/components/divider/",
@@ -633,6 +682,7 @@
     "/remix/docs/components/popover/",
     "/remix/docs/components/progress/",
     "/remix/docs/components/radio/",
+    "/remix/docs/components/range_calendar/",
     "/remix/docs/components/segmented_control/",
     "/remix/docs/components/select/",
     "/remix/docs/components/sidebar/",
@@ -656,6 +706,10 @@
     "/remix/docs/guides/registries/",
     "/remix/docs/guides/styling-components/",
     "/remix/docs/open-code/",
+    "/remix/docs/open-code/catalog/",
+    "/remix/docs/open-code/cli/",
+    "/remix/docs/open-code/install/",
+    "/remix/docs/open-code/updating/",
     "/remix/docs/styler-api/",
     "/remix/docs/tutorials/",
     "/remix/docs/tutorials/settings-screen/"
@@ -663,15 +717,15 @@
   "sources": {
     "mix-previews": {
       "repository": "btwld/mix-website",
-      "commit": "07f167db8124ce0870ad5736b54512506c0f0df2"
+      "commit": "51ceddae3897fcf08c63236fe371263cd2e1d258"
     },
     "naked-ui-docs": {
       "repository": "btwld/remix",
-      "commit": "15df6302de02b6543e72b43b02880cc110398c48"
+      "commit": "1bf2c0ab7e1098953befed47fe7f4d215fc32284"
     },
     "remix-docs": {
       "repository": "btwld/remix",
-      "commit": "ba450dc72223d3ebacee0282b989d4ee2823828f"
+      "commit": "d2798c54475caa1c7e31169dbd0019a7da22c569"
     }
   }
 }

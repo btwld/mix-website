@@ -9,4 +9,4 @@ registries:
     repository: "btwld/remix"
     path: "registry"
     ref: "registry-stable"
-    revision: "c726e8995f08db690a255754e587fc7fc5d7ba47"
+    revision: "d2798c54475caa1c7e31169dbd0019a7da22c569"

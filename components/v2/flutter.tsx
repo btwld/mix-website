@@ -27,6 +27,23 @@ type Slot = { element: HTMLElement; demo: string; setMounted(mounted: boolean): 
 type Pooled = { id: number; element: HTMLDivElement; slot: Slot | null };
 type Engine = { app: App; pool: Pooled[] };
 
+// The engine survives client-side navigation, so its selections must too.
+// A remounted page subscribes again without asking Flutter to change selection.
+const latestEvents = new Map<string, Map<string, ShowcaseEvent>>();
+const selectionEvents = new Set(['featured', 'plan', 'cycle']);
+
+function rememberSelection(event: ShowcaseEvent) {
+  if (!selectionEvents.has(event.type)) return;
+  const events = latestEvents.get(event.demo) ?? new Map<string, ShowcaseEvent>();
+  events.set(event.type, event);
+  latestEvents.set(event.demo, events);
+}
+
+export function getDemoSelection<T>(demo: string, type: string, fallback: T): T {
+  const event = latestEvents.get(demo)?.get(type);
+  return event ? event.value as T : fallback;
+}
+
 declare global {
   interface Window {
     /** Set before the bundle loads; the app reads it to know it is embedded. */
@@ -90,6 +107,11 @@ export function ShowcaseProvider({ children }: { children: ReactNode }) {
   const pending = useRef<Message[]>([]);
 
   const send = useCallback((message: Message) => {
+    if (typeof message.demo === 'string' && message.set && typeof message.set === 'object') {
+      for (const [type, value] of Object.entries(message.set)) {
+        rememberSelection({ demo: message.demo, type, value });
+      }
+    }
     if (window.__mixShowcase) window.__mixShowcase.apply(JSON.stringify(message));
     else pending.current.push(message);
   }, []);
@@ -150,6 +172,7 @@ export function ShowcaseProvider({ children }: { children: ReactNode }) {
           if (view?.slot?.demo === event.demo) { view.element.style.visibility = ''; view.slot.setMounted(true); }
           return;
         }
+        rememberSelection(event);
         listeners.current.get(event.demo)?.forEach(listener => listener(event));
       },
     };
@@ -184,6 +207,7 @@ export function ShowcaseProvider({ children }: { children: ReactNode }) {
     const set = listeners.current.get(demo) ?? new Set<Listener>();
     listeners.current.set(demo, set);
     set.add(listener);
+    latestEvents.get(demo)?.forEach(listener);
     return () => { set.delete(listener); };
   }, []);
 
@@ -219,7 +243,7 @@ export function useDemoListener<T>(demo: string, type: string, handler: (value: 
 
 /** The latest value of one event type from one demo. */
 export function useDemoEvent<T>(demo: string, type: string, initial: T): T {
-  const [value, setValue] = useState(initial);
+  const [value, setValue] = useState(() => getDemoSelection(demo, type, initial));
   useDemoListener<T>(demo, type, setValue);
   return value;
 }

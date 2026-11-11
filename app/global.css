@@ -167,3 +167,7 @@ html.concepta-docs.dark body {
 /* Search results always carry a project label above their text, so move
    Fumadocs' heading marker (positioned for unlabelled rows) below it. */
 [data-result-url] > svg { top: calc(0.625rem + 1rem); }
+
+/* The agent prompt is prose. Wrap it without changing the Dart listings. */
+.project-remix #start-with-ai + p + figure pre { width: 100%; min-width: 0; }
+.project-remix #start-with-ai + p + figure :is(pre, code, .line) { white-space: pre-wrap; overflow-wrap: anywhere; }

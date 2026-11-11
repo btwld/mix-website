@@ -6,10 +6,11 @@ Build first. This audit reads rendered responses, not MDX counts alone.
 """
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urljoin, urlsplit, unquote
+from urllib.parse import urljoin, urlsplit, unquote, parse_qs
 from urllib.request import urlopen
 from urllib.error import HTTPError
 import json
+import re
 import sys
 import xml.etree.ElementTree as ET
 
@@ -69,7 +70,16 @@ for route in inventory['siteRoutes']:
         if result[0] != 200: errors.append(f'{route}: link {raw} -> HTTP {result[0]}')
         elif fragment and 'text/html' in result[1].get('content-type','') and not path.startswith('/remix/catalog'):
             anchors.add((path,fragment))
-            if fragment not in document(path, result[2]).ids: errors.append(f'{route}: missing anchor {raw}')
+            if urlsplit(path).path == '/v2/source/' and re.fullmatch(r'L[0-9]+-L[0-9]+', fragment):
+                # Source selection is applied by the browser after it reads the
+                # query. Validate its file and line range, not a literal HTML id.
+                name = parse_qs(urlsplit(path).query).get('file', [''])[0]
+                source_root = Path('packages/mix_showcase/lib').resolve()
+                source_file = (source_root / name).resolve()
+                start, end = map(int, re.findall(r'[0-9]+', fragment))
+                if not source_file.is_relative_to(source_root) or not source_file.is_file() or not 1 <= start <= end <= len(source_file.read_text().splitlines()):
+                    errors.append(f'{route}: invalid source selection {raw}')
+            elif fragment not in document(path, result[2]).ids: errors.append(f'{route}: missing anchor {raw}')
     for raw in doc.images:
         target = local_url(raw, route)
         if not target: continue

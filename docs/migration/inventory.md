@@ -3,16 +3,16 @@
 The counted corpus is canonical MDX at the pinned revisions, not a count of
 navigation entries or copies served from multiple hosts. `pages.json` records
 each page's owner, edit path and final route. Folder indexes and project
-landings are separate generated routes: 120 content/index/landing routes in
+landings are separate generated routes: 129 content/index/landing routes in
 total. The Flutter catalog, forwarding dashboard, search JSON, robots, sitemap
 and asset endpoints are accounted for separately and are not canonical MDX pages.
 
 | Project | Canonical pages | Explanation |
 | --- | ---: | --- |
 | Mix | 29 | All MDX files under the pinned website's `src/content/documentation/mix`. The prior “33 / 31 remaining” summary was incorrect; 27 remained after the two-page pilot. The URL inventory also contains `src/content/mix.mdx` (the legacy project landing), which is represented by the new landing and is not a documentation page. |
-| Remix | 53 | Every page in the pinned, upstream-prepared docs snapshot; tutorial ZIP includes and real catalog source panels are expanded upstream. The 26 Concepta copies do not count as separate pages. |
-| Naked UI | 23 | All 18 archived pages, updated against active naked_ui 1.5.0, plus Combobox, Menubar, Scrollbar, TextMagnifier and ToggleGroup. Switch keeps its route and documents `NakedToggle(asSwitch: true)`. |
-| Total | 105 | No duplicated manually editable Naked UI copy remains in the website. |
+| Remix | 62 | Every page in the pinned, upstream-prepared docs snapshot, including the CLI, open-code installation/update guides and calendar components; tutorial ZIP includes and real catalog source panels are expanded upstream. The 26 Concepta copies do not count as separate pages. |
+| Naked UI | 23 | All 18 archived routes, plus Combobox, Menubar, Scrollbar, TextMagnifier and ToggleGroup. Switch keeps its route and documents `NakedToggle(asSwitch: true)`. |
+| Total | 114 | No duplicated manually editable Naked UI copy remains in the website. |
 
 `legacy-urls.json` preserves all 235 entries from the 2026-11-03 URL inventory.
 `historical-paths.json` preserves all 151 historical path-map entries (151 unique

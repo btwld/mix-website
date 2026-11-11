@@ -6,6 +6,7 @@ const representative = [
   '/', '/mix/', '/remix/', '/naked-ui/', '/mix/docs/', '/remix/docs/', '/naked-ui/docs/',
   '/mix/docs/guides/animations/', '/remix/docs/tutorials/settings-screen/',
   '/remix/docs/components/button/', '/naked-ui/docs/widget/slider/', '/naked-ui/docs/widget/dialog/',
+  '/remix/docs/open-code/install/', '/remix/docs/open-code/cli/', '/remix/docs/components/calendar/',
 ];
 for (const route of representative) expect(inventory.siteRoutes).toContain(route);
 
@@ -48,10 +49,10 @@ for (const width of [1440, 390]) test.describe(`reader navigation at ${width}px`
   });
 
   test('project entry points, sidebar order, project switcher and search work', async ({ page }) => {
-    for (const name of ['Mix', 'Remix', 'Naked UI']) {
+    for (const project of ['mix', 'remix', 'naked-ui']) {
       await page.goto('/');
-      const card = page.getByRole('region', { name, exact: true });
-      await card.getByRole('link', { name: 'Get started', exact: true }).click();
+      await page.locator('.v2-docs-menu summary').click();
+      await page.locator(`.v2-docs-panel a[href="/${project}/docs/"]`).click();
       await expect(page.locator('h1')).toBeVisible();
       await expect(page).toHaveURL(/\/(mix|remix|naked-ui)\/docs\//);
     }
@@ -81,14 +82,17 @@ test('Remix tutorial ZIP downloads its published bytes without route prefetch', 
     if (new URL(request.url()).pathname.startsWith(asset)) assetRequests.push(request.url());
   });
   await page.goto('/remix/docs/tutorials/settings-screen/');
-  const link = page.getByRole('link', { name: 'sample download', exact: true });
-  await expect(link).toHaveAttribute('href', asset);
-  await link.scrollIntoViewIfNeeded();
-  await link.hover();
-  await page.waitForLoadState('networkidle');
+  const links = page.getByRole('link', { name: 'sample download', exact: true });
+  await expect(links.first()).toHaveAttribute('href', asset);
+  for (const link of await links.all()) {
+    await expect(link).toHaveAttribute('href', asset);
+    await link.scrollIntoViewIfNeeded();
+    await link.hover();
+    await page.waitForLoadState('networkidle');
+  }
   expect(assetRequests, 'assets must not be prefetched as Next routes').toEqual([]);
   const pendingDownload = page.waitForEvent('download');
-  await link.click();
+  await links.first().click();
   const download = await pendingDownload;
   expect(await download.failure()).toBeNull();
   expect(download.suggestedFilename()).toBe('sample-projects.zip');
