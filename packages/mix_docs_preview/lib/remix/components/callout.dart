@@ -20,19 +20,10 @@ class Example extends StatelessWidget {
     return FortalScope(
       accent: .green,
       brightness: .dark,
-      child: const CalloutPreview(),
-    );
-  }
-}
-
-class CalloutPreview extends StatelessWidget {
-  const CalloutPreview({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const FortalCallout.surface(
-      text: 'Callout important information for the user.',
-      icon: Icons.info_outline,
+      child: const FortalCallout.surface(
+        text: 'Callout important information for the user.',
+        icon: Icons.info_outline,
+      ),
     );
   }
 }

@@ -21,24 +21,15 @@ class Example extends StatelessWidget {
     return FortalScope(
       accent: .green,
       brightness: .dark,
-      child: const AvatarPreview(),
-    );
-  }
-}
-
-class AvatarPreview extends StatelessWidget {
-  const AvatarPreview({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: .center,
-      mainAxisSize: .min,
-      spacing: 16,
-      children: [
-        const FortalAvatar.soft(label: 'LF'),
-        const FortalAvatar.solid(icon: Icons.person),
-      ],
+      child: Row(
+        mainAxisAlignment: .center,
+        mainAxisSize: .min,
+        spacing: 16,
+        children: [
+          const FortalAvatar.soft(label: 'LF'),
+          const FortalAvatar.solid(icon: Icons.person),
+        ],
+      ),
     );
   }
 }

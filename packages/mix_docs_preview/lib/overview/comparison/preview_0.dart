@@ -12,9 +12,7 @@ class Example extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Row(mainAxisAlignment: .center, children: [CustomMixWidget()]),
-    );
+    return const CustomMixWidget();
   }
 }
 

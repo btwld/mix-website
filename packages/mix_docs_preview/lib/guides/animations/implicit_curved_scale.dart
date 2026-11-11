@@ -32,8 +32,7 @@ class _ExampleState extends State<Example> {
   Widget build(BuildContext context) {
     final style = BoxStyler()
         .color(Colors.black)
-        .height(100)
-        .width(100)
+        .size(100, 100)
         .borderRadius(.circular(10))
         .translate(appear ? 0 : -50, 0)
         .scale(appear ? 1 : 0.1)

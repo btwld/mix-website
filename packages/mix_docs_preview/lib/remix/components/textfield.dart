@@ -20,36 +20,13 @@ class Example extends StatelessWidget {
     return FortalScope(
       accent: .green,
       brightness: .dark,
-      child: const TextFieldPreview(),
-    );
-  }
-}
-
-class TextFieldPreview extends StatefulWidget {
-  const TextFieldPreview({super.key});
-
-  @override
-  State<TextFieldPreview> createState() => _TextFieldPreviewState();
-}
-
-class _TextFieldPreviewState extends State<TextFieldPreview> {
-  final controller = TextEditingController();
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 300,
-      child: FortalTextField.surface(
-        controller: controller,
-        hintText: 'Placeholder',
-        label: 'Label',
-        helperText: 'Required field',
+      child: SizedBox(
+        width: 300,
+        child: FortalTextField.surface(
+          hintText: 'Placeholder',
+          label: 'Label',
+          helperText: 'Required field',
+        ),
       ),
     );
   }

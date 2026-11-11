@@ -1,0 +1,13 @@
+# Examples are shown beside a live view, so they are formatted narrow.
+# Style code is stacked one call per line, and a chain passed as an argument
+# sits inside its parentheses with each call on its own line. The formatter
+# joins chains that fit, so a style file starts with `// dart format off`;
+# test/source_rules_test.dart checks the layout. `trailing_commas: preserve`
+# keeps hand-made splits elsewhere.
+analyzer:
+  exclude:
+    - build/**
+    - web/**
+formatter:
+  page_width: 60
+  trailing_commas: preserve

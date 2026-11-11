@@ -12,6 +12,7 @@ export function SourceBrowser({ files, github, pinned }: { files: SourceFile[]; 
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
   const pendingCopy = useRef(0);
   const viewer = useRef<HTMLDivElement>(null);
+  const arrival = useRef<string | null>(null);
   const file = files.find(entry => entry.id === selected) ?? files[0];
   const ranges = sourceRanges(hash, file.raw.split('\n').length);
   const githubHash = pinned && ranges.length ? `#${ranges.map(([start, end]) => `L${start}${end === start ? '' : `-L${end}`}`).join(',')}` : '';
@@ -42,8 +43,17 @@ export function SourceBrowser({ files, github, pinned }: { files: SourceFile[]; 
       line.classList.toggle('v2-source-highlight', ranges.some(([start, end]) => number >= start && number <= end));
     });
     const first = ranges.length ? region.querySelector<HTMLElement>(`#L${ranges[0][0]}`) : null;
-    if (!first) { region.scrollTop = 0; region.scrollLeft = 0; return; }
     const behavior = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+    if (!first) {
+      region.scrollTop = 0; region.scrollLeft = 0;
+      // Arriving from a link to a whole file opens at the file, not the intro.
+      arrival.current ??= new URLSearchParams(location.search).get('file');
+      if (arrival.current && arrival.current === file.id) {
+        arrival.current = '';
+        scrollTo({ top: scrollY + region.getBoundingClientRect().top - 112, behavior: 'auto' });
+      }
+      return;
+    }
     const top = region.scrollTop + first.getBoundingClientRect().top - region.getBoundingClientRect().top - 24;
     region.scrollTo({ top, left: 0, behavior });
     scrollTo({ top: scrollY + region.getBoundingClientRect().top - 112, behavior });
@@ -81,8 +91,8 @@ export function SourceBrowser({ files, github, pinned }: { files: SourceFile[]; 
         <label htmlFor="v2-source-file">Source file</label>
         <select id="v2-source-file" value={file.id} onChange={event => choose(event.target.value)}>
           {[
-            { label: 'Showcase Dart', entries: files.filter(entry => entry.path.startsWith('lib/') && !entry.path.startsWith('lib/fortal/')) },
-            { label: 'Installed by remix add', entries: files.filter(entry => entry.path.startsWith('lib/fortal/')) },
+            { label: 'Showcase Dart', entries: files.filter(entry => entry.path.startsWith('lib/') && !entry.path.startsWith('lib/ui/')) },
+            { label: 'Installed by remix add', entries: files.filter(entry => entry.path.startsWith('lib/ui/')) },
             { label: 'Package & setup', entries: files.filter(entry => !entry.path.startsWith('lib/')) },
           ].filter(group => group.entries.length).map(group => <optgroup key={group.label} label={group.label}>
             {group.entries.map(entry => <option value={entry.id} key={entry.id}>{entry.path}</option>)}

@@ -20,27 +20,18 @@ class Example extends StatelessWidget {
     return FortalScope(
       accent: .green,
       brightness: .dark,
-      child: const ButtonPreview(),
-    );
-  }
-}
-
-class ButtonPreview extends StatelessWidget {
-  const ButtonPreview({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: .center,
-      mainAxisSize: .min,
-      spacing: 12,
-      children: [
-        FortalButton.solid(onPressed: () {}, label: 'Solid'),
-        FortalButton.soft(onPressed: () {}, label: 'Soft'),
-        FortalButton.surface(onPressed: () {}, label: 'Surface'),
-        FortalButton.outline(onPressed: () {}, label: 'Outline'),
-        FortalButton.ghost(onPressed: () {}, label: 'Ghost'),
-      ],
+      child: Row(
+        mainAxisAlignment: .center,
+        mainAxisSize: .min,
+        spacing: 12,
+        children: [
+          FortalButton.solid(onPressed: () {}, label: 'Solid'),
+          FortalButton.soft(onPressed: () {}, label: 'Soft'),
+          FortalButton.surface(onPressed: () {}, label: 'Surface'),
+          FortalButton.outline(onPressed: () {}, label: 'Outline'),
+          FortalButton.ghost(onPressed: () {}, label: 'Ghost'),
+        ],
+      ),
     );
   }
 }

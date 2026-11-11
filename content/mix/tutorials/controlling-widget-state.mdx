@@ -77,8 +77,7 @@ class _SelectableBoxState extends State<SelectableBox> {
   Widget build(BuildContext context) {
     final style = BoxStyler()
         .color(Colors.red)
-        .height(100)
-        .width(100)
+        .size(100, 100)
         .borderRadius(.circular(10))
         .variant(ContextVariant.widgetState(.selected), .color(Colors.blue));
 
@@ -139,8 +138,7 @@ class _ToggleButtonState extends State<ToggleButton> {
   @override
   Widget build(BuildContext context) {
     final boxStyle = BoxStyler()
-        .height(60)
-        .width(120)
+        .size(120, 60)
         .borderRadius(.circular(30))
         .color(Colors.grey.shade200)
         .border(.color(Colors.grey.shade300).width(2))
@@ -148,7 +146,7 @@ class _ToggleButtonState extends State<ToggleButton> {
         .variant(
           ContextVariant.widgetState(.selected),
           .color(Colors.blue.shade500)
-          .border(.color(Colors.blue.shade600).width(2))
+          .border(.color(Colors.blue.shade600))
           .shadow(
             .color(Colors.blue.shade200)
             .blurRadius(10)
@@ -231,8 +229,7 @@ class _ExternallyControlledBoxState extends State<ExternallyControlledBox> {
   Widget build(BuildContext context) {
     final style = BoxStyler()
         .color(Colors.grey)
-        .height(60)
-        .width(120)
+        .size(120, 60)
         .borderRadius(.circular(8))
         .animate(.easeInOut(300.ms))
         .variant(ContextVariant.widgetState(.selected), .color(Colors.black));

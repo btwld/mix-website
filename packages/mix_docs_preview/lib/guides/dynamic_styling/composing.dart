@@ -14,8 +14,7 @@ class Example extends StatelessWidget {
   Widget build(BuildContext context) {
     final styleA = BoxStyler()
         .color(Colors.red)
-        .height(100)
-        .width(100)
+        .size(100, 100)
         .borderRadius(.circular(10))
         .onHovered(.color(Colors.blue).width(200));
 

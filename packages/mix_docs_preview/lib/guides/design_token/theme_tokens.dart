@@ -47,8 +47,7 @@ class _Example extends StatelessWidget {
     final style = BoxStyler()
         .borderRadiusTopLeft($pill())
         .color($primaryColor())
-        .height(100)
-        .width(100)
+        .size(100, 100)
         .padding(.all(16.0));
 
     return Box(

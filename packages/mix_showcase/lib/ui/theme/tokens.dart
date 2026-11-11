@@ -1,0 +1,397 @@
+import 'package:remix/remix.dart';
+
+/// Semantic design tokens and scale constants owned by the application.
+///
+/// Remix ships no theme, so the names below are the application's vocabulary,
+/// not a Remix contract. A [MixToken] is only an identity: the concrete value
+/// comes from whichever `MixScope` is active, which `UiTheme` installs
+/// from a `UiThemeData`. Spacing, size, stroke, opacity, and motion steps
+/// are plain constants on the same class so every recipe reads from one place.
+/// Editing, renaming, or adding a member here is a local change — nothing in
+/// Remix reads these names.
+///
+/// The color, radius, and text names follow the CSS variables of shadcn/ui's
+/// theme, which inspired Ui's look, so a value read off one of those
+/// themes drops straight into `UiThemeData`.
+///
+/// ```dart
+/// ButtonStyler().color(UiTokens.primary());
+/// ```
+abstract final class UiTokens {
+  /// Page background the application paints behind its content.
+  static const background = ColorToken(
+    'ui.color.background',
+  );
+
+  /// Default content color used on top of [background].
+  static const foreground = ColorToken(
+    'ui.color.foreground',
+  );
+
+  /// Surface of a card, a step apart from [background] in the dark theme.
+  static const card = ColorToken('ui.color.card');
+
+  /// Content color used on top of [card].
+  static const cardForeground = ColorToken(
+    'ui.color.card-foreground',
+  );
+
+  /// Surface of a floating panel: a popover, a menu, a select's options.
+  static const popover = ColorToken('ui.color.popover');
+
+  /// Content color used on top of [popover].
+  static const popoverForeground = ColorToken(
+    'ui.color.popover-foreground',
+  );
+
+  /// Highest-emphasis fill.
+  static const primary = ColorToken('ui.color.primary');
+
+  /// Content color used on top of [primary].
+  static const primaryForeground = ColorToken(
+    'ui.color.primary-foreground',
+  );
+
+  /// Medium-emphasis fill.
+  static const secondary = ColorToken('ui.color.secondary');
+
+  /// Content color used on top of [secondary].
+  static const secondaryForeground = ColorToken(
+    'ui.color.secondary-foreground',
+  );
+
+  /// De-emphasized surface.
+  static const muted = ColorToken('ui.color.muted');
+
+  /// De-emphasized content color.
+  ///
+  /// The shipped light theme sets it at `#707070`, a step darker than the usual
+  /// neutral gray, so it clears the 4.5:1 text floor on [muted] as well as on
+  /// [background]: a muted caption inside a muted surface stays readable.
+  static const mutedForeground = ColorToken(
+    'ui.color.muted-foreground',
+  );
+
+  /// Interaction surface for otherwise transparent controls: the hovered
+  /// ghost button, the highlighted menu row, the toggle that is on.
+  static const accent = ColorToken('ui.color.accent');
+
+  /// Content color used on top of [accent].
+  static const accentForeground = ColorToken(
+    'ui.color.accent-foreground',
+  );
+
+  /// Destructive color for irreversible actions and errors.
+  ///
+  /// In the dark theme this is a light red that reads as text on the page but
+  /// is too light to carry white text as a solid fill, which is why the dark
+  /// recipes paint destructive fills at a reduced alpha (see `uiTint`).
+  static const destructive = ColorToken(
+    'ui.color.destructive',
+  );
+
+  /// Content color used on top of a [destructive] fill.
+  ///
+  /// White in both shipped themes, and a token rather than a constant so the
+  /// pairing stays editable in one place.
+  static const destructiveForeground = ColorToken(
+    'ui.color.destructive-foreground',
+  );
+
+  /// Hairline separator and surface outline color.
+  static const border = ColorToken('ui.color.border');
+
+  /// Outline of a form control: a text field, a select trigger, a checkbox.
+  ///
+  /// The same value as [border] in the light theme and a step stronger in the
+  /// dark one, where a control has to stand out from a card's hairline.
+  static const input = ColorToken('ui.color.input');
+
+  /// Focus color: the focus ring and a focused control's border.
+  ///
+  /// Recipes draw the ring at half strength and turn a bordered control's
+  /// outline to full strength. Give it a brand color here and every control's
+  /// focus treatment follows.
+  static const ring = ColorToken('ui.color.ring');
+
+  /// First categorical chart series color.
+  ///
+  /// Charts assign [chart1] through [chart5] to series in order; see [chart].
+  /// The shipped themes use a neutral ramp, the same five grays in both
+  /// brightnesses, so series are told apart by lightness rather than by hue.
+  static const chart1 = ColorToken('ui.color.chart-1');
+
+  /// Second categorical chart series color. See [chart1].
+  static const chart2 = ColorToken('ui.color.chart-2');
+
+  /// Third categorical chart series color. See [chart1].
+  static const chart3 = ColorToken('ui.color.chart-3');
+
+  /// Fourth categorical chart series color. See [chart1].
+  static const chart4 = ColorToken('ui.color.chart-4');
+
+  /// Fifth categorical chart series color. See [chart1].
+  static const chart5 = ColorToken('ui.color.chart-5');
+
+  /// Surface of the navigation sidebar, a step apart from [background].
+  static const sidebar = ColorToken('ui.color.sidebar');
+
+  /// Content color used on top of [sidebar].
+  static const sidebarForeground = ColorToken(
+    'ui.color.sidebar-foreground',
+  );
+
+  /// Highest-emphasis fill inside the sidebar.
+  static const sidebarPrimary = ColorToken(
+    'ui.color.sidebar-primary',
+  );
+
+  /// Content color used on top of [sidebarPrimary].
+  static const sidebarPrimaryForeground = ColorToken(
+    'ui.color.sidebar-primary-foreground',
+  );
+
+  /// Hovered and current destination surface inside the sidebar.
+  static const sidebarAccent = ColorToken(
+    'ui.color.sidebar-accent',
+  );
+
+  /// Content color used on top of [sidebarAccent].
+  static const sidebarAccentForeground = ColorToken(
+    'ui.color.sidebar-accent-foreground',
+  );
+
+  /// Hairline color inside and along the sidebar.
+  static const sidebarBorder = ColorToken(
+    'ui.color.sidebar-border',
+  );
+
+  /// Focus color inside the sidebar. See [ring].
+  static const sidebarRing = ColorToken(
+    'ui.color.sidebar-ring',
+  );
+
+  /// The small corner radius: menu rows and select options.
+  ///
+  /// Every radius step is derived from the one `radius` value on
+  /// `UiThemeData`, so changing that value rounds the whole application
+  /// consistently.
+  static const radiusSm = RadiusToken('ui.radius.sm');
+
+  /// The control corner radius: buttons, fields, toggles. See [radiusSm].
+  static const radiusMd = RadiusToken('ui.radius.md');
+
+  /// The panel corner radius: dialogs, callouts, the tab list. See
+  /// [radiusSm].
+  static const radiusLg = RadiusToken('ui.radius.lg');
+
+  /// The card corner radius. See [radiusSm].
+  static const radiusXl = RadiusToken('ui.radius.xl');
+
+  /// 12px text on a 16px line: captions, badges, tooltips.
+  ///
+  /// Every text step carries the theme's font family, a size, and a line
+  /// height, and nothing else: weight and color are the recipe's to choose.
+  static const textXs = TextStyleToken('ui.text.xs');
+
+  /// 14px text on a 20px line: body copy and control labels. See [textXs].
+  static const textSm = TextStyleToken('ui.text.sm');
+
+  /// 16px text on a 24px line. See [textXs].
+  static const textBase = TextStyleToken('ui.text.base');
+
+  /// 18px text on a 28px line. See [textXs].
+  static const textLg = TextStyleToken('ui.text.lg');
+
+  /// 20px text on a 28px line. See [textXs].
+  static const textXl = TextStyleToken('ui.text.xl');
+
+  /// 24px text on a 32px line. See [textXs].
+  static const text2xl = TextStyleToken('ui.text.2xl');
+
+  /// 30px text on a 36px line. See [textXs].
+  static const text3xl = TextStyleToken('ui.text.3xl');
+
+  /// Code: [textSm]'s size and line height in the theme's monospace family.
+  static const textMono = TextStyleToken('ui.text.mono');
+
+  /// The chart series colors in the order charts assign them.
+  static const chart = <ColorToken>[
+    chart1,
+    chart2,
+    chart3,
+    chart4,
+    chart5,
+  ];
+
+  /// Every color token this layer defines, in declaration order.
+  ///
+  /// The installed-app fixture checks that `UiThemeData`'s scope map
+  /// resolves every entry, so a token added here and forgotten there fails.
+  static const colors = <ColorToken>[
+    background,
+    foreground,
+    card,
+    cardForeground,
+    popover,
+    popoverForeground,
+    primary,
+    primaryForeground,
+    secondary,
+    secondaryForeground,
+    muted,
+    mutedForeground,
+    accent,
+    accentForeground,
+    destructive,
+    destructiveForeground,
+    border,
+    input,
+    ring,
+    chart1,
+    chart2,
+    chart3,
+    chart4,
+    chart5,
+    sidebar,
+    sidebarForeground,
+    sidebarPrimary,
+    sidebarPrimaryForeground,
+    sidebarAccent,
+    sidebarAccentForeground,
+    sidebarBorder,
+    sidebarRing,
+  ];
+
+  /// Every radius step, from the smallest.
+  static const radii = <RadiusToken>[
+    radiusSm,
+    radiusMd,
+    radiusLg,
+    radiusXl,
+  ];
+
+  /// Every text step, from the smallest, then [textMono].
+  static const textStyles = <TextStyleToken>[
+    textXs,
+    textSm,
+    textBase,
+    textLg,
+    textXl,
+    text2xl,
+    text3xl,
+    textMono,
+  ];
+
+  // ---------------------------------------------------------------------------
+  // Spacing steps on a four-pixel grid (`s2` is two steps, 8px; `s1_5` is 6px).
+  //
+  // Plain constants rather than tokens on purpose: spacing does not vary by
+  // theme, and arithmetic on an unresolved token (half a gap, a gap minus a
+  // border) cannot be written until the token resolves.
+  // ---------------------------------------------------------------------------
+
+  /// 2px.
+  static const double s0_5 = 2;
+
+  /// 4px.
+  static const double s1 = 4;
+
+  /// 6px.
+  static const double s1_5 = 6;
+
+  /// 8px.
+  static const double s2 = 8;
+
+  /// 10px.
+  static const double s2_5 = 10;
+
+  /// 12px.
+  static const double s3 = 12;
+
+  /// 14px.
+  static const double s3_5 = 14;
+
+  /// 16px.
+  static const double s4 = 16;
+
+  /// 20px.
+  static const double s5 = 20;
+
+  /// 24px.
+  static const double s6 = 24;
+
+  /// 32px.
+  static const double s8 = 32;
+
+  /// 40px.
+  static const double s10 = 40;
+
+  /// 48px.
+  static const double s12 = 48;
+
+  /// 64px.
+  static const double s16 = 64;
+
+  // ---------------------------------------------------------------------------
+  // Control heights, icon sizes, panel widths, and pill radius.
+  // ---------------------------------------------------------------------------
+
+  /// A small control.
+  static const double controlSm = 32;
+
+  /// The default control.
+  static const double controlMd = 36;
+
+  /// A large control.
+  static const double controlLg = 40;
+
+  /// A small glyph beside `xs` text.
+  static const double iconXs = 12;
+
+  /// A small indicator glyph.
+  static const double iconSm = 14;
+
+  /// The default glyph.
+  static const double icon = 16;
+
+  /// The narrowest a floating list gets, so a one-word menu is still a target.
+  static const double panelMinWidth = 128;
+
+  /// Shared height bound for Select and Combobox suggestion panels.
+  static const double panelMaxHeight = 320;
+
+  /// A popover's width.
+  static const double popoverWidth = 288;
+
+  /// A toast's width.
+  static const double toastWidth = 356;
+
+  /// The widest a dialog gets.
+  static const double dialogMaxWidth = 512;
+
+  /// A corner radius that rounds any control into a pill or a circle.
+  static const double pill = 9999;
+
+  // ---------------------------------------------------------------------------
+  // Stroke widths, opacity, and motion.
+  // ---------------------------------------------------------------------------
+
+  /// A border or a separator.
+  static const double strokeHairline = 1;
+
+  /// A selection mark: the line under the current tab.
+  static const double strokeIndicator = 2;
+
+  /// The focus ring stroke width.
+  static const double strokeRing = 3;
+
+  /// A disabled control fades to half strength, and keeps its colors.
+  static const double disabledOpacity = 0.5;
+
+  /// Every state change: 150ms on `Curves.fastOutSlowIn`, `cubic-bezier(0.4, 0,
+  /// 0.2, 1)`, the curve the web's standard transitions use.
+  static const motion = CurveAnimationConfig.fastOutSlowIn(
+    Duration(milliseconds: 150),
+  );
+}

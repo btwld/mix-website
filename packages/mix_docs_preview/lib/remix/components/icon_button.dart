@@ -20,27 +20,24 @@ class Example extends StatelessWidget {
     return FortalScope(
       accent: .green,
       brightness: .dark,
-      child: const IconButtonPreview(),
-    );
-  }
-}
-
-class IconButtonPreview extends StatelessWidget {
-  const IconButtonPreview({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: .center,
-      mainAxisSize: .min,
-      spacing: 16,
-      children: [
-        FortalIconButton.solid(icon: CupertinoIcons.heart, onPressed: () {}),
-        FortalIconButton.soft(icon: CupertinoIcons.heart, onPressed: () {}),
-        FortalIconButton.surface(icon: CupertinoIcons.heart, onPressed: () {}),
-        FortalIconButton.outline(icon: CupertinoIcons.heart, onPressed: () {}),
-        FortalIconButton.ghost(icon: CupertinoIcons.heart, onPressed: () {}),
-      ],
+      child: Row(
+        mainAxisAlignment: .center,
+        mainAxisSize: .min,
+        spacing: 16,
+        children: [
+          FortalIconButton.solid(icon: CupertinoIcons.heart, onPressed: () {}),
+          FortalIconButton.soft(icon: CupertinoIcons.heart, onPressed: () {}),
+          FortalIconButton.surface(
+            icon: CupertinoIcons.heart,
+            onPressed: () {},
+          ),
+          FortalIconButton.outline(
+            icon: CupertinoIcons.heart,
+            onPressed: () {},
+          ),
+          FortalIconButton.ghost(icon: CupertinoIcons.heart, onPressed: () {}),
+        ],
+      ),
     );
   }
 }

@@ -34,8 +34,7 @@ class _KeyframeSwitchExampleState extends State<KeyframeSwitchExample> {
   @override
   Widget build(BuildContext context) {
     final box = BoxStyler()
-        .height(30)
-        .width(40)
+        .size(40, 30)
         .color(Colors.deepPurpleAccent)
         .shapeStadium()
         .keyframeAnimation(
@@ -58,11 +57,7 @@ class _KeyframeSwitchExampleState extends State<KeyframeSwitchExample> {
 
     return Center(
       child: Pressable(
-        onPress: () {
-          setState(() {
-            _trigger.value = !_trigger.value;
-          });
-        },
+        onPress: () => _trigger.value = !_trigger.value,
         child: box(),
       ),
     );

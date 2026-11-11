@@ -1,15 +1,15 @@
 import type { Metadata } from 'next';
-import { Tour } from '@/components/v2/tour';
+import { Showcase } from '@/components/v2/showcase';
 import { showcaseCode, showcasePackage } from '@/lib/showcase-source';
 import '../../v2.css';
 
 export const metadata: Metadata = {
-  title: 'Flutter UI, your way',
-  description: 'Style with Mix, compose with Remix, and build on Naked UI. Explore three open-source libraries in one live Flutter showcase.',
+  title: 'Mix, Naked UI and Remix for Flutter',
+  description: 'Three open-source libraries for building a Flutter design system: Mix for styling, Naked UI for behavior, Remix for components. Live examples with the source they run.',
   robots: { index: false, follow: false },
 };
 
 export default async function VersionTwo() {
   const [code, packages] = await Promise.all([showcaseCode(), showcasePackage()]);
-  return <Tour code={code} packages={packages} />;
+  return <Showcase code={code} packages={packages} />;
 }

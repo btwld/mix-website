@@ -1,25 +1,26 @@
 {
   "schema": 1,
   "context": {
-    "prefix": "Fortal",
-    "preset": "fortal",
-    "uiPath": "lib/fortal"
+    "prefix": "Ui",
+    "preset": "vanilla",
+    "uiPath": "lib/ui"
   },
   "targets": {
-    "lib/fortal/components/badge.dart": "btwld/remix/registry#fortal/badge",
-    "lib/fortal/components/badge.g.dart": "btwld/remix/registry#fortal/badge",
-    "lib/fortal/components/card.dart": "btwld/remix/registry#fortal/card",
-    "lib/fortal/components/card.g.dart": "btwld/remix/registry#fortal/card",
-    "lib/fortal/components/checkbox.dart": "btwld/remix/registry#fortal/checkbox",
-    "lib/fortal/components/checkbox.g.dart": "btwld/remix/registry#fortal/checkbox",
-    "lib/fortal/theme/computed.dart": "btwld/remix/registry#fortal/theme",
-    "lib/fortal/theme/control_styles.dart": "btwld/remix/registry#fortal/theme",
-    "lib/fortal/theme/fortal_colors.dart": "btwld/remix/registry#fortal/theme",
-    "lib/fortal/theme/palette.dart": "btwld/remix/registry#fortal/theme",
-    "lib/fortal/theme/surface_frame.dart": "btwld/remix/registry#fortal/theme",
-    "lib/fortal/theme/theme.dart": "btwld/remix/registry#fortal/theme",
-    "lib/fortal/theme/theme_data.dart": "btwld/remix/registry#fortal/theme",
-    "lib/fortal/theme/theme_scope.dart": "btwld/remix/registry#fortal/theme",
-    "lib/fortal/theme/tokens.dart": "btwld/remix/registry#fortal/theme"
+    "lib/ui/components/badge.dart": "btwld/remix/registry#vanilla/badge",
+    "lib/ui/components/badge.g.dart": "btwld/remix/registry#vanilla/badge",
+    "lib/ui/components/button.dart": "btwld/remix/registry#vanilla/button",
+    "lib/ui/components/button.g.dart": "btwld/remix/registry#vanilla/button",
+    "lib/ui/components/card.dart": "btwld/remix/registry#vanilla/card",
+    "lib/ui/components/card.g.dart": "btwld/remix/registry#vanilla/card",
+    "lib/ui/components/checkbox.dart": "btwld/remix/registry#vanilla/checkbox",
+    "lib/ui/components/checkbox.g.dart": "btwld/remix/registry#vanilla/checkbox",
+    "lib/ui/components/slider.dart": "btwld/remix/registry#vanilla/slider",
+    "lib/ui/components/slider.g.dart": "btwld/remix/registry#vanilla/slider",
+    "lib/ui/components/switch.dart": "btwld/remix/registry#vanilla/switch",
+    "lib/ui/components/switch.g.dart": "btwld/remix/registry#vanilla/switch",
+    "lib/ui/theme/effects.dart": "btwld/remix/registry#vanilla/theme",
+    "lib/ui/theme/theme_data.dart": "btwld/remix/registry#vanilla/theme",
+    "lib/ui/theme/theme_scope.dart": "btwld/remix/registry#vanilla/theme",
+    "lib/ui/theme/tokens.dart": "btwld/remix/registry#vanilla/theme"
   }
 }

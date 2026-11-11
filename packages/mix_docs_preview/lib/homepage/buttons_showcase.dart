@@ -24,31 +24,25 @@ class Example extends StatelessWidget {
         .onPressed(.scale(0.95))
         .textStyle(.fontSize(14).fontWeight(.w600).color(Colors.white));
 
-    final solidButtonStyle = buttonStyle
-        .color(Colors.deepPurpleAccent)
-        .textStyle(.fontSize(14).fontWeight(.w600).color(Colors.white));
+    final solidButtonStyle = buttonStyle.color(Colors.deepPurpleAccent);
 
     final outlinedButtonStyle = buttonStyle
         .border(.color(Colors.deepPurpleAccent).width(1.5))
-        .textStyle(
-          .fontSize(14).fontWeight(.w600).color(Colors.deepPurpleAccent),
-        );
+        .textStyle(.color(Colors.deepPurpleAccent));
 
-    return Center(
-      child: Row(
-        mainAxisSize: .min,
-        children: [
-          Pressable(
-            onPress: () {},
-            child: solidButtonStyle(child: StyledText('Solid')),
-          ),
-          const SizedBox(width: 12),
-          Pressable(
-            onPress: () {},
-            child: outlinedButtonStyle(child: StyledText('Outlined')),
-          ),
-        ],
-      ),
+    return Row(
+      mainAxisSize: .min,
+      spacing: 12,
+      children: [
+        Pressable(
+          onPress: () {},
+          child: solidButtonStyle(child: StyledText('Solid')),
+        ),
+        Pressable(
+          onPress: () {},
+          child: outlinedButtonStyle(child: StyledText('Outlined')),
+        ),
+      ],
     );
     // #enddocregion showcase
   }

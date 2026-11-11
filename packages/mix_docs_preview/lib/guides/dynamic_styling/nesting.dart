@@ -25,8 +25,7 @@ class _ExampleState extends State<Example> {
 
     final style = BoxStyler()
         .color(Colors.red)
-        .height(100)
-        .width(100)
+        .size(100, 100)
         .borderRadius(.circular(10))
         .onHovered(hoverStyle);
 

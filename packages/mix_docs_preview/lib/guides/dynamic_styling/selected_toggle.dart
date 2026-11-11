@@ -26,8 +26,7 @@ class _ExampleState extends State<Example> {
   @override
   Widget build(BuildContext context) {
     final style = BoxStyler()
-        .height(60)
-        .width(120)
+        .size(120, 60)
         .borderRadius(.circular(30))
         .color(Colors.grey.shade200)
         .border(.color(Colors.grey.shade300).width(2))
@@ -35,7 +34,7 @@ class _ExampleState extends State<Example> {
         .variant(
           ContextVariant.widgetState(.selected),
           .color(Colors.blue.shade500)
-              .border(.color(Colors.blue.shade600).width(2))
+              .border(.color(Colors.blue.shade600))
               .shadow(
                 .color(Colors.blue.shade200).blurRadius(10).spreadRadius(2),
               ),

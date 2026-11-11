@@ -20,16 +20,7 @@ class Example extends StatelessWidget {
     return FortalScope(
       accent: .green,
       brightness: .dark,
-      child: const CardPreview(),
+      child: const FortalCard.surface(child: SizedBox(width: 280, height: 160)),
     );
-  }
-}
-
-class CardPreview extends StatelessWidget {
-  const CardPreview({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const FortalCard.surface(child: SizedBox(width: 280, height: 160));
   }
 }

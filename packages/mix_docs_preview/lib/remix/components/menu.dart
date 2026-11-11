@@ -20,45 +20,28 @@ class Example extends StatelessWidget {
     return FortalScope(
       accent: .green,
       brightness: .dark,
-      child: const MenuPreview(),
-    );
-  }
-}
-
-class MenuPreview extends StatefulWidget {
-  const MenuPreview({super.key});
-
-  @override
-  State<MenuPreview> createState() => _MenuPreviewState();
-}
-
-class _MenuPreviewState extends State<MenuPreview> {
-  final controller = MenuController();
-
-  @override
-  Widget build(BuildContext context) {
-    return FortalMenu<String>.soft(
-      trigger: const RemixMenuTrigger(label: 'Open Menu'),
-      items: [
-        RemixMenuItem(
-          value: 'History',
-          leadingIcon: Icons.history,
-          label: 'History',
-        ),
-        RemixMenuItem(
-          value: 'Settings',
-          leadingIcon: Icons.settings,
-          label: 'Settings',
-        ),
-        const RemixMenuDivider(),
-        RemixMenuItem(
-          value: 'Logout',
-          leadingIcon: Icons.logout,
-          label: 'Logout',
-        ),
-      ],
-      onSelected: (_) {},
-      controller: controller,
+      child: FortalMenu<String>.soft(
+        trigger: const RemixMenuTrigger(label: 'Open Menu'),
+        items: [
+          RemixMenuItem(
+            value: 'History',
+            leadingIcon: Icons.history,
+            label: 'History',
+          ),
+          RemixMenuItem(
+            value: 'Settings',
+            leadingIcon: Icons.settings,
+            label: 'Settings',
+          ),
+          const RemixMenuDivider(),
+          RemixMenuItem(
+            value: 'Logout',
+            leadingIcon: Icons.logout,
+            label: 'Logout',
+          ),
+        ],
+        onSelected: (_) {},
+      ),
     );
   }
 }

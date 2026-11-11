@@ -40,7 +40,7 @@ class _SelectPreviewState extends State<SelectPreview> {
     return FortalSelect.surface(
       trigger: const RemixSelectTrigger(placeholder: 'Text Value'),
       items: [
-        RemixSelectItem(value: 'option1', label: 'Option 1', enabled: true),
+        RemixSelectItem(value: 'option1', label: 'Option 1'),
         RemixSelectItem(value: 'option2', label: 'Option 2', enabled: false),
       ],
       selectedValue: _selectedValue,

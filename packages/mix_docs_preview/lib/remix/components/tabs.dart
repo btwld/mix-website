@@ -44,12 +44,10 @@ class _TabsPreviewState extends State<TabsPreview> {
         selectedTabId: _tab,
         onChanged: (id) => setState(() => _tab = id),
         child: Column(
-          mainAxisSize: .max,
           crossAxisAlignment: .stretch,
           children: [
             const FortalTabBar(
               child: Row(
-                mainAxisSize: .max,
                 children: [
                   FortalTab(tabId: 'tab1', label: 'Tab 1'),
                   FortalTab(tabId: 'tab2', label: 'Tab 2'),

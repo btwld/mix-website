@@ -1,12 +1,12 @@
 schema: 3
-prefix: Fortal
-preset: fortal
+prefix: Ui
+preset: vanilla
 paths:
-  ui: lib/fortal
+  ui: lib/ui
 defaultRegistry: "@remix"
 registries:
   "@remix":
     repository: "btwld/remix"
     path: "registry"
     ref: "registry-stable"
-    revision: "2906c78596cf1060f56322770a66d96fe1a02c55"
+    revision: "c726e8995f08db690a255754e587fc7fc5d7ba47"

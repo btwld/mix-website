@@ -6,12 +6,17 @@ import { useEffect, useRef } from 'react';
 import { ArrowRight, Search } from '@/components/landing/icons';
 
 const libraries = [
-  { name: 'Mix', detail: 'Styles and themes', href: '/mix/docs/' },
-  { name: 'Remix', detail: 'Components and open code', href: '/remix/docs/' },
-  { name: 'Naked UI', detail: 'Interaction primitives', href: '/naked-ui/docs/' },
+  { name: 'Mix', detail: 'Styling', href: '/mix/docs/' },
+  { name: 'Naked UI', detail: 'Behavior', href: '/naked-ui/docs/' },
+  { name: 'Remix', detail: 'Components', href: '/remix/docs/' },
+];
+const sections = [
+  { name: 'Mix', href: '/v2/#mix' },
+  { name: 'Naked UI', href: '/v2/#naked' },
+  { name: 'Remix', href: '/v2/#remix' },
 ];
 
-/** The showcase has one navigation hierarchy, separate from its live controls. */
+/** One header for the page and its source browser. Section links are plain anchors. */
 export function ShowcaseNavigation() {
   const docs = useRef<HTMLDetailsElement>(null);
   const { setOpenSearch } = useSearchContext();
@@ -37,18 +42,16 @@ export function ShowcaseNavigation() {
   return <header className="v2-nav">
     <a className="v2-skip" href="#v2-content">Skip to content</a>
     <nav className="v2-nav-inner" aria-label="Main">
-      <Link className="v2-brand" href="/v2/" aria-label="Mix showcase home">
+      <Link className="v2-brand" href="/v2/" aria-label="Mix home">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/assets/icon_logo.svg" alt="" width={24} height={27} />
+        <img src="/assets/icon_logo.svg" alt="" width={22} height={25} />
         <span>Mix</span>
       </Link>
       <div className="v2-nav-links">
-        <Link href="/v2/">Showcase</Link>
-        {/* Native fragments keep working after the tour updates its reading position. */}
-        <a href="/v2/#v2-features" aria-label="Features & code">Features<span className="v2-nav-code-label">&nbsp;&amp; code</span></a>
-        <a className="v2-nav-libraries" href="/v2/#v2-start">Libraries</a>
+        {sections.map(section => <a key={section.href} href={section.href}>{section.name}</a>)}
       </div>
       <div className="v2-nav-actions">
+        <a className="v2-nav-start" href="/v2/#start">Get started</a>
         <details className="v2-docs-menu" ref={docs}>
           <summary aria-label="Documentation">Docs <span aria-hidden="true">⌄</span></summary>
           <div className="v2-docs-panel">

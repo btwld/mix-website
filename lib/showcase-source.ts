@@ -1,16 +1,33 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
-import { codeToHtml } from 'shiki';
+import { codeToTokens } from 'shiki';
 import { DARK_CODE_THEME } from '@/lib/code-theme';
+import { EXCERPTS, type ExcerptKey } from '@/lib/showcase-excerpts';
+
+type Marks = Record<string, string | string[]>;
+type Spec = { file: string; region?: string; from?: string; through?: string; marks?: Marks; blocks?: Marks; lines?: Marks };
 
 const PACKAGE = path.join(process.cwd(), 'packages/mix_showcase');
 const SOURCE = path.join(PACKAGE, 'lib');
 const REPOSITORY = 'https://github.com/btwld/mix-website';
 
-export type SourcePart = { file: string; start: number; end: number };
-export type SourceDefinition = { name: string; file: string; line: number };
-export type SourceUses = { file: string; definitions: SourceDefinition[] };
-export type ShowcaseCode = Record<string, { html: string; raw: string; parts: SourcePart[]; uses: SourceUses[] }>;
+export type CodeToken = { text: string; color?: string; italic?: boolean };
+/** `n` is the line's number in its file; an elision has none. */
+export type CodeLine = { n: number | null; tokens: CodeToken[]; marks: string[] };
+export type Excerpt = {
+  /** Path below `lib/`. */
+  file: string;
+  lines: CodeLine[];
+  /** Exactly what the copy button copies. */
+  raw: string;
+  ranges: { start: number; end: number }[];
+  /** Whether the excerpt is every line of the file. */
+  whole: boolean;
+  /** Lines in the file the excerpt was cut from. */
+  total: number;
+};
+export type ShowcaseCode = Record<ExcerptKey, Excerpt>;
+
 export type ShowcasePackage = {
   libraries: Record<'mix' | 'remix' | 'naked_ui', { version: string; command: string }>;
   dart: string;
@@ -66,20 +83,24 @@ export async function showcasePackage(): Promise<ShowcasePackage> {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
   }
   const reference = `${encodeURIComponent(commit ?? 'main')}/packages/mix_showcase`;
-  return { libraries, dart, flutter, cli: { version: cliVersion, command: `flutter pub add --dev remix_cli:${cliVersion}` }, requirements: `Requires ${flutter} (${dart}).`, registry: { revision, url: `https://github.com/${repository}/tree/${revision}/registry` }, github: { package: `${REPOSITORY}/tree/${reference}`, files: `${REPOSITORY}/blob/${reference}`, pinned: commit !== null && !dirty, reference: commit ?? 'main', dirty } };
+  return { libraries, dart, flutter, cli: { version: cliVersion, command: `dart pub global activate remix_cli "^${cliVersion}"` }, requirements: `${flutter} · ${dart}`, registry: { revision, url: `https://github.com/${repository}/tree/${revision}/registry` }, github: { package: `${REPOSITORY}/tree/${reference}`, files: `${REPOSITORY}/blob/${reference}`, pinned: commit !== null && !dirty, reference: commit ?? 'main', dirty } };
 }
 
-const marker = (line: string) => line.trim().startsWith('// #');
+const regionMarker = (line: string) => /^\s*\/\/ #(?:end)?docregion\b/.test(line);
+// An excerpt also drops the formatter switches around stacked style code. A whole
+// file keeps them, so its line numbers count without gaps, as in an editor.
+const marker = (line: string) => regionMarker(line) || /^\s*\/\/ dart format (?:off|on)$/.test(line);
 const indentOf = (line: string) => line.match(/^ */)![0].length;
+type SourceLine = { text: string; n: number | null };
 
 /**
  * A region may reopen with the same name, as in Dart's code excerpter. The
- * skipped source between its segments is shown as `// ···` at the indentation
- * of the first omitted line, and each segment keeps its own exact line range.
+ * source skipped between its segments is shown as `// ···` at the indentation
+ * of the first omitted line, and every kept line keeps its own line number.
  */
-function region(file: string, name: string, source: string) {
+function region(file: string, name: string, source: string): SourceLine[] {
   const lines = source.split('\n');
-  const segments: { text: string; line: number }[][] = [];
+  const segments: SourceLine[][] = [];
   const omitted: number[] = [];
   let from = 0;
   for (;;) {
@@ -87,114 +108,120 @@ function region(file: string, name: string, source: string) {
     if (start < 0) break;
     const end = lines.findIndex((line, index) => index > start && line.trim() === `// #enddocregion ${name}`);
     if (end < 0) throw new Error(`Unclosed docregion ${name} in ${file}`);
-    const body = lines.slice(start + 1, end).flatMap((line, index) => marker(line) ? [] : [{ text: line, line: start + index + 2 }]);
+    const body = lines.slice(start + 1, end).flatMap((text, index) => marker(text) ? [] : [{ text, n: start + index + 2 }]);
     if (!body.length) throw new Error(`Empty docregion ${name} in ${file}`);
     segments.push(body);
     omitted.push(indentOf(lines.slice(end + 1).find(line => line.trim() && !marker(line)) ?? ''));
     from = end + 1;
   }
   if (!segments.length) throw new Error(`Missing docregion ${name} in ${file}`);
-  const indent = Math.min(...segments.flat().filter(line => line.text.trim()).map(line => indentOf(line.text)));
-  const raw = segments.map((body, index) => [
-    ...(index > 0 ? [`${' '.repeat(Math.max(0, omitted[index - 1] - indent))}// ···`] : []),
-    ...body.map(line => line.text.slice(indent)),
-  ].join('\n')).join('\n');
-  return { file, ranges: segments.map(body => ({ file, start: body[0].line, end: body.at(-1)!.line })), raw };
+  return segments.flatMap((body, index) => [
+    ...(index > 0 ? [{ text: `${' '.repeat(omitted[index - 1])}// ···`, n: null }] : []),
+    ...body,
+  ]);
 }
 
-function directives(file: string, source: string, kind: 'import' | 'export') {
-  const uncommented = source.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, '');
-  return [...uncommented.matchAll(new RegExp(`^${kind}\\s+'(package:mix_showcase/)?([^':]+\\.dart)'`, 'gm'))]
-    .map(match => path.posix.normalize(match[1] ? match[2] : path.posix.join(path.posix.dirname(file), match[2])));
+/** A whole file, without the excerpt markers other excerpts cut it by. */
+function whole(source: string): SourceLine[] {
+  const lines = source.replace(/\n$/, '').split('\n');
+  return lines.flatMap((text, index) => regionMarker(text) ? [] : [{ text, n: index + 1 }]);
 }
 
-/** Dart has no global scope: a file sees itself, its relative imports and what they export. */
-function visibleFiles(file: string, sources: Record<string, string>) {
-  const visible = new Set([file]);
-  const add = (target: string) => {
-    if (visible.has(target) || !(target in sources)) return;
-    visible.add(target);
-    directives(target, sources[target], 'export').forEach(add);
-  };
-  directives(file, sources[file], 'import').forEach(add);
-  return visible;
+/**
+ * A declaration in a file without markers: from the line containing `text` to
+ * the `}` that closes it. With `open`, it runs on and `through` ends it instead.
+ */
+function declaration(file: string, text: string, source: string, open = false): SourceLine[] {
+  const lines = source.split('\n');
+  const start = lines.findIndex(line => line.includes(text));
+  if (start < 0) throw new Error(`Nothing in ${file} matches ${text}`);
+  const end = open ? lines.length - 1 : lines.findIndex((line, index) => index > start && line === '}');
+  if (end < 0) throw new Error(`The declaration at ${text} in ${file} never closes`);
+  return lines.slice(start, end + 1).map((line, index) => ({ text: line, n: start + index + 1 }));
 }
 
-function identifiers(source: string) {
-  return source.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*|r?(?:'''[\s\S]*?'''|"""[\s\S]*?"""|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")/g, match => match.replace(/[^\n]/g, ' '));
-}
-
-function declarations(file: string, source: string): SourceDefinition[] {
-  const definitions: SourceDefinition[] = [];
+const BRACKETS = /'(?:\\.|[^'\\])*'/g;
+function depthChange(text: string) {
   let depth = 0;
-  identifiers(source).split('\n').forEach((line, index) => {
-    if (depth === 0 && /^\S/.test(line) && !/^(?:import|export|part|library)\b/.test(line)) {
-      const name = line.match(/^(?:(?:abstract|base|final|interface|sealed)\s+)*(?:class|enum|mixin)\s+([\w$]+)/)?.[1]
-        ?? line.match(/^(?:const|final|var)\s+(?:[\w$<>?, ]+\s+)?([\w$]+)\s*=/)?.[1]
-        ?? line.match(/^[\w$<>?, ]+\s+([\w$]+)\s*\(/)?.[1];
-      if (name) definitions.push({ name, file, line: index + 1 });
-    }
-    for (const character of line) {
-      if ('({['.includes(character)) depth++;
-      if (')}]'.includes(character)) depth--;
-    }
-  });
-  return definitions;
+  for (const character of text.replace(BRACKETS, '')) {
+    if ('([{'.includes(character)) depth++;
+    if (')]}'.includes(character)) depth--;
+  }
+  return depth;
 }
 
-type Region = ReturnType<typeof region>;
-
-function uses(parts: Region[], definitions: SourceDefinition[], sources: Record<string, string>): SourceUses[] {
-  const groups = new Map<string, SourceDefinition[]>();
-  const own = new Set(definitions.filter(definition => parts.some(part => part.ranges.some(range => range.file === definition.file && definition.line >= range.start && definition.line <= range.end))).map(definition => definition.name));
-  // Local declarations must not link to an unrelated top-level name.
-  for (const part of parts) for (const match of identifiers(part.raw).matchAll(/\b(?:final|const|var)\s+(?:[\w$<>?, ]+\s+)?([\w$]+)\s*=/g)) own.add(match[1]);
-  const seen = new Set<string>();
-  for (const part of parts) {
-    const source = identifiers(part.raw);
-    const visible = visibleFiles(part.file, sources);
-    for (const match of source.matchAll(/[\w$]+/g)) {
-      const name = match[0];
-      if (own.has(name) || seen.has(name) || /[\w$.]/.test(source[match.index - 1] ?? '') || /^\s*:/.test(source.slice(match.index + name.length)) && !name.startsWith('$')) continue;
-      const definition = definitions.find(item => item.name === name && item.file === part.file)
-        ?? definitions.find(item => item.name === name && !name.startsWith('_') && visible.has(item.file));
-      if (!definition) continue;
-      seen.add(name);
-      const group = groups.get(definition.file) ?? [];
-      group.push(definition);
-      groups.set(definition.file, group);
+/**
+ * A mark names the lines a control or a live state points at. It covers every
+ * place the text occurs. A call runs until the brackets it opens close; a block
+ * runs to the end of its statement or declaration; a line is that line alone.
+ * A trailing `\n` in the text means the line must end there.
+ */
+function marked(key: string, lines: SourceLine[], marks: Marks, extent: 'call' | 'block' | 'line'): Record<number, string[]> {
+  const whole = extent === 'block';
+  const result: Record<number, string[]> = {};
+  for (const [name, patterns] of Object.entries(marks)) {
+    for (const given of [patterns].flat()) {
+      const atEnd = given.endsWith('\n');
+      const pattern = atEnd ? given.slice(0, -1) : given;
+      const starts = lines.flatMap((line, index) => line.n !== null && (atEnd ? line.text.trimEnd().endsWith(pattern) : line.text.includes(pattern)) ? [index] : []);
+      if (!starts.length) throw new Error(`Excerpt ${key}: nothing matches the mark ${name} (${pattern})`);
+      for (const start of starts) {
+        let depth = 0;
+        let end = start;
+        for (let index = start; extent !== 'line' && index < lines.length; index++) {
+          const text = !whole && index === start ? lines[index].text.slice(lines[index].text.indexOf(pattern)) : lines[index].text;
+          depth += depthChange(text);
+          end = index;
+          if (depth <= 0 && (!whole || /[;}]\s*$/.test(text))) break;
+        }
+        for (let index = start; index <= end; index++) if (!(result[index] ??= []).includes(name)) result[index].push(name);
+      }
     }
   }
-  return [...groups].map(([file, definitions]) => ({ file, definitions }));
+  return result;
 }
 
 export async function showcaseCode(): Promise<ShowcaseCode> {
-  const files = await showcaseDartFiles();
-  const sources = Object.fromEntries(await Promise.all(files.map(async file => [file, await readFile(path.join(SOURCE, file), 'utf8')])));
-  const definitions = files.flatMap(file => declarations(file, sources[file]));
-  const entries: [string, [string, string][]][] = [
-    // The first token loop uses only built-in ColorTokens; token-app is the complete setup.
-    ['token-declare', [['tokens.dart', 'token-declare']]],
-    ...['midnight', 'paper', 'pop', 'cyber'].map(look => [`token-provide-${look}`, [['tokens.dart', `look-${look}`], ['tokens.dart', 'look-colors']]] as [string, [string, string][]]),
-    ['token-use', [['styles.dart', 'canvas-style'], ['app.dart', 'canvas-consumer']]],
-    ['token-app', [['tokens.dart', 'token-all'], ['tokens.dart', 'look-scope'], ['styles.dart', 'card-style'], ['styles.dart', 'card-padding'], ['cards.dart', 'card-consumer']]],
-    ['states', [['styles.dart', 'list-row'], ['cards.dart', 'pressable-row']]],
-    ['adapt', [['styles.dart', 'card-padding'], ['cards.dart', 'responsive-deck']]],
-    ['naked', [['cards.dart', 'naked-row']]],
-    ['composition', [['styles.dart', 'card-style'], ['styles.dart', 'quiet-controls']]],
-    ['transitions', [['styles.dart', 'motion-config'], ['styles.dart', 'card-style']]],
-    ['springs', [['styles.dart', 'bar-style']]],
-    ['keyframes', [['styles.dart', 'equalizer']]],
-    ['remix', [['styles.dart', 'checkbox-style'], ['cards.dart', 'remix-checkbox']]],
-    ['invite', [['invite.dart', 'invite-dialog'], ['invite.dart', 'toast-feedback']]],
-    ['naked-invite', [['invite.dart', 'naked-invite']]],
-    ['material-bridge', [['styles.dart', 'material-bridge']]],
-    ['fortal-checkbox', [['fortal/components/checkbox.dart', 'fortal-checkbox']]],
-    ['fortal-today', [['fortal_today.dart', 'fortal-today'], ['fortal_today.dart', 'fortal-control']]],
-  ];
-  return Object.fromEntries(await Promise.all(entries.map(async ([key, regions]) => {
-    const parts = regions.map(([file, name]) => region(file, name, sources[file]));
-    const raw = parts.map(part => part.raw).join('\n\n');
-    return [key, { html: await codeToHtml(raw, { lang: 'dart', theme: DARK_CODE_THEME }), raw, parts: parts.flatMap(part => part.ranges), uses: uses(parts, definitions, sources) }];
-  })));
+  const cache = new Map<string, Promise<string>>();
+  const read = (file: string) => {
+    if (!cache.has(file)) cache.set(file, readFile(path.join(SOURCE, file), 'utf8'));
+    return cache.get(file)!;
+  };
+  const entries = await Promise.all((Object.entries(EXCERPTS) as [string, Spec][]).map(async ([key, spec]) => {
+    const source = await read(spec.file);
+    let cut = spec.region ? region(spec.file, spec.region, source) : spec.from ? declaration(spec.file, spec.from, source, Boolean(spec.through)) : whole(source);
+    if (spec.through) {
+      const last = cut.findIndex(line => line.text.includes(spec.through!));
+      if (last < 0) throw new Error(`Excerpt ${key}: nothing matches through (${spec.through})`);
+      cut = cut.slice(0, last + 1);
+    }
+    const indent = Math.min(...cut.filter(line => line.text.trim()).map(line => indentOf(line.text)));
+    const lines = cut.map(line => ({ ...line, text: line.text.slice(Math.min(indent, indentOf(line.text))) }));
+    const raw = lines.map(line => line.text).join('\n');
+    const { tokens } = await codeToTokens(raw, { lang: 'dart', theme: DARK_CODE_THEME });
+    const calls = marked(key, lines, spec.marks ?? {}, 'call');
+    const blocks = marked(key, lines, spec.blocks ?? {}, 'block');
+    const single = marked(key, lines, spec.lines ?? {}, 'line');
+    const ranges: Excerpt['ranges'] = [];
+    for (const { n } of lines) {
+      if (n === null) continue;
+      const last = ranges.at(-1);
+      if (last && n <= last.end + 1) last.end = n; else ranges.push({ start: n, end: n });
+    }
+    const total = source.replace(/\n$/, '').split('\n').length;
+    const excerpt: Excerpt = {
+      file: spec.file,
+      raw,
+      ranges,
+      total,
+      whole: !spec.region && !spec.from,
+      lines: lines.map((line, index) => ({
+        n: line.n,
+        marks: [...(calls[index] ?? []), ...(blocks[index] ?? []), ...(single[index] ?? [])],
+        tokens: (tokens[index] ?? []).map(token => ({ text: token.content, color: token.color, ...(token.fontStyle === 1 ? { italic: true } : {}) })),
+      })),
+    };
+    return [key, excerpt] as const;
+  }));
+  return Object.fromEntries(entries) as ShowcaseCode;
 }

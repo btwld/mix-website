@@ -1,5 +1,5 @@
 name: mix_showcase
-description: The single live Flutter app that the Mix website's landing tour runs.
+description: The live Flutter examples on the Mix website's /v2/ page.
 publish_to: none
 version: 0.1.0
 
@@ -12,10 +12,11 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  mix: 2.3.1
+  mix: 2.4.0
   mix_annotations: ^2.2.0-beta.1
-  naked_ui: 2.0.0-beta.1
-  remix: 1.0.0-beta.17
+  naked_ui: 2.0.0-beta.2
+  remix: 1.0.0-rc.1
+  remix_ui_fonts: ^0.1.0
 
 dev_dependencies:
   flutter_test:

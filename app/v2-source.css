@@ -56,9 +56,11 @@
 }
 
 .v2-source-code pre { padding-inline: 0; }
-.v2-source-code .line { position: relative; display: inline-block; min-width: 100%; min-height: 1lh; padding-inline: 6ch 24px; border-left: 3px solid transparent; scroll-margin-top: 112px; }
+/* The docs theme pads code lines too. The full path keeps this gutter whichever sheet loads last. */
+.v2-source .v2-source-code pre code .line { position: relative; display: inline-block; min-width: 100%; min-height: 1lh; padding-inline: 6ch 24px; border-left: 3px solid transparent; scroll-margin-top: 112px; }
 .v2-source-code .line::before { content: attr(data-line); position: absolute; left: 0; width: 4.5ch; text-align: right; color: #8993a5; user-select: none; }
 .v2-source-code .v2-source-highlight { border-left-color: #c4a4ff; background: rgb(167 139 250 / 14%); }
 .v2-source-code .v2-source-highlight::before { color: #e4d8f6; font-weight: 700; }
 .v2-source-file-summary a, .v2-source-setup a { text-decoration: underline; text-underline-offset: 3px; }
 .v2-source-setup pre { max-width: 100%; overflow-x: auto; }
+.v2-source-intro p code { font-family: var(--font-mono); font-size: .86em; color: var(--lx-ink); }
