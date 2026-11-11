@@ -190,7 +190,7 @@ test.describe('Mix previews', () => {
 });
 
 test.describe('Remix', () => {
-  test('the docs embed starts the catalog example and recovers from a reset', async ({ page }) => {
+  test('the docs embed starts the catalog example and recovers from a reset', async ({ page, browserName }) => {
     await page.goto('/remix/docs/components/button/');
     const stage = page.locator('.remix-preview-stage');
     await expect(stage).toHaveAttribute('data-status', 'ready', { timeout: 90_000 });
@@ -198,7 +198,8 @@ test.describe('Remix', () => {
     await expect(frame.locator('flutter-view, flt-glass-pane').first()).toBeAttached();
     // Keyboard: Tab from the Theme control to "Reset example" and activate it.
     await page.getByLabel('Example theme').focus();
-    await page.keyboard.press('Tab');
+    // macOS WebKit uses Option+Tab to include buttons in keyboard navigation.
+    await page.keyboard.press(browserName === 'webkit' && process.platform === 'darwin' ? 'Alt+Tab' : 'Tab');
     await expect(page.getByRole('button', { name: 'Reset example' })).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(stage).not.toHaveAttribute('data-status', 'ready');
