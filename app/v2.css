@@ -93,9 +93,9 @@ body:has(.v2), body:has(.v2-source) { background-image: none !important; backgro
 .v2-bench[data-layout='split'] { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: start; }
 .v2-bench-main { display: grid; gap: 12px; min-width: 0; }
 .v2-bench-tabs { display: none; }
-.v2-bench-side { position: sticky; top: 84px; display: flex; flex-direction: column; gap: 18px; min-width: 0; max-height: calc(100svh - 100px); }
+.v2-bench-side { position: sticky; top: 84px; display: flex; flex-direction: column; gap: 18px; min-width: 0; max-height: calc(100svh - 100px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 .v2-bench-side > .v2-preview { flex: none; }
-.v2-bench-rest { display: grid; align-content: start; gap: 18px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgb(255 255 255 / 18%) transparent; }
+.v2-bench-rest { display: grid; flex: none; align-content: start; gap: 18px; }
 
 /* Code */
 .v2-code { min-width: 0; border: 1px solid var(--line); border-radius: 14px; background: #0b0b10; overflow: hidden; }
@@ -318,6 +318,7 @@ a.v2-layer:hover { border-color: rgb(var(--tone) / 60%); }
   .v2-bench[data-layout='split'] > .v2-bench-main { display: contents; }
   .v2-bench[data-layout='split'] > .v2-bench-main > .v2-segmented { order: -3; }
   /* One column: the example and its files share a tab bar, the example first. */
+  @media (scripting: enabled) {
   .v2-bench[data-layout='split'] > .v2-bench-tabs { order: -2; display: flex; min-width: 0; margin: 0 0 -12px; padding: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); overflow-x: auto; scrollbar-width: none; }
   .v2-bench-tabs label { position: relative; display: inline-flex; flex: none; align-items: center; height: 44px; padding: 0 16px; border-right: 1px solid var(--line); font-family: var(--font-mono); font-size: 12.5px; color: var(--dim); cursor: pointer; }
   .v2-bench-tabs label:first-of-type { font-family: inherit; font-size: 13.5px; font-weight: 600; }
@@ -326,6 +327,7 @@ a.v2-layer:hover { border-color: rgb(var(--tone) / 60%); }
   .v2-bench[data-show='preview'] > .v2-code,
   .v2-bench[data-show='preview'] > .v2-bench-main > :not(.v2-segmented) { display: none; }
   .v2-bench[data-show='code'] > .v2-bench-side > .v2-preview { display: none; }
+  }
   /* The bar above names the files, so the panel keeps only the path and Copy. */
   .v2-code figcaption[data-tabs] { grid-template-areas: 'file copy'; }
   .v2-code figcaption[data-tabs] .v2-code-tabs { display: none; }
@@ -359,7 +361,9 @@ a.v2-layer:hover { border-color: rgb(var(--tone) / 60%); }
   .v2-code figcaption[data-tabs] > .v2-code-file { padding-inline: 14px; }
   .v2-code-tabs label { padding-inline: 14px; }
   /* A long listing shows its start and offers the rest. */
+  @media (scripting: enabled) {
   .v2-code figure[data-long]:not([data-open]) .v2-line[data-folded] { display: none; }
+  }
   .v2-code-more { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 48px; border-top: 1px solid var(--line); font-size: 13.5px; font-weight: 550; color: rgb(var(--tone)); background: var(--panel); }
   .v2-preview-bar { flex-wrap: wrap; row-gap: 0; }
   .v2-segmented legend:not(.v2-sr), .v2-themes[data-names='true'] legend { float: none; display: block; line-height: 1.4; margin: 0 0 8px; }

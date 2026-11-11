@@ -27,6 +27,10 @@ type Slot = { element: HTMLElement; demo: string; setMounted(mounted: boolean): 
 type Pooled = { id: number; element: HTMLDivElement; slot: Slot | null };
 type Engine = { app: App; pool: Pooled[] };
 
+// The engine survives client-side navigation, so its reported values must too.
+// A remounted page subscribes again without asking Flutter to change selection.
+const latestEvents = new Map<string, Map<string, ShowcaseEvent>>();
+
 declare global {
   interface Window {
     /** Set before the bundle loads; the app reads it to know it is embedded. */
@@ -150,6 +154,9 @@ export function ShowcaseProvider({ children }: { children: ReactNode }) {
           if (view?.slot?.demo === event.demo) { view.element.style.visibility = ''; view.slot.setMounted(true); }
           return;
         }
+        const events = latestEvents.get(event.demo) ?? new Map<string, ShowcaseEvent>();
+        events.set(event.type, event);
+        latestEvents.set(event.demo, events);
         listeners.current.get(event.demo)?.forEach(listener => listener(event));
       },
     };
@@ -184,6 +191,7 @@ export function ShowcaseProvider({ children }: { children: ReactNode }) {
     const set = listeners.current.get(demo) ?? new Set<Listener>();
     listeners.current.set(demo, set);
     set.add(listener);
+    latestEvents.get(demo)?.forEach(listener);
     return () => { set.delete(listener); };
   }, []);
 

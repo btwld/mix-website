@@ -382,6 +382,39 @@ test.describe('live examples', () => {
     await expect(note).toContainText('Yearly');
   });
 
+  test('Naked UI selections are reported after returning from the source', async ({ page }) => {
+    await page.goto('/');
+    await open(page, 'naked');
+    const naked = page.locator('#naked');
+    const note = naked.locator('.v2-control-note');
+    const select = () => naked.locator('.v2-bench-main').getByText('Select', { exact: true }).click();
+    const visitSource = async () => {
+      await naked.locator('.v2-code-file a').first().click();
+      await expect(page).toHaveURL(/\/v2\/source\//);
+      await page.goBack();
+      await open(page, 'naked');
+    };
+
+    await naked.locator('.v2-code pre').last().focus();
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('ArrowDown');
+    await expect(note).toContainText('Team');
+    await visitSource();
+    await expect(note).toContainText('Team');
+
+    await select();
+    await naked.locator('.v2-code pre').last().focus();
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(250);
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter');
+    await expect(note).toContainText('Yearly');
+    await visitSource();
+    await select();
+    await expect(note).toContainText('Yearly');
+  });
+
   test('leaving for the source and coming back keeps the examples running', async ({ page }) => {
     await page.goto('/');
     await open(page, 'button');
