@@ -15,7 +15,7 @@ concurrency:
 jobs:
   site:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 60
     env:
       NEXT_TELEMETRY_DISABLED: '1'
       SITE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -60,10 +60,6 @@ jobs:
         run: pnpm test:e2e
       - name: Stop site server before rebuilding
         run: kill "$(cat /tmp/mix-site.pid)"
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.44.0'
-          channel: stable
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.47.9'
