@@ -348,10 +348,10 @@ packages:
     dependency: "direct main"
     description:
       name: naked_ui
-      sha256: aa46022a7140dfa609295807cd7b5b8a15c05b8028b9ce6e7004c04cf85aa09a
+      sha256: f09a58f6ffb3f68438ceebfb0049a7dba1ab7c6b8a653f48ca02eb2ec20a8004
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0-beta.2"
+    version: "2.0.0-rc.1"
   package_config:
     dependency: transitive
     description:
@@ -396,18 +396,18 @@ packages:
     dependency: "direct main"
     description:
       name: remix
-      sha256: "492cc58a0d5d6976c1654045b1803be229e2d84ff1f406bfe357cd8bf40c29e3"
+      sha256: e06343bf4676a870fa43110f41ab5dcf3a8d65474f6f28db3f5e1f60b1296a21
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0-rc.1"
+    version: "1.0.0-rc.2"
   remix_cli:
     dependency: "direct dev"
     description:
       name: remix_cli
-      sha256: "200b0beea6b71e53cf6c32e9b7891b6e26d082b563b9096939e4f839c0926688"
+      sha256: fde8d89673e34498622d58fdd3d211911679d1ecfb49d09b8425186da076a250
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0-beta.1"
+    version: "1.0.0-rc.1"
   remix_ui_fonts:
     dependency: "direct main"
     description:

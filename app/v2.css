@@ -294,6 +294,7 @@ a.v2-layer:hover { border-color: rgb(var(--tone) / 60%); }
 .v2-start-name em { font-family: var(--font-mono); font-size: 12px; font-style: normal; letter-spacing: .05em; text-transform: uppercase; color: rgb(var(--tone)); }
 .v2-start-when { font-size: 14px; line-height: 1.55; color: var(--dim); }
 .v2-start-body { min-width: 0; }
+.v2-start-ai { margin-bottom: 16px; color: var(--dim); }
 .v2-start-steps .v2-fineprint { margin-top: 10px; }
 .v2-start-next { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--line); }
 .v2-start-next h3 { font-size: 14px; font-weight: 600; color: var(--dim); }

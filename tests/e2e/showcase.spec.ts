@@ -151,7 +151,7 @@ test('controls change the code they point at, with or without Flutter', async ({
   await remix.getByText('Install', { exact: true }).click();
   await expect(remix.locator('.v2-steps h4')).toHaveText(['Install the CLI once', 'Set up the project', 'Add the components you need', 'Place the theme once, below your app host']);
   // The CLI is installed once, globally, so every command is plain `remix`.
-  await expect(remix.locator('.lx-terminal-cmd')).toHaveText(['dart pub global activate remix_cli "^1.0.0-beta.1"', 'remix init', 'remix add card button switch slider checkbox badge']);
+  await expect(remix.locator('.lx-terminal-cmd')).toHaveText(['dart pub global activate remix_cli "^1.0.0-rc.1"', 'remix init', 'remix add card button switch slider checkbox badge']);
   await expect(remix.locator('.v2-snippet')).toContainText('builder: (context, _) => const UiTheme(child: HomeScreen()),');
 });
 
@@ -171,7 +171,7 @@ test('each library installs from a prerelease-safe command with a complete start
   const expected = [
     ['mix', 'flutter pub add mix', 'lib/starters/mix.dart', "import 'package:mix/mix.dart';"],
     ['naked', 'flutter pub add "naked_ui:^2.0.0-0"', 'lib/starters/naked_ui.dart', "import 'package:naked_ui/naked_ui.dart';"],
-    ['remix', 'dart pub global activate remix_cli "^1.0.0-beta.1"', 'lib/remix_starter.dart', "import 'ui/ui.dart';"],
+    ['remix', 'dart pub global activate remix_cli "^1.0.0-rc.1"', 'lib/remix_starter.dart', "import 'ui/ui.dart';"],
   ];
   for (const [tone, command, file, line] of expected) {
     // The radio itself is visually hidden; its label is what a reader clicks.
@@ -183,10 +183,11 @@ test('each library installs from a prerelease-safe command with a complete start
     await expect(start.locator('.v2-code')).toContainText('void main() => runApp(const App());');
   }
   await expect(start).toContainText('Needs Flutter 3.47.9+ · Dart 3.13+');
+  await expect(start.locator('.v2-start-ai').getByRole('link', { name: 'Start with AI' })).toHaveAttribute('href', '/remix/docs/getting-started/#start-with-ai');
   // Remix installs its CLI once, then one component before the starter uses it.
   // `remix add` brings in the remix package itself.
   await expect(start.locator('.v2-start-steps > li').first().locator('h3')).toHaveText('Install the CLI, then a component');
-  await expect(start.locator('.lx-terminal-cmd')).toHaveText(['dart pub global activate remix_cli "^1.0.0-beta.1"', 'remix init', 'remix add button', 'flutter run']);
+  await expect(start.locator('.lx-terminal-cmd')).toHaveText(['dart pub global activate remix_cli "^1.0.0-rc.1"', 'remix init', 'remix add button', 'flutter run']);
   // Arrow keys move through the three choices like any radio group.
   await start.locator('label[data-tone="mix"] input').focus();
   await page.keyboard.press('ArrowDown');
