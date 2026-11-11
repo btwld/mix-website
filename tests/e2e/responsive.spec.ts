@@ -82,14 +82,17 @@ test('Remix tutorial ZIP downloads its published bytes without route prefetch', 
     if (new URL(request.url()).pathname.startsWith(asset)) assetRequests.push(request.url());
   });
   await page.goto('/remix/docs/tutorials/settings-screen/');
-  const link = page.getByRole('link', { name: 'sample download', exact: true });
-  await expect(link).toHaveAttribute('href', asset);
-  await link.scrollIntoViewIfNeeded();
-  await link.hover();
-  await page.waitForLoadState('networkidle');
+  const links = page.getByRole('link', { name: 'sample download', exact: true });
+  await expect(links.first()).toHaveAttribute('href', asset);
+  for (const link of await links.all()) {
+    await expect(link).toHaveAttribute('href', asset);
+    await link.scrollIntoViewIfNeeded();
+    await link.hover();
+    await page.waitForLoadState('networkidle');
+  }
   expect(assetRequests, 'assets must not be prefetched as Next routes').toEqual([]);
   const pendingDownload = page.waitForEvent('download');
-  await link.click();
+  await links.first().click();
   const download = await pendingDownload;
   expect(await download.failure()).toBeNull();
   expect(download.suggestedFilename()).toBe('sample-projects.zip');
