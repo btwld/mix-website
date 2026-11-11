@@ -69,12 +69,12 @@
     "showcase": {
       "source": {
         "repository": "btwld/mix-website",
-        "commit": "9265ea0c94185ea0d1c2716f6e70696d60248cb0"
+        "commit": "6e0f780d9871d074a4006090b00d52c63999ae71"
       },
       "artifact": {
-        "url": "https://github.com/btwld/mix-website/releases/download/site-input-showcase-9265ea0c9418/showcase-9265ea0c9418.tar.gz",
-        "sha256": "e1ffbadd05007c709bb6cff9e8e74f6ec12cac5b19fa330721b94dd1253bd504",
-        "size": 15682269
+        "url": "https://github.com/btwld/mix-website/releases/download/site-input-showcase-6e0f780d9871/showcase-6e0f780d9871.tar.gz",
+        "sha256": "8f8058c8121e6ff6cbba369f26ef3dfdae9acb524ad2c310337272bb1df658f7",
+        "size": 17573753
       },
       "toolchain": {
         "flutter": "3.47.9",
@@ -85,7 +85,7 @@
       "producer": {
         "repository": "btwld/mix-website",
         "script": "scripts/site-inputs/produce/showcase.sh",
-        "commit": "9265ea0c94185ea0d1c2716f6e70696d60248cb0"
+        "commit": "6e0f780d9871d074a4006090b00d52c63999ae71"
       }
     }
   }
