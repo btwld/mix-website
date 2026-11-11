@@ -48,10 +48,10 @@ for (const width of [1440, 390]) test.describe(`reader navigation at ${width}px`
   });
 
   test('project entry points, sidebar order, project switcher and search work', async ({ page }) => {
-    for (const name of ['Mix', 'Remix', 'Naked UI']) {
+    for (const project of ['mix', 'remix', 'naked-ui']) {
       await page.goto('/');
-      const card = page.getByRole('region', { name, exact: true });
-      await card.getByRole('link', { name: 'Get started', exact: true }).click();
+      await page.locator('.v2-docs-menu summary').click();
+      await page.locator(`.v2-docs-panel a[href="/${project}/docs/"]`).click();
       await expect(page.locator('h1')).toBeVisible();
       await expect(page).toHaveURL(/\/(mix|remix|naked-ui)\/docs\//);
     }
