@@ -15,15 +15,15 @@ dependencies:
     sdk: flutter
   mix: 2.4.0
   mix_annotations: ^2.2.0-beta.1
-  naked_ui: 2.0.0-beta.2
-  remix: 1.0.0-rc.1
+  naked_ui: 2.0.0-rc.1
+  remix: 1.0.0-rc.2
   remix_ui_fonts: ^0.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  remix_cli: 1.0.0-beta.1
+  remix_cli: 1.0.0-rc.1
   build_runner: ^2.10.1
   mix_generator: ^2.2.0-beta.3
 

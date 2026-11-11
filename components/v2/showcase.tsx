@@ -457,6 +457,7 @@ function Start({ code, packages }: Props) {
         </label>)}
       </div>
       <div className="v2-start-body">
+        {selected === 'remix' && <p className="v2-fineprint v2-start-ai">Using a coding agent? <DocLink href="/remix/docs/getting-started/#start-with-ai">Start with AI</DocLink></p>}
         <ol className="v2-start-steps">
           <li>
             <h3>{start.id === 'remix' ? 'Install the CLI, then a component' : 'Add the package'}</h3>
