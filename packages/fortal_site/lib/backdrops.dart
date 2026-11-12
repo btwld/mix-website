@@ -1,7 +1,7 @@
 // The backgrounds behind the slides after the shore. Each takes a view from
-// the beira-mar and Ceará coast: wind-sculpted sand dunes, interdune lagoons,
-// the seafront horizon, the sea after dark, and a photograph of the Beira-Mar
-// with its sea in motion.
+// the beira-mar and Ceará coast: wind-sculpted sand dunes and interdune
+// lagoons in the site's dark green, the seafront horizon, and a photograph of
+// the Beira-Mar with its sea in motion.
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -20,6 +20,34 @@ const _sandLight = Color(0xFFF0E3CB);
 
 /// Mar's darkest green, the wash over the Beira-Mar photo in the video.
 const _wash = Color(0xFF0D3D38);
+
+/// The photo slides' wash on wide screens: held dark behind the heading, then
+/// eased (smoothstep) down to a lighter green that runs to the foot, with
+/// enough stops that no band shows. The photo itself is tinted green too.
+final _cityWash = () {
+  const hold = 0.24;
+  const holdAlpha = 0.66;
+  const footAlpha = 0.30;
+  final stops = <double>[0, hold];
+  final alphas = <double>[0.80, holdAlpha];
+  for (var i = 1; i <= 10; i++) {
+    final t = i / 10;
+    stops.add(hold + (1 - hold) * t);
+    alphas.add(holdAlpha + (footAlpha - holdAlpha) * t * t * (3 - 2 * t));
+  }
+  return (
+    stops: stops,
+    colors: [for (final a in alphas) _wash.withValues(alpha: a)],
+  );
+}();
+
+/// Multiplies the Beira-Mar photo, so it reads green throughout while keeping
+/// its light and texture; lighter than the dunes' tint, as the photo is darker.
+const _cityTint = Color(0xFF6EAFA0);
+
+/// Multiplies the dune scene, so its sand reads as deep green ridges in the
+/// photo slides' colours while keeping its light and texture.
+const _duneTint = Color(0xFF468C80);
 const _sand = Color(0xFFE9DAC0);
 const _stillAt = 2.2;
 
@@ -115,20 +143,18 @@ class SandBackdrop extends StatelessWidget {
             active: active,
           ),
         ),
-        // Beige reading fade: as strong as before behind the headings, then
-        // it clears quickly so the scenery below stays crisp.
-        const DecoratedBox(
+        // The dark green wash of the photo slides, strongest behind the
+        // headings' white text, then clear by the foot so the dunes show.
+        DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color(0xE6F0E3CB),
-                Color(0xB8F0E3CB),
-                Color(0x3DF0E3CB),
-                Color(0x14F0E3CB),
+                for (final a in const [0.80, 0.62, 0.10, 0.0])
+                  _wash.withValues(alpha: a),
               ],
-              stops: [0, 0.24, 0.46, 1],
+              stops: const [0, 0.25, 0.38, 0.62],
             ),
           ),
         ),
@@ -318,6 +344,7 @@ class _DunesShaderPainter extends CustomPainter {
     shader.getUniformFloat('uScene').set(scene);
     _setRgb(shader, 'uWater', water);
     _setRgb(shader, 'uDeepWater', deepWater);
+    _setRgb(shader, 'uTint', _duneTint);
     canvas.drawRect(Offset.zero & size, Paint()..shader = shader);
   }
 
@@ -428,73 +455,6 @@ class _HorizonPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_HorizonPainter old) => old.colors != colors;
-}
-
-/// The sea after dark, with moonlit swells and horizon mist.
-class NightSeaBackdrop extends StatelessWidget {
-  const NightSeaBackdrop({super.key, this.program, this.active = true});
-
-  final ui.FragmentProgram? program;
-  final bool active;
-
-  static const _nightColors = (
-    Color(0xFF041C19),
-    Color(0xFF083530),
-    Color(0xFF0C4E45),
-    Color(0xFF052420),
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    final horizonProgram = program ?? BackdropShaders.maybeOf(context)?.horizon;
-    return horizonProgram != null
-        ? _HorizonSea(
-            program: horizonProgram,
-            colors: _nightColors,
-            mode: 1,
-            active: active,
-          )
-        : const CustomPaint(painter: _NightSeaPainter(), size: Size.infinite);
-  }
-}
-
-class _NightSeaPainter extends CustomPainter {
-  const _NightSeaPainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final all = Offset.zero & size;
-    canvas.drawRect(
-      all,
-      Paint()
-        ..shader = const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF041F1C), Color(0xFF07352F), Color(0xFF0B4A42)],
-        ).createShader(all),
-    );
-    final line = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.4;
-    for (var row = 0; row < 9; row++) {
-      final y = size.height * (0.50 + row * 0.058);
-      final path = Path()..moveTo(0, y);
-      for (var i = 1; i <= 64; i++) {
-        final x = size.width * i / 64;
-        path.lineTo(
-          x,
-          y +
-              math.sin(i * 0.33 + row * 1.7) * 7 +
-              math.sin(i * 0.11 + row * 0.6) * 12,
-        );
-      }
-      line.color = Color.fromRGBO(143, 227, 214, 0.05 + row * 0.012);
-      canvas.drawPath(path, line);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_NightSeaPainter old) => false;
 }
 
 class _HorizonSea extends StatefulWidget {
@@ -713,10 +673,20 @@ class _SharedCityScope extends InheritedWidget {
 class CityCredit extends StatelessWidget {
   const CityCredit({super.key});
 
+  // On a green tab, so it reads over the clear sand at the foot.
   @override
-  Widget build(BuildContext context) => const Text(
-    CityPhoto.credit,
-    style: TextStyle(fontSize: 12, height: 1.4, color: Color(0xD9FFFFFF)),
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      color: _wash.withValues(alpha: 0.72),
+      borderRadius: BorderRadius.circular(Gap.x1),
+    ),
+    child: const Padding(
+      padding: EdgeInsets.symmetric(horizontal: Gap.x2, vertical: Gap.x1),
+      child: Text(
+        CityPhoto.credit,
+        style: TextStyle(fontSize: 12, height: 1.4, color: Color(0xEBFFFFFF)),
+      ),
+    ),
   );
 }
 
@@ -878,41 +848,42 @@ class _CityFieldState extends State<_CityField>
             ),
           ),
         // The dark green wash of the presentation's Fortal scene (Mar's
-        // darkest green), deepening towards the foot as it does there, a
-        // little lighter so the moving sea shows, and darker at the top and
-        // left, behind the heading's white text.
+        // darkest green): darkest behind the heading's white text, then a
+        // lighter green that fills the photo to the foot.
         DecoratedBox(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                for (final a
-                    in widget.compact
-                        ? const [0.86, 0.74, 0.78]
-                        : const [0.82, 0.70, 0.36, 0.36, 0.68])
-                  _wash.withValues(alpha: a),
-              ],
-              stops: widget.compact
-                  ? const [0, 0.2, 1]
-                  : const [0, 0.27, 0.42, 0.68, 1],
-            ),
+            gradient: widget.compact
+                ? LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      for (final a in const [0.80, 0.62, 0.55])
+                        _wash.withValues(alpha: a),
+                    ],
+                    stops: const [0, 0.2, 1],
+                  )
+                : LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: _cityWash.colors,
+                    stops: _cityWash.stops,
+                  ),
           ),
         ),
+        // A little more behind the heading, as the video's sideways gradient
+        // sits behind its title.
         if (!widget.compact)
-          FractionallySizedBox(
-            alignment: Alignment.centerLeft,
-            widthFactor: 0.5,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    _wash.withValues(alpha: 0.40),
-                    _wash.withValues(alpha: 0.18),
-                    _wash.withValues(alpha: 0),
-                  ],
-                  stops: const [0, 0.6, 1],
-                ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: Alignment.topLeft,
+                radius: 0.75,
+                colors: [
+                  _wash.withValues(alpha: 0.30),
+                  _wash.withValues(alpha: 0.12),
+                  _wash.withValues(alpha: 0),
+                ],
+                stops: const [0, 0.5, 1],
               ),
             ),
           ),
@@ -943,6 +914,9 @@ class _CityShaderPainter extends CustomPainter {
     shader.getUniformFloat('uImage', 1).set(photo.photo.height.toDouble());
     shader.getUniformFloat('uAlign', 0).set(align.dx);
     shader.getUniformFloat('uAlign', 1).set(align.dy);
+    shader.getUniformFloat('uTint', 0).set(_cityTint.r);
+    shader.getUniformFloat('uTint', 1).set(_cityTint.g);
+    shader.getUniformFloat('uTint', 2).set(_cityTint.b);
     // Samplers in the shader's order. Smooth sampling: the default, nearest,
     // would show the photo's pixels.
     shader.setImageSampler(0, photo.photo, filterQuality: FilterQuality.medium);

@@ -101,6 +101,7 @@ class _Gallery extends StatelessWidget {
         label: 'Components',
         title: title,
         detail: detail,
+        onDark: true,
         compact: true,
       ),
       for (final column in columns) ...column,
@@ -119,15 +120,17 @@ class _Gallery extends StatelessWidget {
             label: 'Components',
             title: title,
             detail: detail,
+            onDark: true,
           ),
         ),
-        // The button at the right, level with the detail line.
+        // The button at the right, level with the detail line: solid, so it
+        // reads over the dark green.
         Positioned(
           right: gutter,
           top: _headingTop + 84,
           child: UiButton(
             label: next,
-            variant: .soft,
+            variant: .solid,
             size: .size3,
             trailingIcon: RemixIcons.arrowRight,
             onPressed: onNext,

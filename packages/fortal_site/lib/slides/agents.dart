@@ -616,6 +616,7 @@ class _DeskState extends State<_Desk> {
       label: 'Agents',
       title: 'Agents that show their work.',
       detail: 'An agent gets Beira-mar 2.4 ready: it plans, runs the tests and asks first.',
+      onDark: true,
       compact: widget.compact,
     );
     final backdrop = SandBackdrop(scene: 2, active: widget.active);

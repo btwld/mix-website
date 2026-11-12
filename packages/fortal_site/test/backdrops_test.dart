@@ -28,7 +28,6 @@ void main() {
           program: horizon,
           active: reduced,
         ),
-        NightSeaBackdrop(program: horizon, active: reduced),
         BackdropShaders(
           horizon: horizon,
           dunes: dunes,

@@ -19,6 +19,7 @@ uniform vec2 uSize;
 uniform float uTime;   // seconds, wrapped at 3600.0 (shoreLoop)
 uniform vec2 uImage;   // photo size in pixels
 uniform vec2 uAlign;   // cover-crop alignment, 0..1 on each axis
+uniform vec3 uTint;    // multiplies the finished photo: green throughout
 uniform sampler2D uPhoto;
 uniform sampler2D uSea;
 
@@ -138,6 +139,10 @@ void main() {
 
     col = mix(col, moved, sea);
   }
+
+  // Tint the whole photo green, keeping its light and texture, as the dune
+  // slides are tinted.
+  col *= uTint;
 
   float dither = ign(frag) + ign(frag * 1.37 + 17.0) - 1.0;
   fragColor = vec4(clamp(col + dither / 255.0, 0.0, 1.0), 1.0);

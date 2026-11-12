@@ -24,6 +24,7 @@ class ChartsSlide extends StatelessWidget {
       label: 'Charts',
       title: 'Charts in the same language.',
       detail: 'Line, bar and pie charts take their colours and type from the theme.',
+      onDark: true,
       compact: compact,
     );
     final cards = [_line(), _bars(), _pie()];

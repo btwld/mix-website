@@ -23,6 +23,7 @@ uniform float uTime;   // seconds, wrapped at 3600.0 (shoreLoop)
 uniform float uScene;  // 0: Dunes A, 1: Dunes B, 2: Lagoon Overlook, 3: Lagoon Shore
 uniform vec3 uWater;
 uniform vec3 uDeepWater;
+uniform vec3 uTint;    // multiplies the finished scene: deep green dunes
 
 out vec4 fragColor;
 
@@ -31,8 +32,8 @@ const float kLoop = 3600.0;
 const float kOmega0 = 6.2831853 / kLoop;
 const mat2 kRot = mat2(0.8, 0.6, -0.6, 0.8);
 
-// Warm Ceará coastal dune palette (inspired by Jericoacoara / Lençóis dunes &
-// harmonized with Fortal's sand tones so #16302C typography stays high-contrast).
+// Warm Ceará coastal dune palette (inspired by Jericoacoara / Lençóis dunes),
+// tinted green at the end by `uTint` behind the site's white headings.
 const vec3 kSandBright = vec3(0.990, 0.950, 0.862);
 const vec3 kSandLit = vec3(0.956, 0.892, 0.772);
 const vec3 kSandFlank = vec3(0.892, 0.800, 0.646);
@@ -165,7 +166,7 @@ vec3 barchanWave(float s, float kBrink) {
 }
 
 // Calm sanctuary mask where UI navigation & headings sit (`xz` in world metres):
-// lifts terrain onto a gentle sunlit windward flank so dark #16302C text never
+// lifts terrain onto a gentle sunlit windward flank so heading text never
 // crosses dark water or harsh slip-face boundaries.
 float uiSanctuary(vec2 xz) {
   // Full-width top navigation bar (`z > 68m`).
@@ -642,6 +643,12 @@ void main() {
     gust * textProtect * (1.0 - smoothstep(95.0, 145.0, dist));
   vec3 blownSand = mix(kSandLit, kSandBright, 0.85);
   col = mix(col, blownSand, clamp(spindrift, 0.0, 0.38));
+
+  // Tint the scene, keeping its relief: the slides draw it in the dark green
+  // of the Beira-Mar photo slides. The tint is full behind the headings and
+  // clears towards the foot, where the dunes and lagoon show nearly as drawn.
+  float tintAmount = mix(1.0, 0.08, smoothstep(0.24, 0.72, uv.y));
+  col *= mix(vec3(1.0), uTint, tintAmount);
 
   // Highlight desaturation + triangular IGN dithering (web-ocean post.js).
   float lum = dot(col, vec3(0.2126, 0.7152, 0.0722));

@@ -1,6 +1,5 @@
 // The "use it" slide, the last: how Fortal gets into an app, in three steps,
-// with the result of the last one running beside its code, over the Beira-Mar
-// photo it shares with the foundations slide before it.
+// over the Beira-Mar photo it shares with the foundations slide before it.
 import 'package:flutter/widgets.dart';
 
 import '../backdrops.dart';
@@ -36,13 +35,12 @@ class UseSlide extends StatelessWidget {
       title: 'Install the CLI',
       detail: '',
       code: const CodeCard(
+        oneLine: true,
         lines: [
           CodeLine([
             ('dart pub global ', CodeTone.plain),
             ('activate', CodeTone.value),
-          ]),
-          CodeLine([
-            ('  remix_cli ', CodeTone.type),
+            (' remix_cli ', CodeTone.type),
             ("'^1.0.0-beta.1'", CodeTone.text),
           ]),
         ],
@@ -53,6 +51,7 @@ class UseSlide extends StatelessWidget {
       title: 'Add Fortal',
       detail: '',
       code: const CodeCard(
+        oneLine: true,
         lines: [
           CodeLine([
             ('remix', CodeTone.type),
@@ -71,46 +70,28 @@ class UseSlide extends StatelessWidget {
       number: '3',
       title: 'Use it',
       detail: '',
-      code: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: Gap.x3,
-        children: [
-          CodeCard(
-            lines: [
-              const CodeLine([
-                ('UiTheme', CodeTone.type),
-                ('(', CodeTone.plain),
-              ]),
-              CodeLine([
-                ('  accent: .', CodeTone.plain),
-                (accent.name, CodeTone.value),
-                (',', CodeTone.plain),
-              ]),
-              const CodeLine([
-                ('  child: ', CodeTone.plain),
-                ('UiButton', CodeTone.type),
-                ('(', CodeTone.plain),
-              ]),
-              const CodeLine([
-                ('    label: ', CodeTone.plain),
-                ("'Send invite'", CodeTone.text),
-                (',', CodeTone.plain),
-              ]),
-              const CodeLine([('    onPressed: send,', CodeTone.plain)]),
-              const CodeLine([('  ),', CodeTone.plain)]),
-              const CodeLine([(')', CodeTone.plain)]),
-            ],
-          ),
-          // What that code makes: the real button.
-          Slab(
-            lifted: true,
-            child: Row(
-              children: [
-                Expanded(child: cardLabel('What it makes')),
-                UiButton(label: 'Send invite', onPressed: () {}),
-              ],
-            ),
-          ),
+      code: CodeCard(
+        oneLine: true,
+        lines: [
+          const CodeLine([('UiTheme', CodeTone.type), ('(', CodeTone.plain)]),
+          CodeLine([
+            ('  accent: .', CodeTone.plain),
+            (accent.name, CodeTone.value),
+            (',', CodeTone.plain),
+          ]),
+          const CodeLine([
+            ('  child: ', CodeTone.plain),
+            ('UiButton', CodeTone.type),
+            ('(', CodeTone.plain),
+          ]),
+          const CodeLine([
+            ('    label: ', CodeTone.plain),
+            ("'Send invite'", CodeTone.text),
+            (',', CodeTone.plain),
+          ]),
+          const CodeLine([('    onPressed: send,', CodeTone.plain)]),
+          const CodeLine([('  ),', CodeTone.plain)]),
+          const CodeLine([(')', CodeTone.plain)]),
         ],
       ),
     );
@@ -144,8 +125,9 @@ class UseSlide extends StatelessWidget {
       child: Stack(
         children: [
           Positioned(left: gutter, top: headingTop, width: 900, child: heading),
-          // Three equal columns, one per step, with the note under the
-          // first two.
+          // The two commands stacked in a column two walls wide, so each
+          // stays on one line, with the note under them; the code that uses
+          // Fortal in the third wall.
           Positioned(
             left: gutter,
             right: gutter,
@@ -157,19 +139,9 @@ class UseSlide extends StatelessWidget {
                 SizedBox(
                   width: 2 * wallWidth + Gap.x6,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     spacing: Gap.x6,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: Gap.x6,
-                        children: [
-                          SizedBox(width: wallWidth, child: setUp),
-                          SizedBox(width: wallWidth, child: add),
-                        ],
-                      ),
-                      note,
-                    ],
+                    children: [setUp, add, note],
                   ),
                 ),
                 SizedBox(width: wallWidth, child: use),
@@ -268,9 +240,30 @@ class CodeLine {
 
 /// Code on a dark panel, in a fixed-width face.
 class CodeCard extends StatelessWidget {
-  const CodeCard({super.key, required this.lines});
+  const CodeCard({super.key, required this.lines, this.oneLine = false});
 
   final List<CodeLine> lines;
+
+  /// Keeps every line whole: where one is too wide, as on a phone, the code
+  /// shrinks to fit rather than breaking a command in two.
+  final bool oneLine;
+
+  Widget _text({required bool softWrap}) => Text.rich(
+    TextSpan(
+      children: [
+        for (final (i, line) in lines.indexed) ...[
+          if (i > 0) const TextSpan(text: '\n'),
+          for (final (text, tone) in line.runs)
+            TextSpan(
+              text: text,
+              style: TextStyle(color: tone.color),
+            ),
+        ],
+      ],
+    ),
+    softWrap: softWrap,
+    style: const TextStyle(fontFamily: mono, fontSize: 16.5, height: 1.55),
+  );
 
   @override
   Widget build(BuildContext context) => Container(
@@ -287,20 +280,12 @@ class CodeCard extends StatelessWidget {
         ),
       ],
     ),
-    child: Text.rich(
-      TextSpan(
-        children: [
-          for (final (i, line) in lines.indexed) ...[
-            if (i > 0) const TextSpan(text: '\n'),
-            for (final (text, tone) in line.runs)
-              TextSpan(
-                text: text,
-                style: TextStyle(color: tone.color),
-              ),
-          ],
-        ],
-      ),
-      style: const TextStyle(fontFamily: mono, fontSize: 16.5, height: 1.55),
-    ),
+    child: oneLine
+        ? FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: _text(softWrap: false),
+          )
+        : _text(softWrap: true),
   );
 }

@@ -21,10 +21,10 @@ import 'theme.dart';
 // runs over two slides.
 const _slides = [
   (section: 'Fortal', dark: true),
-  (section: 'Components', dark: false),
-  (section: 'Components', dark: false),
-  (section: 'Charts', dark: false),
-  (section: 'Agents', dark: false),
+  (section: 'Components', dark: true),
+  (section: 'Components', dark: true),
+  (section: 'Charts', dark: true),
+  (section: 'Agents', dark: true),
   (section: 'Themes', dark: false),
   (section: 'Foundations', dark: true),
   (section: 'Use it', dark: true),
@@ -64,6 +64,14 @@ class _SiteState extends State<Site> {
   late final _pages = PageController(initialPage: _at)..addListener(_showCity);
   late final _cityShown = ValueNotifier(_at >= _firstCitySlide);
   var _turning = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch the closing slides' photo once the first frame is up, so it is
+    // ready before anyone reaches them rather than fading in on arrival.
+    WidgetsBinding.instance.addPostFrameCallback((_) => CityPhoto.load());
+  }
 
   // The shared photo shows once the turn has left the slide before it.
   void _showCity() {
@@ -118,8 +126,9 @@ class _SiteState extends State<Site> {
     );
   }
 
+  // Under the sections, the site's dark green shows past either end.
   Widget _narrow() => ColoredBox(
-    color: const Color(0xFFE9DAC0),
+    color: const Color(0xFF0D3D38),
     child: Stack(
       children: [
         SharedSandBackdrop(
