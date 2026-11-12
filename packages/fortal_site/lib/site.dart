@@ -389,7 +389,7 @@ class _Chrome extends StatelessWidget {
   }
 }
 
-class _Link extends StatelessWidget {
+class _Link extends StatefulWidget {
   const _Link({
     required this.label,
     required this.ink,
@@ -407,24 +407,45 @@ class _Link extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_Link> createState() => _LinkState();
+}
+
+// Tab reaches each link and Enter or Space follows it, in both layouts; the
+// narrow layout has no slide keys, so these links are its keyboard route.
+class _LinkState extends State<_Link> {
+  var _focused = false;
+
+  @override
   Widget build(BuildContext context) => Semantics(
     link: true,
-    child: MouseRegion(
-      cursor: SystemMouseCursors.click,
+    child: FocusableActionDetector(
+      mouseCursor: SystemMouseCursors.click,
+      onShowFocusHighlight: (value) => setState(() => _focused = value),
+      actions: {
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) => widget.onTap(),
+        ),
+        ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(
+          onInvoke: (_) => widget.onTap(),
+        ),
+      },
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: onTap,
+        onTap: widget.onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: Gap.x2),
           child: AnimatedDefaultTextStyle(
             duration: _turn,
             style: TextStyle(
               fontFamily: geist,
-              fontSize: size,
-              fontWeight: weight,
-              color: ink.withValues(alpha: faded ? 0.74 : 1),
+              fontSize: widget.size,
+              fontWeight: widget.weight,
+              color: widget.ink.withValues(alpha: widget.faded ? 0.74 : 1),
+              decoration: _focused ? TextDecoration.underline : null,
+              decorationColor: widget.ink,
+              decorationThickness: 2,
             ),
-            child: Text(label),
+            child: Text(widget.label),
           ),
         ),
       ),
