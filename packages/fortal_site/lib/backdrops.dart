@@ -6,7 +6,6 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart' show ValueListenable;
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -112,6 +111,9 @@ class SandBackdrop extends StatelessWidget {
 
   final bool shore;
   final double? scene;
+
+  /// Unused: the backdrop is a still picture. Kept so callers need not
+  /// change.
   final bool active;
   final ui.FragmentProgram? program;
 
@@ -141,7 +143,6 @@ class SandBackdrop extends StatelessWidget {
             scene: scene ?? (shore ? 3.0 : 0.0),
             water: colors.$1,
             deepWater: colors.$2,
-            active: active,
           ),
         ),
         // The dark green wash of the photo slides, strongest behind the
@@ -229,32 +230,25 @@ class _DuneField extends StatefulWidget {
     required this.scene,
     required this.water,
     required this.deepWater,
-    required this.active,
   });
 
   final ui.FragmentProgram program;
   final double scene;
   final Color water;
   final Color deepWater;
-  final bool active;
 
   @override
   State<_DuneField> createState() => _DuneFieldState();
 }
 
-class _DuneFieldState extends State<_DuneField>
-    with SingleTickerProviderStateMixin {
-  // Slow the shader's existing wind ripples and lagoon wavelets together;
-  // camera, banks and large dune shapes stay anchored between sections.
-  static const _motionRate = 0.80;
-  final _time = ValueNotifier<double>(_stillAt);
-  var _before = _stillAt;
-  late final Ticker _ticker = createTicker(
-    (elapsed) => _time.value =
-        (_before + elapsed.inMicroseconds / 1e6 * _motionRate) % shoreLoop,
-  );
-  late final _shader = widget.program.fragmentShader();
+class _DuneFieldState extends State<_DuneField> {
+  // The dunes are a still picture: drawn once and kept as an image, then
+  // redrawn only when their size or the water's colour changes. `?t=` moves
+  // the picture's moment, for captures.
   final _held = double.tryParse(Uri.base.queryParameters['t'] ?? '');
+  late final _time = ValueNotifier<double>(_held ?? _stillAt);
+  late final _shader = widget.program.fragmentShader();
+  final _still = StillPicture();
   void Function()? _unlisten;
 
   @override
@@ -266,37 +260,10 @@ class _DuneFieldState extends State<_DuneField>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _run();
-  }
-
-  @override
-  void didUpdateWidget(_DuneField old) {
-    super.didUpdateWidget(old);
-    _run();
-  }
-
-  void _run() {
-    final still =
-        _held ?? (MediaQuery.disableAnimationsOf(context) ? _stillAt : null);
-    if (still != null) {
-      _ticker.stop();
-      _time.value = still;
-      _before = still;
-    } else if (widget.active && !_ticker.isActive) {
-      _ticker.start();
-    } else if (!widget.active && _ticker.isActive) {
-      _before = _time.value;
-      _ticker.stop();
-    }
-  }
-
-  @override
   void dispose() {
     _unlisten?.call();
-    _ticker.dispose();
     _time.dispose();
+    _still.dispose();
     _shader.dispose();
     super.dispose();
   }
@@ -306,6 +273,7 @@ class _DuneFieldState extends State<_DuneField>
     child: CustomPaint(
       painter: _DunesShaderPainter(
         shader: _shader,
+        still: _still,
         time: _time,
         scene: widget.scene,
         water: widget.water,
@@ -319,6 +287,7 @@ class _DuneFieldState extends State<_DuneField>
 class _DunesShaderPainter extends CustomPainter {
   _DunesShaderPainter({
     required this.shader,
+    required this.still,
     required this.time,
     required this.scene,
     required this.water,
@@ -326,6 +295,7 @@ class _DunesShaderPainter extends CustomPainter {
   }) : super(repaint: time);
 
   final ui.FragmentShader shader;
+  final StillPicture still;
   final ValueNotifier<double> time;
   final double scene;
   final Color water;
@@ -339,18 +309,17 @@ class _DunesShaderPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    shader.getUniformFloat('uSize', 0).set(size.width);
-    shader.getUniformFloat('uSize', 1).set(size.height);
-    shader.getUniformFloat('uTime').set(time.value);
-    shader.getUniformFloat('uScene').set(scene);
-    _setRgb(shader, 'uWater', water);
-    _setRgb(shader, 'uDeepWater', deepWater);
-    _setRgb(shader, 'uTint', _duneTint);
-    paintAtDensity(
-      canvas,
-      size,
-      (canvas) => canvas.drawRect(Offset.zero & size, Paint()..shader = shader),
-    );
+    final t = time.value;
+    still.paint(canvas, size, (t, scene, water, deepWater), (canvas) {
+      shader.getUniformFloat('uSize', 0).set(size.width);
+      shader.getUniformFloat('uSize', 1).set(size.height);
+      shader.getUniformFloat('uTime').set(t);
+      shader.getUniformFloat('uScene').set(scene);
+      _setRgb(shader, 'uWater', water);
+      _setRgb(shader, 'uDeepWater', deepWater);
+      _setRgb(shader, 'uTint', _duneTint);
+      canvas.drawRect(Offset.zero & size, Paint()..shader = shader);
+    });
   }
 
   @override
@@ -379,6 +348,9 @@ class HorizonBackdrop extends StatelessWidget {
   final Color sea;
   final Color deep;
   final ui.FragmentProgram? program;
+
+  /// Unused: the backdrop is a still picture. Kept so callers need not
+  /// change.
   final bool active;
 
   @override
@@ -392,12 +364,7 @@ class HorizonBackdrop extends StatelessWidget {
           : const Duration(milliseconds: 500),
       curve: Curves.easeInOut,
       builder: (context, colors, _) => horizonProgram != null
-          ? _HorizonSea(
-              program: horizonProgram,
-              colors: colors,
-              mode: 0,
-              active: active,
-            )
+          ? _HorizonSea(program: horizonProgram, colors: colors, mode: 0)
           : CustomPaint(painter: _HorizonPainter(colors), size: Size.infinite),
     );
   }
@@ -467,28 +434,22 @@ class _HorizonSea extends StatefulWidget {
     required this.program,
     required this.colors,
     required this.mode,
-    required this.active,
   });
 
   final ui.FragmentProgram program;
   final _Horizon colors;
   final double mode;
-  final bool active;
 
   @override
   State<_HorizonSea> createState() => _HorizonSeaState();
 }
 
-class _HorizonSeaState extends State<_HorizonSea>
-    with SingleTickerProviderStateMixin {
-  final _time = ValueNotifier<double>(0);
-  var _before = Duration.zero;
-  late final Ticker _ticker = createTicker(
-    (elapsed) =>
-        _time.value = (_before + elapsed).inMicroseconds / 1e6 % shoreLoop,
-  );
-  late final _shader = widget.program.fragmentShader();
+class _HorizonSeaState extends State<_HorizonSea> {
+  // A still picture, like the dunes: drawn once per size and theme.
   final _held = double.tryParse(Uri.base.queryParameters['t'] ?? '');
+  late final _time = ValueNotifier<double>(_held ?? _stillAt);
+  late final _shader = widget.program.fragmentShader();
+  final _still = StillPicture();
   void Function()? _unlisten;
 
   @override
@@ -500,36 +461,10 @@ class _HorizonSeaState extends State<_HorizonSea>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _run();
-  }
-
-  @override
-  void didUpdateWidget(_HorizonSea old) {
-    super.didUpdateWidget(old);
-    _run();
-  }
-
-  void _run() {
-    final still =
-        _held ?? (MediaQuery.disableAnimationsOf(context) ? _stillAt : null);
-    if (still != null) {
-      _ticker.stop();
-      _time.value = still;
-    } else if (widget.active && !_ticker.isActive) {
-      _ticker.start();
-    } else if (!widget.active && _ticker.isActive) {
-      _before = Duration(microseconds: (_time.value * 1e6).round());
-      _ticker.stop();
-    }
-  }
-
-  @override
   void dispose() {
     _unlisten?.call();
-    _ticker.dispose();
     _time.dispose();
+    _still.dispose();
     _shader.dispose();
     super.dispose();
   }
@@ -539,6 +474,7 @@ class _HorizonSeaState extends State<_HorizonSea>
     child: CustomPaint(
       painter: _HorizonShaderPainter(
         shader: _shader,
+        still: _still,
         time: _time,
         colors: widget.colors,
         mode: widget.mode,
@@ -551,12 +487,14 @@ class _HorizonSeaState extends State<_HorizonSea>
 class _HorizonShaderPainter extends CustomPainter {
   _HorizonShaderPainter({
     required this.shader,
+    required this.still,
     required this.time,
     required this.colors,
     required this.mode,
   }) : super(repaint: time);
 
   final ui.FragmentShader shader;
+  final StillPicture still;
   final ValueNotifier<double> time;
   final _Horizon colors;
   final double mode;
@@ -569,19 +507,18 @@ class _HorizonShaderPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    shader.getUniformFloat('uSize', 0).set(size.width);
-    shader.getUniformFloat('uSize', 1).set(size.height);
-    shader.getUniformFloat('uTime').set(time.value);
-    shader.getUniformFloat('uMode').set(mode);
-    _setRgb(shader, 'uSky', colors.$1);
-    _setRgb(shader, 'uHaze', colors.$2);
-    _setRgb(shader, 'uSea', colors.$3);
-    _setRgb(shader, 'uDeep', colors.$4);
-    paintAtDensity(
-      canvas,
-      size,
-      (canvas) => canvas.drawRect(Offset.zero & size, Paint()..shader = shader),
-    );
+    final t = time.value;
+    still.paint(canvas, size, (t, mode, colors), (canvas) {
+      shader.getUniformFloat('uSize', 0).set(size.width);
+      shader.getUniformFloat('uSize', 1).set(size.height);
+      shader.getUniformFloat('uTime').set(t);
+      shader.getUniformFloat('uMode').set(mode);
+      _setRgb(shader, 'uSky', colors.$1);
+      _setRgb(shader, 'uHaze', colors.$2);
+      _setRgb(shader, 'uSea', colors.$3);
+      _setRgb(shader, 'uDeep', colors.$4);
+      canvas.drawRect(Offset.zero & size, Paint()..shader = shader);
+    });
   }
 
   @override
@@ -657,7 +594,7 @@ class SharedCityBackdrop extends StatelessWidget {
           builder: (context, shown, layer) =>
               Offstage(offstage: !shown, child: layer),
           child: SlideFrame(
-            backdrop: _CityField(active: active, compact: false, photo: photo),
+            backdrop: _CityField(compact: false, photo: photo),
             child: const Stack(
               children: [
                 Positioned(right: gutter, bottom: Gap.x4, child: CityCredit()),
@@ -710,6 +647,8 @@ class CityBackdrop extends StatelessWidget {
     this.photo,
   });
 
+  /// Unused: the backdrop is a still picture. Kept so callers need not
+  /// change.
   final bool active;
 
   /// The narrow layout's taller, stacked section: a fuller wash, since its
@@ -725,18 +664,13 @@ class CityBackdrop extends StatelessWidget {
         null) {
       return const SizedBox.expand();
     }
-    return _CityField(active: active, compact: compact, photo: photo);
+    return _CityField(compact: compact, photo: photo);
   }
 }
 
 class _CityField extends StatefulWidget {
-  const _CityField({
-    required this.active,
-    required this.compact,
-    required this.photo,
-  });
+  const _CityField({required this.compact, required this.photo});
 
-  final bool active;
   final bool compact;
   final CityPhoto? photo;
 
@@ -744,17 +678,13 @@ class _CityField extends StatefulWidget {
   State<_CityField> createState() => _CityFieldState();
 }
 
-class _CityFieldState extends State<_CityField>
-    with SingleTickerProviderStateMixin {
+class _CityFieldState extends State<_CityField> {
+  // A still picture, like the dunes: the photo, tinted and cropped once.
   CityPhoto? _photo;
   ui.FragmentShader? _shader;
-  final _time = ValueNotifier<double>(_stillAt);
-  var _before = _stillAt;
-  late final Ticker _ticker = createTicker(
-    (elapsed) =>
-        _time.value = (_before + elapsed.inMicroseconds / 1e6) % shoreLoop,
-  );
   final _held = double.tryParse(Uri.base.queryParameters['t'] ?? '');
+  late final _time = ValueNotifier<double>(_held ?? _stillAt);
+  final _still = StillPicture();
   void Function()? _unlisten;
 
   @override
@@ -771,7 +701,6 @@ class _CityFieldState extends State<_CityField>
         (photo) {
           if (!mounted) return;
           setState(() => _adopt(photo));
-          _run();
         },
         onError: (Object error, StackTrace stack) => FlutterError.reportError(
           FlutterErrorDetails(
@@ -791,38 +720,10 @@ class _CityFieldState extends State<_CityField>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _run();
-  }
-
-  @override
-  void didUpdateWidget(_CityField old) {
-    super.didUpdateWidget(old);
-    _run();
-  }
-
-  void _run() {
-    if (_shader == null) return;
-    final still =
-        _held ?? (MediaQuery.disableAnimationsOf(context) ? _stillAt : null);
-    if (still != null) {
-      _ticker.stop();
-      _time.value = still;
-      _before = still;
-    } else if (widget.active && !_ticker.isActive) {
-      _ticker.start();
-    } else if (!widget.active && _ticker.isActive) {
-      _before = _time.value;
-      _ticker.stop();
-    }
-  }
-
-  @override
   void dispose() {
     _unlisten?.call();
-    _ticker.dispose();
     _time.dispose();
+    _still.dispose();
     _shader?.dispose();
     super.dispose();
   }
@@ -847,6 +748,7 @@ class _CityFieldState extends State<_CityField>
               child: CustomPaint(
                 painter: _CityShaderPainter(
                   shader: shader,
+                  still: _still,
                   photo: photo,
                   time: _time,
                   // Keep the bay in view when a tall screen crops the sides.
@@ -904,37 +806,42 @@ class _CityFieldState extends State<_CityField>
 class _CityShaderPainter extends CustomPainter {
   _CityShaderPainter({
     required this.shader,
+    required this.still,
     required this.photo,
     required this.time,
     required this.align,
   }) : super(repaint: time);
 
   final ui.FragmentShader shader;
+  final StillPicture still;
   final CityPhoto photo;
   final ValueNotifier<double> time;
   final Offset align;
 
   @override
   void paint(Canvas canvas, Size size) {
-    shader.getUniformFloat('uSize', 0).set(size.width);
-    shader.getUniformFloat('uSize', 1).set(size.height);
-    shader.getUniformFloat('uTime').set(time.value);
-    shader.getUniformFloat('uImage', 0).set(photo.photo.width.toDouble());
-    shader.getUniformFloat('uImage', 1).set(photo.photo.height.toDouble());
-    shader.getUniformFloat('uAlign', 0).set(align.dx);
-    shader.getUniformFloat('uAlign', 1).set(align.dy);
-    shader.getUniformFloat('uTint', 0).set(_cityTint.r);
-    shader.getUniformFloat('uTint', 1).set(_cityTint.g);
-    shader.getUniformFloat('uTint', 2).set(_cityTint.b);
-    // Samplers in the shader's order. Smooth sampling: the default, nearest,
-    // would show the photo's pixels.
-    shader.setImageSampler(0, photo.photo, filterQuality: FilterQuality.medium);
-    shader.setImageSampler(1, photo.sea, filterQuality: FilterQuality.low);
-    paintAtDensity(
-      canvas,
-      size,
-      (canvas) => canvas.drawRect(Offset.zero & size, Paint()..shader = shader),
-    );
+    final t = time.value;
+    still.paint(canvas, size, (t, photo, align), (canvas) {
+      shader.getUniformFloat('uSize', 0).set(size.width);
+      shader.getUniformFloat('uSize', 1).set(size.height);
+      shader.getUniformFloat('uTime').set(t);
+      shader.getUniformFloat('uImage', 0).set(photo.photo.width.toDouble());
+      shader.getUniformFloat('uImage', 1).set(photo.photo.height.toDouble());
+      shader.getUniformFloat('uAlign', 0).set(align.dx);
+      shader.getUniformFloat('uAlign', 1).set(align.dy);
+      shader.getUniformFloat('uTint', 0).set(_cityTint.r);
+      shader.getUniformFloat('uTint', 1).set(_cityTint.g);
+      shader.getUniformFloat('uTint', 2).set(_cityTint.b);
+      // Samplers in the shader's order. Smooth sampling: the default, nearest,
+      // would show the photo's pixels.
+      shader.setImageSampler(
+        0,
+        photo.photo,
+        filterQuality: FilterQuality.medium,
+      );
+      shader.setImageSampler(1, photo.sea, filterQuality: FilterQuality.low);
+      canvas.drawRect(Offset.zero & size, Paint()..shader = shader);
+    });
   }
 
   @override
