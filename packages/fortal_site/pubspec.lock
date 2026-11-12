@@ -416,7 +416,7 @@ packages:
     description:
       path: "packages/remix"
       ref: main
-      resolved-ref: c9d42dfa178d290b26568890da4025648d280e6f
+      resolved-ref: "0d50cf3d75162ec9b6f5d1b3c4bf1231643d9073"
       url: "https://github.com/btwld/remix.git"
     source: git
     version: "1.0.0-rc.2"
