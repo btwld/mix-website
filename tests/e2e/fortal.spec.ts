@@ -51,6 +51,8 @@ test.describe('Fortal site', () => {
       expect(response?.headers()['cache-control']).toBe('public, max-age=0, must-revalidate');
       expect(response?.headers()['x-robots-tag']).toBe('noindex, nofollow');
       await expectRunning(page, watched);
+      // Isolation gives the WebAssembly renderer its own thread.
+      expect(await page.evaluate(() => self.crossOriginIsolated)).toBe(true);
     });
   }
 

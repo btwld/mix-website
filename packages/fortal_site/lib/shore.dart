@@ -10,6 +10,8 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
 
+import 'density.dart';
+
 // Keep these in step with the constants and functions in shore.frag.
 const _shore = 290.0;
 const _sink = 40.0;
@@ -105,7 +107,13 @@ class _ShorePainter extends CustomPainter {
     }
     final paint = Paint()..shader = shader;
     if (!over) {
-      canvas.drawRect(Offset.zero & size, paint);
+      // The water behind the cards is soft enough to draw at a lower density;
+      // the foam over them stays sharp.
+      paintAtDensity(
+        canvas,
+        size,
+        (canvas) => canvas.drawRect(Offset.zero & size, paint),
+      );
       return;
     }
     for (final box in boxes) {

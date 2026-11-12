@@ -10,6 +10,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'density.dart';
 import 'hold.dart';
 import 'kit.dart' show Gap, SlideFrame, gutter;
 import 'shore.dart' show shoreLoop;
@@ -345,7 +346,11 @@ class _DunesShaderPainter extends CustomPainter {
     _setRgb(shader, 'uWater', water);
     _setRgb(shader, 'uDeepWater', deepWater);
     _setRgb(shader, 'uTint', _duneTint);
-    canvas.drawRect(Offset.zero & size, Paint()..shader = shader);
+    paintAtDensity(
+      canvas,
+      size,
+      (canvas) => canvas.drawRect(Offset.zero & size, Paint()..shader = shader),
+    );
   }
 
   @override
@@ -572,7 +577,11 @@ class _HorizonShaderPainter extends CustomPainter {
     _setRgb(shader, 'uHaze', colors.$2);
     _setRgb(shader, 'uSea', colors.$3);
     _setRgb(shader, 'uDeep', colors.$4);
-    canvas.drawRect(Offset.zero & size, Paint()..shader = shader);
+    paintAtDensity(
+      canvas,
+      size,
+      (canvas) => canvas.drawRect(Offset.zero & size, Paint()..shader = shader),
+    );
   }
 
   @override
@@ -921,7 +930,11 @@ class _CityShaderPainter extends CustomPainter {
     // would show the photo's pixels.
     shader.setImageSampler(0, photo.photo, filterQuality: FilterQuality.medium);
     shader.setImageSampler(1, photo.sea, filterQuality: FilterQuality.low);
-    canvas.drawRect(Offset.zero & size, Paint()..shader = shader);
+    paintAtDensity(
+      canvas,
+      size,
+      (canvas) => canvas.drawRect(Offset.zero & size, Paint()..shader = shader),
+    );
   }
 
   @override
