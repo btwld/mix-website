@@ -48,7 +48,7 @@ Widget buildDemo(String id, Host host) => switch (id) {
   'states' => _StatesDemo(host),
   'responsive' => _ResponsiveDemo(host),
   'motion' => _MotionDemo(host),
-  'naked' => _NakedDemo(host),
+  'naked' => StateProbe(demo: id, child: _NakedDemo(host)),
   'remix' => const FittedBox(
     fit: BoxFit.scaleDown,
     child: SizedBox(width: 320, child: Checkout()),
