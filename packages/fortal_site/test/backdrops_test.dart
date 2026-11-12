@@ -20,20 +20,18 @@ void main() {
       tester,
     ) async {
       for (final backdrop in [
-        SandBackdrop(program: dunes, active: reduced),
+        SandBackdrop(program: dunes),
         HorizonBackdrop(
           sky: const Color(0xFFABD6EB),
           haze: const Color(0xFFF0E3CB),
           sea: const Color(0xFF268F9E),
           deep: const Color(0xFF17455E),
           program: horizon,
-          active: reduced,
         ),
         BackdropShaders(
           horizon: horizon,
           dunes: dunes,
           child: SharedSandBackdrop(
-            active: reduced,
             child: const Column(
               children: [
                 Expanded(child: SandBackdrop()),

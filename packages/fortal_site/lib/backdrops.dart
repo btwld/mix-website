@@ -73,19 +73,14 @@ class BackdropShaders extends InheritedWidget {
 
 /// Keeps one lagoon canvas fixed while its foreground sections move.
 class SharedSandBackdrop extends StatelessWidget {
-  const SharedSandBackdrop({
-    super.key,
-    this.active = true,
-    required this.child,
-  });
+  const SharedSandBackdrop({super.key, required this.child});
 
-  final bool active;
   final Widget child;
 
   @override
   Widget build(BuildContext context) => Stack(
     children: [
-      Positioned.fill(child: SandBackdrop(scene: 2, active: active)),
+      Positioned.fill(child: SandBackdrop(scene: 2)),
       _SharedSandScope(child: child),
     ],
   );
@@ -101,20 +96,11 @@ class _SharedSandScope extends InheritedWidget {
 /// Wind-sculpted Ceará sand dunes (`scene` 0–1) and interdune emerald lagoons
 /// (`scene` 2–3, or `shore: true`).
 class SandBackdrop extends StatelessWidget {
-  const SandBackdrop({
-    super.key,
-    this.shore = false,
-    this.scene,
-    this.active = true,
-    this.program,
-  });
+  const SandBackdrop({super.key, this.shore = false, this.scene, this.program});
 
   final bool shore;
   final double? scene;
 
-  /// Unused: the backdrop is a still picture. Kept so callers need not
-  /// change.
-  final bool active;
   final ui.FragmentProgram? program;
 
   @override
@@ -340,7 +326,6 @@ class HorizonBackdrop extends StatelessWidget {
     required this.sea,
     required this.deep,
     this.program,
-    this.active = true,
   });
 
   final Color sky;
@@ -348,10 +333,6 @@ class HorizonBackdrop extends StatelessWidget {
   final Color sea;
   final Color deep;
   final ui.FragmentProgram? program;
-
-  /// Unused: the backdrop is a still picture. Kept so callers need not
-  /// change.
-  final bool active;
 
   @override
   Widget build(BuildContext context) {
@@ -573,13 +554,16 @@ class SharedCityBackdrop extends StatelessWidget {
   const SharedCityBackdrop({
     super.key,
     required this.shown,
-    this.active = true,
+    this.warming,
     this.photo,
     required this.child,
   });
 
   final ValueListenable<bool> shown;
-  final bool active;
+
+  /// While true and not [shown], the photo is drawn unseen, so that showing
+  /// it later does not start with a slow frame.
+  final ValueListenable<bool>? warming;
 
   /// Supplied by tests; otherwise [CityPhoto.load] provides it.
   final CityPhoto? photo;
@@ -589,10 +573,16 @@ class SharedCityBackdrop extends StatelessWidget {
   Widget build(BuildContext context) => Stack(
     children: [
       Positioned.fill(
-        child: ValueListenableBuilder(
-          valueListenable: shown,
-          builder: (context, shown, layer) =>
-              Offstage(offstage: !shown, child: layer),
+        child: ListenableBuilder(
+          listenable: Listenable.merge([shown, warming]),
+          builder: (context, layer) {
+            final visible = shown.value;
+            final unseen = !visible && (warming?.value ?? false);
+            return Offstage(
+              offstage: !visible && !unseen,
+              child: Opacity(opacity: unseen ? 1 / 255 : 1, child: layer),
+            );
+          },
           child: SlideFrame(
             backdrop: _CityField(compact: false, photo: photo),
             child: const Stack(
@@ -640,16 +630,7 @@ class CityCredit extends StatelessWidget {
 /// wash the presentation's Fortal scene puts over the same photo. Only its sea
 /// moves. Green shows until the photo has loaded, then the photo fades in.
 class CityBackdrop extends StatelessWidget {
-  const CityBackdrop({
-    super.key,
-    this.active = true,
-    this.compact = false,
-    this.photo,
-  });
-
-  /// Unused: the backdrop is a still picture. Kept so callers need not
-  /// change.
-  final bool active;
+  const CityBackdrop({super.key, this.compact = false, this.photo});
 
   /// The narrow layout's taller, stacked section: a fuller wash, since its
   /// text sits over more of the photo.

@@ -59,7 +59,7 @@ void main() {
   });
 
   Map<String, Widget> slides({required bool compact}) => {
-    'Fortal': HeroSlide(program: program, active: false, compact: compact),
+    'Fortal': HeroSlide(program: program, compact: compact),
     'Dashboard': DashboardSlide(compact: compact),
     'Components': ControlsSlide(onNext: () {}, compact: compact),
     'Components, continued': DetailsSlide(onNext: () {}, compact: compact),
@@ -153,11 +153,7 @@ void main() {
             : canvas;
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        final hero = HeroSlide(
-          program: program,
-          active: false,
-          compact: compact,
-        );
+        final hero = HeroSlide(program: program, compact: compact);
         await tester.pumpWidget(
           _app(compact ? SingleChildScrollView(child: hero) : hero),
         );

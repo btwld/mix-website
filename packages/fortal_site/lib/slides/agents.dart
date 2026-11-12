@@ -20,13 +20,12 @@ import '../theme.dart';
 import '../ui/ui.dart';
 
 class AgentsSlide extends StatelessWidget {
-  const AgentsSlide({super.key, this.active = true, this.compact = false});
+  const AgentsSlide({super.key, this.compact = false});
 
-  final bool active;
   final bool compact;
 
   @override
-  Widget build(BuildContext context) => _Desk(active: active, compact: compact);
+  Widget build(BuildContext context) => _Desk(compact: compact);
 }
 
 // The recipes, one per surface. They hold unresolved Fortal tokens, so one
@@ -85,9 +84,8 @@ const _testOutput =
 const _step = Duration(milliseconds: 420);
 
 class _Desk extends StatefulWidget {
-  const _Desk({required this.active, required this.compact});
+  const _Desk({required this.compact});
 
-  final bool active;
   final bool compact;
 
   @override
@@ -621,7 +619,7 @@ class _DeskState extends State<_Desk> {
       onDark: true,
       compact: widget.compact,
     );
-    final backdrop = SandBackdrop(scene: 2, active: widget.active);
+    final backdrop = SandBackdrop(scene: 2);
     // Fortal's small card, so the conversation fits the canvas at 110%.
     // On a wide screen both cards take the height they are given: the
     // conversation fills with its transcript, and the activity sits at the

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortal_landing/site.dart';
+import 'package:fortal_landing/slides/hero.dart';
 import 'package:fortal_landing/theme.dart';
 import 'package:fortal_landing/ui/ui.dart';
 
@@ -47,6 +48,10 @@ void main() {
 
     final scroll = tester.state<ScrollableState>(find.byType(Scrollable).first);
     expect(scroll.position.pixels, 0);
+    expect(
+      TickerMode.valuesOf(tester.element(find.byType(HeroSlide))).enabled,
+      isTrue,
+    );
 
     // The bar's "Use it" link, drawn over the sections (the last "Use it":
     // the slide's own step is also called that), takes focus and follows on
@@ -58,5 +63,15 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
     }
     expect(scroll.position.pixels, greaterThan(0));
+    expect(
+      TickerMode.valuesOf(tester.element(find.byType(HeroSlide))).enabled,
+      isFalse,
+    );
+    scroll.position.jumpTo(0);
+    await tester.pump();
+    expect(
+      TickerMode.valuesOf(tester.element(find.byType(HeroSlide))).enabled,
+      isTrue,
+    );
   });
 }
