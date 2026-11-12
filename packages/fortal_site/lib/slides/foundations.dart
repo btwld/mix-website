@@ -10,9 +10,8 @@ import '../theme.dart';
 import '../ui/ui.dart';
 
 class FoundationsSlide extends StatelessWidget {
-  const FoundationsSlide({super.key, this.active = true, this.compact = false});
+  const FoundationsSlide({super.key, this.compact = false});
 
-  final bool active;
   final bool compact;
 
   @override
@@ -24,7 +23,7 @@ class FoundationsSlide extends StatelessWidget {
       onDark: true,
       compact: compact,
     );
-    final backdrop = CityBackdrop(active: active, compact: compact);
+    final backdrop = CityBackdrop(compact: compact);
     if (compact) {
       return NarrowSection(
         backdrop: backdrop,

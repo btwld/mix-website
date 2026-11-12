@@ -33,7 +33,7 @@ export function hostingConfig(publicPath, site) {
       { source: '/remix/catalog/**', headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }] },
       { source: '**/*.wasm', headers: [{ key: 'Content-Type', value: 'application/wasm' }] },
       { source: '/v2-flutter/**', headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }] },
-      { source: `${PROJECTS.remix.fortalPath}**`, headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }] },
+      { source: `${PROJECTS.remix.fortalPath}**`, headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }, { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' }, { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' }] },
       { source: '/__site.json', headers: [{ key: 'Cache-Control', value: 'no-store' }] },
     ],
     redirects: hostingRedirects([...legacyRedirects, dashboardRedirect, examplesRedirect]),

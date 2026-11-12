@@ -113,7 +113,13 @@ test('the Fortal site is staged at its path only when built for that base href',
 
 test('Fortal assets revalidate on both Hosting deployment paths', () => {
   const cli = hostingConfig('out').headers.find(row => row.source === '/remix/examples/fortal/**');
-  assert.deepEqual(cli.headers, [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }]);
+  assert.deepEqual(cli.headers, [
+    { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+    { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+    { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
+  ]);
   const rest = hostingVersionConfig().headers.find(row => row.glob === '/remix/examples/fortal/**');
   assert.equal(rest.headers['Cache-Control'], 'public, max-age=0, must-revalidate');
+  assert.equal(rest.headers['Cross-Origin-Opener-Policy'], 'same-origin');
+  assert.equal(rest.headers['Cross-Origin-Embedder-Policy'], 'require-corp');
 });

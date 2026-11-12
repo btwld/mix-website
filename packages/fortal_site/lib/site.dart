@@ -2,6 +2,7 @@
 // arrow keys, the links at the top or the dots at the side move between them.
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -48,7 +49,14 @@ const _links = [
   (section: 'Use it', slide: 8),
 ];
 
-const _turn = Duration(milliseconds: 620);
+const _turn = Duration(milliseconds: 560);
+
+// A turn starts moving at once and settles gently. An ease-in at the start
+// reads as the page lagging behind the wheel.
+const _turnCurve = Cubic(0.2, 0, 0, 1);
+
+// A wheel gesture has ended after this long without a wheel event.
+const _wheelRest = Duration(milliseconds: 140);
 
 class Site extends StatefulWidget {
   const Site({super.key, required this.program, required this.horizonProgram});
@@ -60,52 +68,126 @@ class Site extends StatefulWidget {
   State<Site> createState() => _SiteState();
 }
 
-class _SiteState extends State<Site> {
+class _SiteState extends State<Site> with SingleTickerProviderStateMixin {
   // `?slide=2` opens on that slide.
   late var _at = (int.tryParse(Uri.base.queryParameters['slide'] ?? '') ?? 0)
       .clamp(0, _slides.length - 1);
-  late final _pages = PageController(initialPage: _at)..addListener(_showCity);
+  // Where the deck is, in slides: 2.5 is halfway from the third to the fourth.
+  late final _page = AnimationController.unbounded(
+    vsync: this,
+    value: _at.toDouble(),
+  )..addListener(_showCity);
   late final _cityShown = ValueNotifier(_at >= _firstCitySlide);
   var _turning = false;
+  // The slide a turn is leaving, which stays live until the turn ends.
+  int? _leaving;
+  // What is being drawn once, unseen, so its first real frame is not slow.
+  final _warming = ValueNotifier<int?>(null);
+  final _warmingCity = ValueNotifier(false);
+  final _narrowHero = GlobalKey();
+  final _narrowHeroShown = ValueNotifier(true);
+  late final _narrowScroll = ScrollController(
+    keepScrollOffset: false,
+    onAttach: (_) => WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _updateNarrowHero();
+    }),
+  )..addListener(_updateNarrowHero);
+
+  void _updateNarrowHero() {
+    final hero = _narrowHero.currentContext?.findRenderObject();
+    if (hero is RenderBox && hero.hasSize && _narrowScroll.hasClients) {
+      _narrowHeroShown.value = _narrowScroll.offset < hero.size.height;
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    // Fetch the closing slides' photo once the first frame is up, so it is
-    // ready before anyone reaches them rather than fading in on arrival.
-    WidgetsBinding.instance.addPostFrameCallback((_) => CityPhoto.load());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _warmUp());
+  }
+
+  // The first time a slide is drawn costs far more than any later frame:
+  // its text and shadows are prepared and its shaders compiled. Left to the
+  // first visit, that lands on the opening frames of the turn and shows as a
+  // stutter (270 ms for the themes' horizon). So each slide is drawn once,
+  // unseen, as the page loads. The closing slides' photo is fetched here too,
+  // ready before anyone reaches them.
+  Future<void> _warmUp() async {
+    final frames = WidgetsBinding.instance;
+    for (var slide = 0; slide < _slides.length; slide++) {
+      if (!mounted) return;
+      if ((slide - _page.value).abs() < 1) continue;
+      _warming.value = slide;
+      // Give the renderer a few frames to prepare the slide's retained
+      // layers, not just its first shader draw.
+      for (var frame = 0; frame < 4; frame++) {
+        await frames.endOfFrame;
+        if (!mounted) return;
+      }
+    }
+    _warming.value = null;
+    await CityPhoto.load();
+    if (!mounted) return;
+    _warmingCity.value = true;
+    for (var frame = 0; frame < 4; frame++) {
+      await frames.endOfFrame;
+      if (!mounted) return;
+    }
+    if (mounted) _warmingCity.value = false;
   }
 
   // The shared photo shows once the turn has left the slide before it.
-  void _showCity() {
-    final page = _pages.hasClients ? _pages.page : null;
-    if (page != null) _cityShown.value = page > _firstCitySlide - 1;
-  }
+  void _showCity() => _cityShown.value = _page.value > _firstCitySlide - 1;
 
   Future<void> _go(int slide) async {
     final to = slide.clamp(0, _slides.length - 1);
     if (to == _at || _turning) return;
     setState(() {
+      _leaving = _at;
       _at = to;
       _turning = true;
     });
     final still = MediaQuery.disableAnimationsOf(context);
     if (still) {
-      _pages.jumpToPage(to);
+      _page.value = to.toDouble();
     } else {
-      await _pages.animateToPage(
-        to,
-        duration: _turn,
-        curve: Curves.easeInOutCubic,
-      );
+      await _page.animateTo(to.toDouble(), duration: _turn, curve: _turnCurve);
     }
-    if (mounted) setState(() => _turning = false);
+    if (mounted) {
+      setState(() {
+        _turning = false;
+        _leaving = null;
+      });
+    }
+  }
+
+  // One wheel gesture turns one slide. A trackpad, or a free-spinning wheel,
+  // keeps sending smaller and smaller deltas after the hand has lifted. Those
+  // belong to the gesture that already turned the slide, so a new turn needs
+  // a rest or a clearly stronger push.
+  Duration? _wheelAt;
+  var _wheelSize = 0.0;
+
+  void _wheel(PointerScrollEvent event) {
+    final size = event.scrollDelta.dy.abs();
+    final last = _wheelAt;
+    final rested = last == null || event.timeStamp - last > _wheelRest;
+    final pushed = size > _wheelSize * 1.5 + 4;
+    _wheelAt = event.timeStamp;
+    _wheelSize = size;
+    if (size > 4 && (rested || pushed)) {
+      _go(_at + (event.scrollDelta.dy > 0 ? 1 : -1));
+    }
   }
 
   @override
   void dispose() {
-    _pages.dispose();
+    _page.dispose();
     _cityShown.dispose();
+    _warming.dispose();
+    _warmingCity.dispose();
+    _narrowScroll.dispose();
+    _narrowHeroShown.dispose();
     super.dispose();
   }
 
@@ -125,7 +207,7 @@ class _SiteState extends State<Site> {
     Scrollable.ensureVisible(
       target,
       duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : _turn,
-      curve: Curves.easeInOutCubic,
+      curve: _turnCurve,
     );
   }
 
@@ -136,46 +218,51 @@ class _SiteState extends State<Site> {
       children: [
         SharedSandBackdrop(
           child: SingleChildScrollView(
+            controller: _narrowScroll,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                HeroSlide(program: widget.program, active: true, compact: true),
-                KeyedSubtree(
-                  key: _sections['Components'],
-                  child: ControlsSlide(
-                    onNext: () {},
-                    active: false,
+                ValueListenableBuilder(
+                  valueListenable: _narrowHeroShown,
+                  builder: (context, shown, hero) =>
+                      TickerMode(enabled: shown, child: hero!),
+                  child: HeroSlide(
+                    key: _narrowHero,
+                    program: widget.program,
                     compact: true,
                   ),
                 ),
-                DetailsSlide(onNext: () {}, active: false, compact: true),
+                KeyedSubtree(
+                  key: _sections['Components'],
+                  child: ControlsSlide(onNext: () {}, compact: true),
+                ),
+                DetailsSlide(onNext: () {}, compact: true),
                 KeyedSubtree(
                   key: _sections['Charts'],
-                  child: const ChartsSlide(active: false, compact: true),
+                  child: const ChartsSlide(compact: true),
                 ),
                 KeyedSubtree(
                   key: _sections['Agents'],
-                  child: const AgentsSlide(active: false, compact: true),
+                  child: const AgentsSlide(compact: true),
                 ),
                 KeyedSubtree(
                   key: _sections['Dashboard'],
-                  child: const DashboardSlide(active: false, compact: true),
+                  child: const DashboardSlide(compact: true),
                 ),
                 KeyedSubtree(
                   key: _sections['Themes'],
                   child: ThemesSlide(
                     horizonProgram: widget.horizonProgram,
-                    active: false,
                     compact: true,
                   ),
                 ),
                 KeyedSubtree(
                   key: _sections['Foundations'],
-                  child: const FoundationsSlide(active: false, compact: true),
+                  child: const FoundationsSlide(compact: true),
                 ),
                 KeyedSubtree(
                   key: _sections['Use it'],
-                  child: const UseSlide(active: false, compact: true),
+                  child: const UseSlide(compact: true),
                 ),
               ],
             ),
@@ -215,20 +302,38 @@ class _SiteState extends State<Site> {
     return KeyEventResult.ignored;
   }
 
-  // A trip through the narrow layout rebuilds the slides' PageView, which
-  // would start again at the controller's first page; put it back on the
-  // current slide.
-  void _keepPage() {
-    if (!_pages.hasClients || _turning) return;
-    if (_pages.page?.round() != _at) _pages.jumpToPage(_at);
+  // The slides, made once. A turn hands the deck these same widgets again,
+  // so none of them is rebuilt while it moves.
+  late final _deck = <Widget>[
+    HeroSlide(program: widget.program, onGo: _go),
+    ControlsSlide(onNext: () => _go(2)),
+    // "See the themes" opens the Themes slide.
+    DetailsSlide(onNext: () => _go(6)),
+    const ChartsSlide(),
+    const AgentsSlide(),
+    const DashboardSlide(),
+    ThemesSlide(horizonProgram: widget.horizonProgram),
+    const FoundationsSlide(),
+    const UseSlide(),
+  ];
+
+  // A slide off the screen stays built, so turning to it costs nothing, but
+  // it takes no focus and its animations rest.
+  Widget _slide(int index, Widget slide) {
+    final live = index == _at || index == _leaving;
+    return IgnorePointer(
+      ignoring: index != _at,
+      child: ExcludeSemantics(
+        excluding: index != _at,
+        child: ExcludeFocus(
+          excluding: index != _at,
+          child: TickerMode(enabled: live, child: slide),
+        ),
+      ),
+    );
   }
 
-  Widget _wide() {
-    WidgetsBinding.instance.addPostFrameCallback((_) => _keepPage());
-    return _wideSlides();
-  }
-
-  Widget _wideSlides() => Focus(
+  Widget _wide() => Focus(
     canRequestFocus: false,
     skipTraversal: true,
     onKeyEvent: _key,
@@ -238,10 +343,10 @@ class _SiteState extends State<Site> {
         // One wheel turn moves one slide, unless something under the
         // pointer scrolls with it (the agents slide's conversation).
         onPointerSignal: (signal) {
-          if (signal is PointerScrollEvent && signal.scrollDelta.dy.abs() > 4) {
+          if (signal is PointerScrollEvent) {
             GestureBinding.instance.pointerSignalResolver.register(
               signal,
-              (_) => _go(_at + (signal.scrollDelta.dy > 0 ? 1 : -1)),
+              (_) => _wheel(signal),
             );
           }
         },
@@ -254,32 +359,15 @@ class _SiteState extends State<Site> {
           child: Stack(
             children: [
               SharedSandBackdrop(
-                active: _turning || (_at >= 1 && _at <= 5),
                 child: SharedCityBackdrop(
                   shown: _cityShown,
-                  active: _at >= _firstCitySlide,
-                  child: PageView(
-                    controller: _pages,
-                    scrollDirection: Axis.vertical,
-                    physics: const NeverScrollableScrollPhysics(),
+                  warming: _warmingCity,
+                  child: _Deck(
+                    page: _page,
+                    warming: _warming,
                     children: [
-                      HeroSlide(
-                        program: widget.program,
-                        active: _at == 0,
-                        onGo: _go,
-                      ),
-                      ControlsSlide(onNext: () => _go(2), active: _at == 1),
-                      // "See the themes" opens the Themes slide.
-                      DetailsSlide(onNext: () => _go(6), active: _at == 2),
-                      ChartsSlide(active: _at == 3),
-                      AgentsSlide(active: _at == 4),
-                      DashboardSlide(active: _at == 5),
-                      ThemesSlide(
-                        horizonProgram: widget.horizonProgram,
-                        active: _at == 6,
-                      ),
-                      FoundationsSlide(active: _at == 7),
-                      UseSlide(active: _at == 8),
+                      for (final (index, slide) in _deck.indexed)
+                        _slide(index, slide),
                     ],
                   ),
                 ),
@@ -533,4 +621,63 @@ class _NarrowBar extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// The slides, one screen each, stacked down the page. All of them stay built
+/// and laid out, so a turn only moves two finished pictures; only the ones on
+/// screen are drawn.
+class _Deck extends StatelessWidget {
+  const _Deck({
+    required this.page,
+    required this.warming,
+    required this.children,
+  });
+
+  /// Where the deck is, in slides.
+  final ValueListenable<double> page;
+
+  /// A slide to draw once, unseen.
+  final ValueListenable<int?> warming;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => ClipRect(
+    child: Flow(delegate: _DeckFlow(page, warming), children: children),
+  );
+}
+
+class _DeckFlow extends FlowDelegate {
+  _DeckFlow(this.page, this.warming)
+    : super(repaint: Listenable.merge([page, warming]));
+
+  final ValueListenable<double> page;
+  final ValueListenable<int?> warming;
+
+  // So faint it cannot be seen, yet the slide is drawn in full.
+  static const _unseen = 1 / 255;
+
+  @override
+  Size getSize(BoxConstraints constraints) => constraints.biggest;
+
+  @override
+  BoxConstraints getConstraintsForChild(int i, BoxConstraints constraints) =>
+      BoxConstraints.tight(constraints.biggest);
+
+  @override
+  void paintChildren(FlowPaintingContext context) {
+    final height = context.size.height;
+    final at = page.value;
+    for (var i = 0; i < context.childCount; i++) {
+      final down = (i - at) * height;
+      if (down.abs() < height) {
+        context.paintChild(i, transform: Matrix4.translationValues(0, down, 0));
+      } else if (i == warming.value) {
+        context.paintChild(i, opacity: _unseen);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DeckFlow old) =>
+      old.page != page || old.warming != warming;
 }

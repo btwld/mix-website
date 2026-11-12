@@ -5,7 +5,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-dart run remix_cli:remix registry update @remix --ref main
+fvm dart run remix_cli:remix registry update @remix --ref main
 
 # Every item this app has installed, read from the ownership record.
 items=$(python3 -c '
@@ -14,7 +14,7 @@ targets = json.load(open("remix.ownership.json"))["targets"]
 print(" ".join(sorted({t.split("/")[-1] for t in targets.values()})))
 ')
 # shellcheck disable=SC2086
-dart run remix_cli:remix add --overwrite $items
+fvm dart run remix_cli:remix add --overwrite $items
 
-flutter pub upgrade remix
-dart format lib >/dev/null
+fvm flutter pub upgrade remix
+fvm dart format lib >/dev/null

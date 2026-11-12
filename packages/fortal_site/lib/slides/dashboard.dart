@@ -13,9 +13,8 @@ import '../ui/recipes/dashboard/dashboard_demo_theme.dart';
 import '../ui/ui.dart';
 
 class DashboardSlide extends StatelessWidget {
-  const DashboardSlide({super.key, this.active = true, this.compact = false});
+  const DashboardSlide({super.key, this.compact = false});
 
-  final bool active;
   final bool compact;
 
   @override
@@ -27,7 +26,7 @@ class DashboardSlide extends StatelessWidget {
       onDark: true,
       compact: compact,
     );
-    final backdrop = SandBackdrop(scene: 2, active: active);
+    final backdrop = SandBackdrop(scene: 2);
     if (compact) {
       return NarrowSection(
         backdrop: backdrop,

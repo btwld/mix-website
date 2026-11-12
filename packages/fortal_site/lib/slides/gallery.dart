@@ -11,15 +11,9 @@ import '../ui/ui.dart';
 
 /// The controls people use most.
 class ControlsSlide extends StatelessWidget {
-  const ControlsSlide({
-    super.key,
-    required this.onNext,
-    this.active = true,
-    this.compact = false,
-  });
+  const ControlsSlide({super.key, required this.onNext, this.compact = false});
 
   final VoidCallback onNext;
-  final bool active;
   final bool compact;
 
   @override
@@ -29,7 +23,6 @@ class ControlsSlide extends StatelessWidget {
     next: 'More components',
     onNext: onNext,
     scene: 2,
-    active: active,
     compact: compact,
     columns: [
       [_invite(), _release()],
@@ -41,15 +34,9 @@ class ControlsSlide extends StatelessWidget {
 
 /// Dates, data and the smaller pieces.
 class DetailsSlide extends StatelessWidget {
-  const DetailsSlide({
-    super.key,
-    required this.onNext,
-    this.active = true,
-    this.compact = false,
-  });
+  const DetailsSlide({super.key, required this.onNext, this.compact = false});
 
   final VoidCallback onNext;
-  final bool active;
   final bool compact;
 
   @override
@@ -59,7 +46,6 @@ class DetailsSlide extends StatelessWidget {
     next: 'See the themes',
     onNext: onNext,
     scene: 2,
-    active: active,
     compact: compact,
     columns: [
       [_schedule(), _details()],
@@ -76,7 +62,6 @@ class _Gallery extends StatelessWidget {
     required this.next,
     required this.onNext,
     required this.scene,
-    required this.active,
     required this.columns,
     required this.compact,
   });
@@ -89,13 +74,12 @@ class _Gallery extends StatelessWidget {
   final VoidCallback onNext;
   final List<List<_Moment>> columns;
   final double scene;
-  final bool active;
 
   @override
   Widget build(BuildContext context) => compact ? _narrow() : _wide(context);
 
   Widget _narrow() => NarrowSection(
-    backdrop: SandBackdrop(scene: scene, active: active),
+    backdrop: SandBackdrop(scene: scene),
     children: [
       SlideHeading(
         label: 'Components',
@@ -109,7 +93,7 @@ class _Gallery extends StatelessWidget {
   );
 
   Widget _wide(BuildContext context) => SlideFrame(
-    backdrop: SandBackdrop(scene: scene, active: active),
+    backdrop: SandBackdrop(scene: scene),
     child: Stack(
       children: [
         Positioned(

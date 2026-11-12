@@ -13,9 +13,8 @@ import '../theme.dart';
 import '../ui/ui.dart';
 
 class ChartsSlide extends StatelessWidget {
-  const ChartsSlide({super.key, this.active = true, this.compact = false});
+  const ChartsSlide({super.key, this.compact = false});
 
-  final bool active;
   final bool compact;
 
   @override
@@ -30,12 +29,12 @@ class ChartsSlide extends StatelessWidget {
     final cards = [_line(), _bars(), _pie()];
     if (compact) {
       return NarrowSection(
-        backdrop: SandBackdrop(scene: 2, active: active),
+        backdrop: SandBackdrop(scene: 2),
         children: [heading, ...cards],
       );
     }
     return SlideFrame(
-      backdrop: SandBackdrop(scene: 2, active: active),
+      backdrop: SandBackdrop(scene: 2),
       child: Stack(
         children: [
           Positioned(left: gutter, top: headingTop, width: 900, child: heading),

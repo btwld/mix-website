@@ -31,7 +31,10 @@ const config = {
       { source: `${catalog}:path*`, headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
       { source: '/v2-flutter/:path*', headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
       // The Fortal site is a Flutter app with fixed file names, like the catalog.
-      { source: `${fortal}:path*`, headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
+      // Cross-origin isolation lets its WebAssembly renderer draw on its own
+      // thread; without it scrolling drops to about 30 fps. Every file it
+      // loads is same-origin.
+      { source: `${fortal}:path*`, headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }, { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' }, { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' }] },
       { source: '/__site.json', headers: [{ key: 'Cache-Control', value: 'no-store' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
       { source: '/api/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
     ];

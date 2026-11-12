@@ -13,15 +13,9 @@ import '../ui/ui.dart';
 import 'use.dart' show CodeCard, CodeLine, CodeTone;
 
 class ThemesSlide extends StatelessWidget {
-  const ThemesSlide({
-    super.key,
-    this.horizonProgram,
-    this.active = true,
-    this.compact = false,
-  });
+  const ThemesSlide({super.key, this.horizonProgram, this.compact = false});
 
   final ui.FragmentProgram? horizonProgram;
-  final bool active;
   final bool compact;
 
   @override
@@ -39,7 +33,6 @@ class ThemesSlide extends StatelessWidget {
       sea: at(UiTokens.accent8),
       deep: at(UiTokens.accent10),
       program: horizonProgram,
-      active: active,
     );
     final code = CodeCard(
       lines: [

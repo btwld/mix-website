@@ -8,9 +8,8 @@ import '../theme.dart';
 import '../ui/ui.dart';
 
 class UseSlide extends StatelessWidget {
-  const UseSlide({super.key, this.active = true, this.compact = false});
+  const UseSlide({super.key, this.compact = false});
 
-  final bool active;
   final bool compact;
 
   @override
@@ -95,7 +94,7 @@ class UseSlide extends StatelessWidget {
         ],
       ),
     );
-    final backdrop = CityBackdrop(active: active, compact: compact);
+    final backdrop = CityBackdrop(compact: compact);
     // The site's closing line, white over the photo's dark green wash.
     const closing = Text(
       'Built with Mix and Remix.',

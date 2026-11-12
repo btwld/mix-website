@@ -1,8 +1,9 @@
-import 'dart:ui' show FragmentProgram;
+import 'dart:ui' show FragmentProgram, PictureRecorder;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortal_landing/backdrops.dart';
+import 'package:fortal_landing/density.dart';
 import 'package:fortal_landing/theme.dart';
 import 'package:fortal_landing/ui/ui.dart';
 
@@ -19,20 +20,18 @@ void main() {
       tester,
     ) async {
       for (final backdrop in [
-        SandBackdrop(program: dunes, active: reduced),
+        SandBackdrop(program: dunes),
         HorizonBackdrop(
           sky: const Color(0xFFABD6EB),
           haze: const Color(0xFFF0E3CB),
           sea: const Color(0xFF268F9E),
           deep: const Color(0xFF17455E),
           program: horizon,
-          active: reduced,
         ),
         BackdropShaders(
           horizon: horizon,
           dunes: dunes,
           child: SharedSandBackdrop(
-            active: reduced,
             child: const Column(
               children: [
                 Expanded(child: SandBackdrop()),
@@ -75,28 +74,16 @@ void main() {
     });
   }
 
-  testWidgets('shared lagoon animates, persists, pauses and resumes', (
-    tester,
-  ) async {
-    Widget host({
-      bool active = true,
-      bool reduced = false,
-      String section = 'A',
-    }) => Directionality(
+  testWidgets('shared lagoon is a still picture that persists', (tester) async {
+    Widget host({String section = 'A'}) => Directionality(
       textDirection: TextDirection.ltr,
-      child: MediaQuery(
-        data: MediaQueryData(disableAnimations: reduced),
-        child: UiTheme(
-          child: FortalTheme(
-            accent: siteAccent.value,
-            child: BackdropShaders(
-              horizon: horizon,
-              dunes: dunes,
-              child: SharedSandBackdrop(
-                active: active,
-                child: Center(child: Text(section)),
-              ),
-            ),
+      child: UiTheme(
+        child: FortalTheme(
+          accent: siteAccent.value,
+          child: BackdropShaders(
+            horizon: horizon,
+            dunes: dunes,
+            child: SharedSandBackdrop(child: Center(child: Text(section))),
           ),
         ),
       ),
@@ -112,26 +99,18 @@ void main() {
     var repaints = 0;
     void onRepaint() => repaints++;
     painter.addListener(onRepaint);
-    await tester.pump(const Duration(milliseconds: 100));
-    expect(repaints, greaterThan(0));
+    await tester.pumpAndSettle();
+    // Nothing ticks: the dunes are drawn once and kept.
+    await tester.pump(const Duration(seconds: 1));
+    expect(repaints, 0);
+    expect(tester.binding.hasScheduledFrame, isFalse);
 
+    // The canvas stays while the section over it changes.
     await tester.pumpWidget(host(section: 'B'));
     expect(tester.renderObject(paint), same(canvas));
-    final beforeTransition = repaints;
-    await tester.pump(const Duration(milliseconds: 100));
-    expect(repaints, greaterThan(beforeTransition));
+    await tester.pump(const Duration(seconds: 1));
+    expect(repaints, 0);
 
-    for (final reduced in [false, true]) {
-      await tester.pumpWidget(host(active: reduced, reduced: reduced));
-      final paused = repaints;
-      await tester.pump(const Duration(seconds: 1));
-      expect(repaints, paused);
-      expect(tester.binding.hasScheduledFrame, isFalse);
-
-      await tester.pumpWidget(host());
-      await tester.pump(const Duration(milliseconds: 100));
-      expect(repaints, greaterThan(paused));
-    }
     painter.removeListener(onRepaint);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
@@ -139,23 +118,18 @@ void main() {
     expect(tester.binding.hasScheduledFrame, isFalse);
   });
 
-  testWidgets('Beira-Mar sea moves, pauses, holds still and disposes', (
-    tester,
-  ) async {
+  testWidgets('Beira-Mar is a still picture and disposes', (tester) async {
     final photo = (await tester.runAsync(CityPhoto.load))!;
-    Widget host({bool active = true, bool reduced = false}) => Directionality(
-      textDirection: TextDirection.ltr,
-      child: MediaQuery(
-        data: MediaQueryData(disableAnimations: reduced),
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
         child: SizedBox(
           width: 400,
           height: 300,
-          child: CityBackdrop(photo: photo, active: active),
+          child: CityBackdrop(photo: photo),
         ),
       ),
     );
-
-    await tester.pumpWidget(host());
     final paint = find.descendant(
       of: find.byType(CityBackdrop),
       matching: find.byType(CustomPaint),
@@ -165,26 +139,43 @@ void main() {
     var repaints = 0;
     void onRepaint() => repaints++;
     painter.addListener(onRepaint);
-    await tester.pump(const Duration(milliseconds: 100));
-    expect(repaints, greaterThan(0));
+    // The photo fades in, then nothing ticks.
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
+    expect(repaints, 0);
+    expect(tester.binding.hasScheduledFrame, isFalse);
 
-    for (final reduced in [false, true]) {
-      await tester.pumpWidget(host(active: reduced, reduced: reduced));
-      await tester.pumpAndSettle();
-      final paused = repaints;
-      await tester.pump(const Duration(seconds: 1));
-      expect(repaints, paused);
-      expect(tester.binding.hasScheduledFrame, isFalse);
-
-      await tester.pumpWidget(host());
-      await tester.pump(const Duration(milliseconds: 100));
-      expect(repaints, greaterThan(paused));
-    }
     painter.removeListener(onRepaint);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(tester.binding.hasScheduledFrame, isFalse);
+  });
+
+  testWidgets('a still picture draws once per set of inputs', (tester) async {
+    final still = StillPicture();
+    addTearDown(still.dispose);
+    var draws = 0;
+    void paint(Object inputs, Size size) {
+      final recorder = PictureRecorder();
+      still.paint(Canvas(recorder), size, inputs, (canvas) {
+        draws++;
+        canvas.drawRect(Offset.zero & size, Paint());
+      });
+      recorder.endRecording().dispose();
+    }
+
+    const size = Size(40, 30);
+    paint('a', size);
+    paint('a', size);
+    paint('a', size);
+    expect(draws, 1);
+    paint('b', size);
+    expect(draws, 2);
+    paint('b', const Size(50, 30));
+    expect(draws, 3);
+    paint('b', Size.zero);
+    expect(draws, 3);
   });
 
   testWidgets('the last two slides share one Beira-Mar photo', (tester) async {

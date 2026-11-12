@@ -5,12 +5,14 @@ import 'dart:ui' as ui;
 import 'package:flutter/widgets.dart';
 
 import 'backdrops.dart';
+import 'hold.dart';
 import 'site.dart';
 import 'theme.dart';
 import 'ui/ui.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  exposeFrameTimings();
   final (program, horizonProgram, dunesProgram) = await (
     ui.FragmentProgram.fromAsset('shaders/shore.frag'),
     ui.FragmentProgram.fromAsset('shaders/horizon.frag'),

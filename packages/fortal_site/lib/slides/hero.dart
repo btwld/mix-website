@@ -37,7 +37,6 @@ class HeroSlide extends StatefulWidget {
   const HeroSlide({
     super.key,
     required this.program,
-    required this.active,
     this.compact = false,
     this.onGo,
   });
@@ -50,9 +49,6 @@ class HeroSlide extends StatefulWidget {
 
   final ui.FragmentProgram program;
 
-  /// Whether this slide is the one showing.
-  final bool active;
-
   @override
   State<HeroSlide> createState() => _HeroSlideState();
 }
@@ -60,11 +56,17 @@ class HeroSlide extends StatefulWidget {
 class _HeroSlideState extends State<HeroSlide>
     with SingleTickerProviderStateMixin {
   final _time = ValueNotifier<double>(0);
-  var _before = Duration.zero; // time on the clock before the last pause
-  late final Ticker _ticker = createTicker(
-    (elapsed) =>
-        _time.value = (_before + elapsed).inMicroseconds / 1e6 % shoreLoop,
-  );
+  // The water's clock runs whenever this slide's tickers do; the site rests
+  // them while the slide is off the screen. A gap that long is skipped, so
+  // the water carries on from the moment it stopped.
+  var _last = Duration.zero;
+  late final Ticker _ticker = createTicker((elapsed) {
+    final step = elapsed - _last;
+    _last = elapsed;
+    if (step < const Duration(milliseconds: 250)) {
+      _time.value = (_time.value + step.inMicroseconds / 1e6) % shoreLoop;
+    }
+  });
   // One shader for each layer, made once and reused every frame.
   late final _behind = widget.program.fragmentShader();
   late final _over = widget.program.fragmentShader();
@@ -113,12 +115,9 @@ class _HeroSlideState extends State<HeroSlide>
     if (still != null) {
       _ticker.stop();
       _time.value = still;
-    } else if (widget.active && !_ticker.isActive) {
+    } else if (!_ticker.isActive) {
+      _last = Duration.zero;
       _ticker.start();
-    } else if (!widget.active && _ticker.isActive) {
-      // Carry on from the same moment when the slide comes back.
-      _before = Duration(microseconds: (_time.value * 1e6).round());
-      _ticker.stop();
     }
   }
 
