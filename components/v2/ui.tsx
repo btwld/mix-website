@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Children, Fragment, createContext, useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { ArrowRight, Check, Copy } from '@/components/landing/icons';
+import { isFlutterAppPath } from '@/lib/projects.mjs';
 import type { Excerpt } from '@/lib/showcase-source';
 import { FlutterView, useShowcase } from './flutter';
 
@@ -225,6 +226,8 @@ export function Notes({ children }: { children: ReactNode }) {
 }
 
 export function DocLink({ href, children }: { href: string; children: ReactNode }) {
+  // A Flutter app on this origin is a published file, not a page to prefetch.
+  if (isFlutterAppPath(href)) return <a className="v2-doc" href={href}>{children}<ArrowRight /></a>;
   return <Link className="v2-doc" href={href}>{children}<ArrowRight /></Link>;
 }
 

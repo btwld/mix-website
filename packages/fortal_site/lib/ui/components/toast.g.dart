@@ -1,0 +1,103 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'toast.dart';
+
+// **************************************************************************
+// MixWidgetGenerator
+// **************************************************************************
+
+/// Ui-themed toast surface for [RemixToast] and [RemixToastScope].
+///
+/// Toasts use the shared floating-layer elevation scale. The surface caps at
+/// 360 logical pixels and
+/// shrinks with the available width.
+///
+/// ```dart
+/// RemixToastScope(style: uiToastStyle(), child: const Shell())
+/// ```
+class UiToast extends StatelessWidget {
+  const UiToast({
+    super.key,
+    this.variant = .classic,
+    this.size = .size2,
+    this.intent = .accent,
+    this.style = const ToastStyler.create(),
+    required this.title,
+    this.description,
+    this.icon,
+    this.action,
+    this.onDismiss,
+    this.dismissLabel,
+    this.excludeMessageSemantics = false,
+  });
+
+  const UiToast.surface({
+    super.key,
+    this.size = .size2,
+    this.intent = .accent,
+    this.style = const ToastStyler.create(),
+    required this.title,
+    this.description,
+    this.icon,
+    this.action,
+    this.onDismiss,
+    this.dismissLabel,
+    this.excludeMessageSemantics = false,
+  }) : variant = UiToastVariant.surface;
+
+  const UiToast.classic({
+    super.key,
+    this.size = .size2,
+    this.intent = .accent,
+    this.style = const ToastStyler.create(),
+    required this.title,
+    this.description,
+    this.icon,
+    this.action,
+    this.onDismiss,
+    this.dismissLabel,
+    this.excludeMessageSemantics = false,
+  }) : variant = UiToastVariant.classic;
+
+  final UiToastVariant variant;
+
+  final UiToastSize size;
+
+  final UiToastIntent intent;
+
+  final ToastStyler style;
+
+  final String title;
+
+  final String? description;
+
+  final IconData? icon;
+
+  final RemixToastAction? action;
+
+  final VoidCallback? onDismiss;
+
+  final String? dismissLabel;
+
+  final bool excludeMessageSemantics;
+
+  @override
+  Widget build(BuildContext _) {
+    return RemixToast(
+      key: key,
+      style: uiToastStyle(
+        variant: variant,
+        size: size,
+        intent: intent,
+        style: style,
+      ),
+      title: title,
+      description: description,
+      icon: icon,
+      action: action,
+      onDismiss: onDismiss,
+      dismissLabel: dismissLabel,
+      excludeMessageSemantics: excludeMessageSemantics,
+    );
+  }
+}

@@ -1,0 +1,84 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'segmented_control.dart';
+
+// **************************************************************************
+// MixWidgetGenerator
+// **************************************************************************
+
+/// Ui recipe for [RemixSegmentedControl].
+///
+/// Content icons use size-matched 12/16/20 token defaults rather than the
+/// ambient icon size. Control and item styles may override these defaults.
+class UiSegmentedControl<T extends Object> extends StatelessWidget {
+  const UiSegmentedControl({
+    super.key,
+    this.variant = .surface,
+    this.size = .size2,
+    this.style = const SegmentedControlStyler.create(),
+    required this.items,
+    required this.selectedValue,
+    this.onChanged,
+    this.enabled = true,
+    this.orientation = .horizontal,
+    this.loop = true,
+    this.semanticLabel,
+    this.excludeSemantics = false,
+  });
+
+  const UiSegmentedControl.surface({
+    super.key,
+    this.size = .size2,
+    this.style = const SegmentedControlStyler.create(),
+    required this.items,
+    required this.selectedValue,
+    this.onChanged,
+    this.enabled = true,
+    this.orientation = .horizontal,
+    this.loop = true,
+    this.semanticLabel,
+    this.excludeSemantics = false,
+  }) : variant = UiSegmentedControlVariant.surface;
+
+  final UiSegmentedControlVariant variant;
+
+  final UiSegmentedControlSize size;
+
+  final SegmentedControlStyler style;
+
+  final List<RemixSegmentedControlItem<T>> items;
+
+  final T? selectedValue;
+
+  final ValueChanged<T>? onChanged;
+
+  final bool enabled;
+
+  final Axis orientation;
+
+  final bool loop;
+
+  final String? semanticLabel;
+
+  final bool excludeSemantics;
+
+  @override
+  Widget build(BuildContext _) {
+    return RemixSegmentedControl<T>(
+      key: key,
+      style: uiSegmentedControlStyle(
+        variant: variant,
+        size: size,
+        style: style,
+      ),
+      items: items,
+      selectedValue: selectedValue,
+      onChanged: onChanged,
+      enabled: enabled,
+      orientation: orientation,
+      loop: loop,
+      semanticLabel: semanticLabel,
+      excludeSemantics: excludeSemantics,
+    );
+  }
+}

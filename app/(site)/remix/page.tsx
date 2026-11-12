@@ -18,6 +18,7 @@ const LINKS = {
   components: '/remix/docs/components/button/',
   styling: '/mix/docs/guides/styling/',
   catalog: PROJECTS.remix.catalogPath,
+  fortal: PROJECTS.remix.fortalPath,
   github: PROJECTS.remix.codeRepository,
   pubDev: 'https://pub.dev/packages/remix',
 };
@@ -159,6 +160,7 @@ export default function RemixOverview() {
           </ul>
           <div className="lx-reveal lx-split-cta">
             <LandingButton href={LINKS.styling} variant="ghost" arrow>Explore styling</LandingButton>
+            <LandingButton href={LINKS.fortal} variant="ghost" arrow>See the Fortal design system</LandingButton>
           </div>
         </div>
         <div className="lx-panel lx-reveal">

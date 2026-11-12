@@ -7,6 +7,7 @@
 // preview IDs all fail the build.
 import { buildIdentity } from './build-identity.mjs';
 import { verifyMixBuildInputs } from './mix-build-inputs.mjs';
+import { FORTAL_SITE, verifyPackageBuildInputs } from './package-build-inputs.mjs';
 import { isDeepStrictEqual } from 'node:util';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
@@ -308,6 +309,21 @@ export async function collectPendingRedirects(projects) {
   };
 }
 
+/**
+ * The Fortal site is served at its own base href, from the package source
+ * it was built from. Its file names are fixed, like the catalog's.
+ */
+export async function stageFortalSite(root, bundle) {
+  await verifyPackageBuildInputs(root, bundle, FORTAL_SITE);
+  const index = await readFile(path.join(bundle, 'index.html'), 'utf8');
+  if (!index.includes(`<base href="${PROJECTS.remix.fortalPath}">`)) {
+    throw new Error(`fortal-site: index.html does not use base href ${PROJECTS.remix.fortalPath}`);
+  }
+  const target = path.join(root, 'public', PROJECTS.remix.fortalPath);
+  await rm(target, { recursive: true, force: true });
+  await cp(bundle, target, { recursive: true });
+}
+
 export async function syncSiteInputs({ root, offline = false, fetchImpl, log = console.log }) {
   const p = paths(root);
   const lockText = await readFile(p.lock, 'utf8');
@@ -368,6 +384,11 @@ export async function syncSiteInputs({ root, offline = false, fetchImpl, log = c
     throw new Error(`remix-docs: catalog/index.html does not use base href ${PROJECTS.remix.catalogPath}`);
   }
   await cp(path.join(remixDir, 'catalog'), path.join(p.publicRemix, 'catalog'), { recursive: true });
+
+  // The Fortal site lives under /remix/, so it is staged after public/remix is
+  // rebuilt above.
+  if (lock.inputs['fortal-site']) await stageFortalSite(root, path.join(p.extracted, 'fortal-site/bundle'));
+  else await rm(path.join(root, 'public', PROJECTS.remix.fortalPath), { recursive: true, force: true });
 
   const { redirects, assets } = await collectPendingRedirects(projects);
   // Retain the published Remix favicon URL alongside the wordmarks and

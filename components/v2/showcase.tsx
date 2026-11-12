@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Children, useEffect, useId, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { ArrowRight } from '@/components/landing/icons';
 import { CopyCommand } from '@/components/landing/copy-command';
+import { PROJECTS } from '@/lib/projects.mjs';
 import type { ShowcaseCode, ShowcasePackage } from '@/lib/showcase-source';
 import { ShowcaseProvider, getDemoSelection, useDemoControls, useDemoEvent, useDemoListener, useShowcase } from './flutter';
 import { Bench, Code, DocLink, Heading, Notes, Preview, Segmented, THEMES, ThemeContext, ThemePicker, fileNames, useTheme, type ThemeId } from './ui';
@@ -412,6 +413,7 @@ function RemixPart({ code, packages }: Props) {
           </Notes>
           <DocLink href="/remix/docs/open-code/">Open code and the CLI</DocLink>
           <DocLink href="/remix/docs/guides/styling-components/">Styling components</DocLink>
+          <DocLink href={PROJECTS.remix.fortalPath}>Fortal, a design system built with Remix</DocLink>
         </Side>
       </Bench>
     </article>

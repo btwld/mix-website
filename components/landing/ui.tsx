@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ComponentProps, ReactNode } from 'react';
+import { isFlutterAppPath } from '@/lib/projects.mjs';
 import { ArrowRight } from './icons';
 
 type ButtonProps = {
@@ -14,9 +15,9 @@ type ButtonProps = {
 export function LandingButton({ href, variant = 'primary', arrow, children, className, prefetch, ...props }: ButtonProps) {
   const classes = `lx-btn lx-btn-${variant}${className ? ` ${className}` : ''}`;
   const inner = <>{children}{arrow && <ArrowRight />}</>;
-  // Flutter bundles and the catalog are published assets, not app routes, so
+  // Flutter bundles and apps such as the catalog are published assets, not app routes, so
   // they must not be prefetched as Next pages.
-  if (/^(?:[a-z]+:)?\/\//.test(href) || href.startsWith('/remix/catalog')) {
+  if (/^(?:[a-z]+:)?\/\//.test(href) || isFlutterAppPath(href)) {
     return <a className={classes} href={href} target={href.startsWith('/') ? undefined : '_blank'} rel={href.startsWith('/') ? undefined : 'noreferrer'} {...props}>{inner}</a>;
   }
   return <Link className={classes} href={href} prefetch={prefetch} {...props}>{inner}</Link>;

@@ -1,4 +1,5 @@
-import { legacyRedirects, dashboardRedirect } from '../../lib/legacy-routes.mjs';
+import { legacyRedirects, dashboardRedirect, examplesRedirect } from '../../lib/legacy-routes.mjs';
+import { PROJECTS } from '../../lib/projects.mjs';
 
 // Next catch-alls allow zero segments and repeat '*' in destinations. Hosting
 // captures use ':path*' only in the source and ':path' in the destination.
@@ -32,9 +33,10 @@ export function hostingConfig(publicPath, site) {
       { source: '/remix/catalog/**', headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }] },
       { source: '**/*.wasm', headers: [{ key: 'Content-Type', value: 'application/wasm' }] },
       { source: '/v2-flutter/**', headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }] },
+      { source: `${PROJECTS.remix.fortalPath}**`, headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }] },
       { source: '/__site.json', headers: [{ key: 'Cache-Control', value: 'no-store' }] },
     ],
-    redirects: hostingRedirects([...legacyRedirects, dashboardRedirect]),
+    redirects: hostingRedirects([...legacyRedirects, dashboardRedirect, examplesRedirect]),
   };
 }
 

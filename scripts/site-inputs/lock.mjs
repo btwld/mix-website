@@ -1,6 +1,6 @@
 // Shape checks shared by the producer packer and the website prebuild.
 export const INPUT_NAMES = ['mix-previews', 'remix-docs', 'naked-ui-docs'];
-const OPTIONAL_INPUT_NAMES = ['showcase'];
+const OPTIONAL_INPUT_NAMES = ['showcase', 'fortal-site'];
 
 const COMMIT = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;

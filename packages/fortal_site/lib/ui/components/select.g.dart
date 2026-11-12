@@ -1,0 +1,163 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'select.dart';
+
+// **************************************************************************
+// MixWidgetGenerator
+// **************************************************************************
+
+/// Ui-themed Select with Ui-owned trigger and content configuration.
+///
+/// Content icons use size-matched 12/16/20 token defaults rather than the
+/// ambient icon size. Override the trigger icon through [style] when needed.
+///
+/// The panel is at least as wide as its trigger. A [style] that gives the
+/// content a `maxWidth` below the trigger's width must also set `minWidth`,
+/// which replaces the minimum, because a minimum above a maximum is invalid.
+class UiSelect<T> extends StatelessWidget {
+  const UiSelect({
+    super.key,
+    this.variant = .surface,
+    this.size = .size2,
+    this.highContrast = false,
+    this.style = const SelectStyler.create(),
+    required this.trigger,
+    required this.items,
+    this.selectedValue,
+    this.positioning = const OverlayPositionConfig(
+      side: .bottom,
+      alignment: .center,
+    ),
+    this.onChanged,
+    this.onOpen,
+    this.onClose,
+    this.enabled = true,
+    this.mouseCursor = SystemMouseCursors.click,
+    this.semanticLabel,
+    this.closeOnSelect = true,
+    this.focusNode,
+  });
+
+  const UiSelect.surface({
+    super.key,
+    this.size = .size2,
+    this.highContrast = false,
+    this.style = const SelectStyler.create(),
+    required this.trigger,
+    required this.items,
+    this.selectedValue,
+    this.positioning = const OverlayPositionConfig(
+      side: .bottom,
+      alignment: .center,
+    ),
+    this.onChanged,
+    this.onOpen,
+    this.onClose,
+    this.enabled = true,
+    this.mouseCursor = SystemMouseCursors.click,
+    this.semanticLabel,
+    this.closeOnSelect = true,
+    this.focusNode,
+  }) : variant = UiSelectVariant.surface;
+
+  const UiSelect.soft({
+    super.key,
+    this.size = .size2,
+    this.highContrast = false,
+    this.style = const SelectStyler.create(),
+    required this.trigger,
+    required this.items,
+    this.selectedValue,
+    this.positioning = const OverlayPositionConfig(
+      side: .bottom,
+      alignment: .center,
+    ),
+    this.onChanged,
+    this.onOpen,
+    this.onClose,
+    this.enabled = true,
+    this.mouseCursor = SystemMouseCursors.click,
+    this.semanticLabel,
+    this.closeOnSelect = true,
+    this.focusNode,
+  }) : variant = UiSelectVariant.soft;
+
+  const UiSelect.ghost({
+    super.key,
+    this.size = .size2,
+    this.highContrast = false,
+    this.style = const SelectStyler.create(),
+    required this.trigger,
+    required this.items,
+    this.selectedValue,
+    this.positioning = const OverlayPositionConfig(
+      side: .bottom,
+      alignment: .center,
+    ),
+    this.onChanged,
+    this.onOpen,
+    this.onClose,
+    this.enabled = true,
+    this.mouseCursor = SystemMouseCursors.click,
+    this.semanticLabel,
+    this.closeOnSelect = true,
+    this.focusNode,
+  }) : variant = UiSelectVariant.ghost;
+
+  final UiSelectVariant variant;
+
+  final UiSelectSize size;
+
+  final bool highContrast;
+
+  final SelectStyler style;
+
+  final RemixSelectTrigger trigger;
+
+  final List<RemixSelectItem<T>> items;
+
+  final T? selectedValue;
+
+  final OverlayPositionConfig positioning;
+
+  final ValueChanged<T?>? onChanged;
+
+  final VoidCallback? onOpen;
+
+  final VoidCallback? onClose;
+
+  final bool enabled;
+
+  final MouseCursor mouseCursor;
+
+  final String? semanticLabel;
+
+  final bool closeOnSelect;
+
+  final FocusNode? focusNode;
+
+  @override
+  Widget build(BuildContext _) {
+    return RemixSelect<T>(
+      key: key,
+      style: uiSelectStyle(
+        variant: variant,
+        size: size,
+        highContrast: highContrast,
+        style: style,
+      ),
+      trigger: trigger,
+      items: items,
+      selectedValue: selectedValue,
+      positioning: positioning,
+      onChanged: onChanged,
+      onOpen: onOpen,
+      onClose: onClose,
+      enabled: enabled,
+      mouseCursor: mouseCursor,
+      semanticLabel: semanticLabel,
+      closeOnSelect: closeOnSelect,
+      focusNode: focusNode,
+    );
+  }
+}
