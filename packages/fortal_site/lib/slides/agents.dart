@@ -333,7 +333,7 @@ class _DeskState extends State<_Desk> {
     String name,
     String text,
     UiAnswerStatus status, {
-    required VoidCallback onRetry,
+    required VoidCallback? onRetry,
     bool showActions = true,
   }) => UiAnswer(
     key: ValueKey(name),
@@ -468,7 +468,9 @@ class _DeskState extends State<_Desk> {
           'turn ${turn.id}',
           turn.reply,
           turn.status,
-          onRetry: () => _retryTurn(turn),
+          // Replies share one timer lane, so an older reply cannot be
+          // retried while another streams; retrying would orphan it.
+          onRetry: _streaming ? null : () => _retryTurn(turn),
         ),
     ],
   ];

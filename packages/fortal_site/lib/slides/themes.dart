@@ -177,24 +177,48 @@ class ThemesSlide extends StatelessWidget {
 const _cardsTop = headingTop + 114 + Gap.x12;
 
 /// One theme in the list: its colour, its name and its scale.
-class _Choice extends StatelessWidget {
+class _Choice extends StatefulWidget {
   const _Choice({required this.accent, required this.on});
 
   final UiAccentColor accent;
   final bool on;
 
   @override
+  State<_Choice> createState() => _ChoiceState();
+}
+
+class _ChoiceState extends State<_Choice> {
+  var _focused = false;
+
+  void _pick() => siteAccent.value = widget.accent;
+
+  @override
   Widget build(BuildContext context) {
+    final accent = widget.accent;
+    final on = widget.on;
     final tokens = themeTokens(accent);
     Color at(ColorToken token) => tokens[token]! as Color;
     return Semantics(
       button: true,
       selected: on,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
+      inMutuallyExclusiveGroup: true,
+      label: '${accentNames[accent]} theme',
+      // Tab reaches each theme; Space and Enter choose it, as on the
+      // opening slide's theme dots.
+      child: FocusableActionDetector(
+        mouseCursor: SystemMouseCursors.click,
+        onShowFocusHighlight: (value) => setState(() => _focused = value),
+        actions: {
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) => _pick(),
+          ),
+          ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(
+            onInvoke: (_) => _pick(),
+          ),
+        },
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () => siteAccent.value = accent,
+          onTap: _pick,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 160),
             height: 40,
@@ -202,6 +226,12 @@ class _Choice extends StatelessWidget {
             decoration: BoxDecoration(
               color: on ? at(UiTokens.accent3) : const Color(0x00FFFFFF),
               borderRadius: tokenRadius(context, UiTokens.radius4),
+              border: Border.all(
+                color: _focused
+                    ? at(UiTokens.accent8)
+                    : const Color(0x00FFFFFF),
+                width: 2,
+              ),
             ),
             child: Row(
               spacing: Gap.x3,

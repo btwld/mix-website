@@ -215,7 +215,20 @@ class _SiteState extends State<Site> {
     return KeyEventResult.ignored;
   }
 
-  Widget _wide() => Focus(
+  // A trip through the narrow layout rebuilds the slides' PageView, which
+  // would start again at the controller's first page; put it back on the
+  // current slide.
+  void _keepPage() {
+    if (!_pages.hasClients || _turning) return;
+    if (_pages.page?.round() != _at) _pages.jumpToPage(_at);
+  }
+
+  Widget _wide() {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _keepPage());
+    return _wideSlides();
+  }
+
+  Widget _wideSlides() => Focus(
     canRequestFocus: false,
     skipTraversal: true,
     onKeyEvent: _key,
