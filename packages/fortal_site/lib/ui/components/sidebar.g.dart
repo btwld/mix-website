@@ -1,0 +1,106 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'sidebar.dart';
+
+// **************************************************************************
+// MixWidgetGenerator
+// **************************************************************************
+
+/// Ui-themed preset for [RemixSidebar].
+///
+/// The recipe paints the solid panel surface with a trailing edge border,
+/// pads the scrolling destination region, keeps section labels compact and
+/// muted, separates sections with the `space2` token, and reuses the
+/// ghost `size2` toggle treatment inside full-width destinations with a
+/// 40-logical-pixel minimum height. The footer carries the divider that
+/// separates account content from navigation. [highContrast] strengthens
+/// section content without changing layout.
+/// [panelPadding] applies host-owned insets inside the painted panel surface.
+///
+/// The recipe sets no panel width and no header padding. The host can supply
+/// expanded/collapsed widths to the widget for coordinated animation, or size
+/// the panel itself. Header metrics usually match the app bar beside it: a
+/// `UiTokens.space9` height lines the header up with `app_bar`.
+class UiSidebar<T extends Object> extends StatelessWidget {
+  const UiSidebar({
+    super.key,
+    this.highContrast = false,
+    this.collapsed = false,
+    this.panelPadding,
+    this.style = const SidebarStyler.create(),
+    this.header,
+    this.showTooltips = true,
+    this.tooltipPositioning,
+    this.expandedWidth,
+    this.collapsedWidth,
+    this.animationStyle = const AnimationStyle(),
+    required this.sections,
+    required this.selectedValue,
+    this.onSelected,
+    this.footer,
+    this.enabled = true,
+    this.semanticLabel,
+    this.excludeSemantics = false,
+  });
+
+  final bool highContrast;
+
+  final bool collapsed;
+
+  final EdgeInsetsGeometry? panelPadding;
+
+  final SidebarStyler style;
+
+  final Widget? header;
+
+  final bool showTooltips;
+
+  final OverlayPositionConfig? tooltipPositioning;
+
+  final double? expandedWidth;
+
+  final double? collapsedWidth;
+
+  final AnimationStyle animationStyle;
+
+  final List<RemixSidebarSection<T>> sections;
+
+  final T? selectedValue;
+
+  final ValueChanged<T>? onSelected;
+
+  final Widget? footer;
+
+  final bool enabled;
+
+  final String? semanticLabel;
+
+  final bool excludeSemantics;
+
+  @override
+  Widget build(BuildContext _) {
+    return RemixSidebar<T>(
+      key: key,
+      style: uiSidebarStyle(
+        highContrast: highContrast,
+        collapsed: collapsed,
+        panelPadding: panelPadding,
+        style: style,
+      ),
+      header: header,
+      collapsed: collapsed,
+      showTooltips: showTooltips,
+      tooltipPositioning: tooltipPositioning,
+      expandedWidth: expandedWidth,
+      collapsedWidth: collapsedWidth,
+      animationStyle: animationStyle,
+      sections: sections,
+      selectedValue: selectedValue,
+      onSelected: onSelected,
+      footer: footer,
+      enabled: enabled,
+      semanticLabel: semanticLabel,
+      excludeSemantics: excludeSemantics,
+    );
+  }
+}

@@ -19,7 +19,7 @@ APP = Path(__file__).resolve().parent.parent
 W, H = (int(v) for v in os.environ.get('SHOT_SIZE', '1440x900').split('x'))
 SCALE = float(os.environ.get('SHOT_SCALE', '1'))
 GPU = os.environ.get('SHOT_GPU') == '1'
-SLIDES = 8
+SLIDES = 9
 CACHED = Path.home() / 'Library/Caches/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell'
 
 

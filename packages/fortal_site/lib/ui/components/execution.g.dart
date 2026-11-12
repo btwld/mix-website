@@ -9,6 +9,7 @@ part of 'execution.dart';
 mixin _$UiExecutionSpec implements Spec<UiExecutionSpec>, Diagnosticable {
   StyleSpec<FlexBoxSpec> get header;
   StyleSpec<BoxSpec> get output;
+  StyleSpec<BoxSpec> get viewport;
   StyleSpec<FlexBoxSpec> get actions;
   StyleSpec<TextSpec> get tool;
   StyleSpec<TextSpec> get title;
@@ -29,6 +30,7 @@ mixin _$UiExecutionSpec implements Spec<UiExecutionSpec>, Diagnosticable {
   UiExecutionSpec copyWith({
     StyleSpec<FlexBoxSpec>? header,
     StyleSpec<BoxSpec>? output,
+    StyleSpec<BoxSpec>? viewport,
     StyleSpec<FlexBoxSpec>? actions,
     StyleSpec<TextSpec>? tool,
     StyleSpec<TextSpec>? title,
@@ -45,6 +47,7 @@ mixin _$UiExecutionSpec implements Spec<UiExecutionSpec>, Diagnosticable {
     return UiExecutionSpec(
       header: header ?? this.header,
       output: output ?? this.output,
+      viewport: viewport ?? this.viewport,
       actions: actions ?? this.actions,
       tool: tool ?? this.tool,
       title: title ?? this.title,
@@ -65,6 +68,7 @@ mixin _$UiExecutionSpec implements Spec<UiExecutionSpec>, Diagnosticable {
     return UiExecutionSpec(
       header: header.lerp(other?.header, t),
       output: output.lerp(other?.output, t),
+      viewport: viewport.lerp(other?.viewport, t),
       actions: actions.lerp(other?.actions, t),
       tool: tool.lerp(other?.tool, t),
       title: title.lerp(other?.title, t),
@@ -84,6 +88,7 @@ mixin _$UiExecutionSpec implements Spec<UiExecutionSpec>, Diagnosticable {
   List<Object?> get props => [
     header,
     output,
+    viewport,
     actions,
     tool,
     title,
@@ -139,6 +144,7 @@ mixin _$UiExecutionSpec implements Spec<UiExecutionSpec>, Diagnosticable {
     properties
       ..add(DiagnosticsProperty('header', header))
       ..add(DiagnosticsProperty('output', output))
+      ..add(DiagnosticsProperty('viewport', viewport))
       ..add(DiagnosticsProperty('actions', actions))
       ..add(DiagnosticsProperty('tool', tool))
       ..add(DiagnosticsProperty('title', title))
@@ -167,6 +173,7 @@ class UiExecutionStyler extends MixStyler<UiExecutionStyler, UiExecutionSpec>
     implements StylerFieldMetadata {
   final Prop<StyleSpec<FlexBoxSpec>>? $header;
   final Prop<StyleSpec<BoxSpec>>? $output;
+  final Prop<StyleSpec<BoxSpec>>? $viewport;
   final Prop<StyleSpec<FlexBoxSpec>>? $actions;
   final Prop<StyleSpec<TextSpec>>? $tool;
   final Prop<StyleSpec<TextSpec>>? $title;
@@ -183,6 +190,7 @@ class UiExecutionStyler extends MixStyler<UiExecutionStyler, UiExecutionSpec>
   const UiExecutionStyler.create({
     Prop<StyleSpec<FlexBoxSpec>>? header,
     Prop<StyleSpec<BoxSpec>>? output,
+    Prop<StyleSpec<BoxSpec>>? viewport,
     Prop<StyleSpec<FlexBoxSpec>>? actions,
     Prop<StyleSpec<TextSpec>>? tool,
     Prop<StyleSpec<TextSpec>>? title,
@@ -200,6 +208,7 @@ class UiExecutionStyler extends MixStyler<UiExecutionStyler, UiExecutionSpec>
     super.animation,
   }) : $header = header,
        $output = output,
+       $viewport = viewport,
        $actions = actions,
        $tool = tool,
        $title = title,
@@ -216,6 +225,7 @@ class UiExecutionStyler extends MixStyler<UiExecutionStyler, UiExecutionSpec>
   UiExecutionStyler({
     FlexBoxStyler? header,
     BoxStyler? output,
+    BoxStyler? viewport,
     FlexBoxStyler? actions,
     TextStyler? tool,
     TextStyler? title,
@@ -234,6 +244,7 @@ class UiExecutionStyler extends MixStyler<UiExecutionStyler, UiExecutionSpec>
   }) : this.create(
          header: Prop.maybeMix(header),
          output: Prop.maybeMix(output),
+         viewport: Prop.maybeMix(viewport),
          actions: Prop.maybeMix(actions),
          tool: Prop.maybeMix(tool),
          title: Prop.maybeMix(title),
@@ -255,6 +266,8 @@ class UiExecutionStyler extends MixStyler<UiExecutionStyler, UiExecutionSpec>
       UiExecutionStyler().header(value);
   factory UiExecutionStyler.output(BoxStyler value) =>
       UiExecutionStyler().output(value);
+  factory UiExecutionStyler.viewport(BoxStyler value) =>
+      UiExecutionStyler().viewport(value);
   factory UiExecutionStyler.actions(FlexBoxStyler value) =>
       UiExecutionStyler().actions(value);
   factory UiExecutionStyler.tool(TextStyler value) =>
@@ -284,6 +297,7 @@ class UiExecutionStyler extends MixStyler<UiExecutionStyler, UiExecutionSpec>
   Set<String> get $stylerFieldNames => const {
     'header',
     'output',
+    'viewport',
     'actions',
     'tool',
     'title',
@@ -309,6 +323,11 @@ class UiExecutionStyler extends MixStyler<UiExecutionStyler, UiExecutionSpec>
   /// Sets the output.
   UiExecutionStyler output(BoxStyler value) {
     return merge(UiExecutionStyler(output: value));
+  }
+
+  /// Sets the viewport.
+  UiExecutionStyler viewport(BoxStyler value) {
+    return merge(UiExecutionStyler(viewport: value));
   }
 
   /// Sets the actions.
@@ -461,6 +480,7 @@ class UiExecutionStyler extends MixStyler<UiExecutionStyler, UiExecutionSpec>
     return UiExecutionStyler.create(
       header: MixOps.merge($header, other?.$header),
       output: MixOps.merge($output, other?.$output),
+      viewport: MixOps.merge($viewport, other?.$viewport),
       actions: MixOps.merge($actions, other?.$actions),
       tool: MixOps.merge($tool, other?.$tool),
       title: MixOps.merge($title, other?.$title),
@@ -485,6 +505,7 @@ class UiExecutionStyler extends MixStyler<UiExecutionStyler, UiExecutionSpec>
     final spec = UiExecutionSpec(
       header: MixOps.resolve(context, $header),
       output: MixOps.resolve(context, $output),
+      viewport: MixOps.resolve(context, $viewport),
       actions: MixOps.resolve(context, $actions),
       tool: MixOps.resolve(context, $tool),
       title: MixOps.resolve(context, $title),
@@ -512,6 +533,7 @@ class UiExecutionStyler extends MixStyler<UiExecutionStyler, UiExecutionSpec>
     properties
       ..add(DiagnosticsProperty('header', $header))
       ..add(DiagnosticsProperty('output', $output))
+      ..add(DiagnosticsProperty('viewport', $viewport))
       ..add(DiagnosticsProperty('actions', $actions))
       ..add(DiagnosticsProperty('tool', $tool))
       ..add(DiagnosticsProperty('title', $title))
@@ -530,6 +552,7 @@ class UiExecutionStyler extends MixStyler<UiExecutionStyler, UiExecutionSpec>
   List<Object?> get props => [
     $header,
     $output,
+    $viewport,
     $actions,
     $tool,
     $title,

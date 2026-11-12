@@ -10,6 +10,7 @@ import 'backdrops.dart';
 import 'kit.dart';
 import 'slides/agents.dart';
 import 'slides/charts.dart';
+import 'slides/dashboard.dart';
 import 'slides/foundations.dart';
 import 'slides/gallery.dart';
 import 'slides/hero.dart';
@@ -25,6 +26,7 @@ const _slides = [
   (section: 'Components', dark: true),
   (section: 'Charts', dark: true),
   (section: 'Agents', dark: true),
+  (section: 'Dashboard', dark: true),
   (section: 'Themes', dark: false),
   (section: 'Foundations', dark: true),
   (section: 'Use it', dark: true),
@@ -33,16 +35,17 @@ const _slides = [
 // Foundations and Use it, the last two slides, share the Beira-Mar photo. The
 // slide before them draws its own backdrop, so no other slide shares the
 // screen with them in a turn.
-const _firstCitySlide = 6;
+const _firstCitySlide = 7;
 
 // The links at the top, and the slide each opens.
 const _links = [
   (section: 'Components', slide: 1),
   (section: 'Charts', slide: 3),
   (section: 'Agents', slide: 4),
-  (section: 'Themes', slide: 5),
-  (section: 'Foundations', slide: 6),
-  (section: 'Use it', slide: 7),
+  (section: 'Dashboard', slide: 5),
+  (section: 'Themes', slide: 6),
+  (section: 'Foundations', slide: 7),
+  (section: 'Use it', slide: 8),
 ];
 
 const _turn = Duration(milliseconds: 620);
@@ -155,6 +158,10 @@ class _SiteState extends State<Site> {
                   child: const AgentsSlide(active: false, compact: true),
                 ),
                 KeyedSubtree(
+                  key: _sections['Dashboard'],
+                  child: const DashboardSlide(active: false, compact: true),
+                ),
+                KeyedSubtree(
                   key: _sections['Themes'],
                   child: ThemesSlide(
                     horizonProgram: widget.horizonProgram,
@@ -192,8 +199,11 @@ class _SiteState extends State<Site> {
   };
 
   KeyEventResult _key(FocusNode node, KeyEvent event) {
+    // Keys stay with a text field, and with the live dashboard, whose menus
+    // and lists use the arrow keys.
     final focused = FocusManager.instance.primaryFocus?.context;
-    if (focused?.findAncestorWidgetOfExactType<EditableText>() != null) {
+    if (focused?.findAncestorWidgetOfExactType<EditableText>() != null ||
+        focused?.findAncestorWidgetOfExactType<EmbeddedApp>() != null) {
       return KeyEventResult.ignored;
     }
     for (final MapEntry(key: keys, value: go) in _keys.entries) {
@@ -231,8 +241,7 @@ class _SiteState extends State<Site> {
           child: Stack(
             children: [
               SharedSandBackdrop(
-                active:
-                    _turning || _at == 1 || _at == 2 || _at == 3 || _at == 4,
+                active: _turning || (_at >= 1 && _at <= 5),
                 child: SharedCityBackdrop(
                   shown: _cityShown,
                   active: _at >= _firstCitySlide,
@@ -247,15 +256,17 @@ class _SiteState extends State<Site> {
                         onGo: _go,
                       ),
                       ControlsSlide(onNext: () => _go(2), active: _at == 1),
-                      DetailsSlide(onNext: () => _go(3), active: _at == 2),
+                      // "See the themes" opens the Themes slide.
+                      DetailsSlide(onNext: () => _go(6), active: _at == 2),
                       ChartsSlide(active: _at == 3),
                       AgentsSlide(active: _at == 4),
+                      DashboardSlide(active: _at == 5),
                       ThemesSlide(
                         horizonProgram: widget.horizonProgram,
-                        active: _at == 5,
+                        active: _at == 6,
                       ),
-                      FoundationsSlide(active: _at == 6),
-                      UseSlide(active: _at == 7),
+                      FoundationsSlide(active: _at == 7),
+                      UseSlide(active: _at == 8),
                     ],
                   ),
                 ),

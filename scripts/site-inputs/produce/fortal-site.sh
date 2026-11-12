@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Build an exact Fortal site checkout into a verified deployment input,
-# served by the website at /fortal/.
+# served by the website at its Fortal path (lib/projects.mjs).
 set -euo pipefail
 if [ -n "${FLUTTER_BIN:-}" ]; then PATH="$(dirname "$FLUTTER_BIN"):$PATH"; fi
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -14,7 +14,8 @@ pkg="$src/packages/fortal_site"
 # The SDK pin travels with the source and its lockfile.
 flutter_json="$(flutter --version --machine)"
 [ "$(node -p 'JSON.parse(process.argv[1]).frameworkVersion' "$flutter_json")" = "$(node -p "JSON.parse(require('fs').readFileSync('$pkg/.fvmrc', 'utf8')).flutter")" ]
-(cd "$pkg" && flutter pub get --enforce-lockfile && flutter build web --release --wasm --no-web-resources-cdn --no-source-maps --base-href /fortal/)
+base_href="$(node --input-type=module -e "const { PROJECTS } = await import('$src/lib/projects.mjs'); console.log(PROJECTS.remix.fortalPath)")"
+(cd "$pkg" && flutter pub get --enforce-lockfile && flutter build web --release --wasm --no-web-resources-cdn --no-source-maps --base-href "$base_href")
 [ -z "$(git -C "$src" status --porcelain --untracked-files=no)" ] || { echo "Build changed tracked sources; commit them and rebuild." >&2; exit 1; }
 stage="$(mktemp -d)"
 trap 'rm -rf "$stage"' EXIT

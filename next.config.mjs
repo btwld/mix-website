@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { createMDX } from 'fumadocs-mdx/next';
-import { legacyRedirects, dashboardRedirect } from './lib/legacy-routes.mjs';
+import { legacyRedirects, dashboardRedirect, examplesRedirect } from './lib/legacy-routes.mjs';
 import { PROJECTS } from './lib/projects.mjs';
 
 const staticPreview = process.env.SITE_BUILD_TARGET === 'static-preview';
@@ -49,7 +49,7 @@ const config = {
     // Read here, not at module load: Firebase's Next.js adapter loads this
     // config before it runs the build script that writes the file.
     const pendingRedirects = JSON.parse(readFileSync(new URL('./.generated/pending-redirects.json', import.meta.url), 'utf8'));
-    return [...legacyRedirects, dashboardRedirect, ...pendingRedirects.map(({ source, destination }) => ({ source: `${source}/`, destination, permanent: false }))];
+    return [...legacyRedirects, dashboardRedirect, examplesRedirect, ...pendingRedirects.map(({ source, destination }) => ({ source: `${source}/`, destination, permanent: false }))];
   },
 };
 

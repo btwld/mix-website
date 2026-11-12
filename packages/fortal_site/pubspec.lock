@@ -343,10 +343,10 @@ packages:
     dependency: "direct main"
     description:
       name: mix_chart
-      sha256: "2d546782702116f438445ea20090f3bb20a343805536ec183c202b5c9b87ab6a"
+      sha256: "2fea894bbd6bdc2d11bcf5bcf5c92526b19835f79f7cd20c13bf38b02db71bb1"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.1-beta.3"
+    version: "0.0.1"
   mix_generator:
     dependency: "direct dev"
     description:
@@ -359,10 +359,10 @@ packages:
     dependency: transitive
     description:
       name: naked_ui
-      sha256: aa46022a7140dfa609295807cd7b5b8a15c05b8028b9ce6e7004c04cf85aa09a
+      sha256: f09a58f6ffb3f68438ceebfb0049a7dba1ab7c6b8a653f48ca02eb2ec20a8004
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0-beta.2"
+    version: "2.0.0-rc.1"
   package_config:
     dependency: transitive
     description:
@@ -408,10 +408,10 @@ packages:
     description:
       path: "packages/remix"
       ref: main
-      resolved-ref: b616f02b62d8492363eb0032e598b5b0fe6f199a
+      resolved-ref: c9d42dfa178d290b26568890da4025648d280e6f
       url: "https://github.com/btwld/remix.git"
     source: git
-    version: "1.0.0-rc.1"
+    version: "1.0.0-rc.2"
   remix_cli:
     dependency: "direct dev"
     description:

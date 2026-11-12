@@ -16,6 +16,7 @@ import 'package:fortal_landing/kit.dart';
 import 'package:fortal_landing/shore.dart';
 import 'package:fortal_landing/slides/agents.dart';
 import 'package:fortal_landing/slides/charts.dart';
+import 'package:fortal_landing/slides/dashboard.dart';
 import 'package:fortal_landing/slides/foundations.dart';
 import 'package:fortal_landing/slides/gallery.dart';
 import 'package:fortal_landing/slides/hero.dart';
@@ -59,6 +60,7 @@ void main() {
 
   Map<String, Widget> slides({required bool compact}) => {
     'Fortal': HeroSlide(program: program, active: false, compact: compact),
+    'Dashboard': DashboardSlide(compact: compact),
     'Components': ControlsSlide(onNext: () {}, compact: compact),
     'Components, continued': DetailsSlide(onNext: () {}, compact: compact),
     'Charts': ChartsSlide(compact: compact),
@@ -93,7 +95,13 @@ void main() {
         expect(tester.takeException(), isNull, reason: name);
         if (name == 'Fortal') continue; // its cards run off the bottom
         final margin = scaling == UiScaling.percent110 ? Gap.x3 : Gap.x12;
-        for (final card in find.byType(UiCard).evaluate()) {
+        // The dashboard's own cards scroll inside its window, so the window
+        // is what must end above the foot.
+        final ends = name == 'Dashboard'
+            ? find.byType(EmbeddedApp)
+            : find.byType(UiCard);
+        if (name == 'Dashboard') expect(ends, findsOneWidget);
+        for (final card in ends.evaluate()) {
           final box = card.renderObject! as RenderBox;
           final bottom = box.localToGlobal(Offset(0, box.size.height)).dy;
           expect(

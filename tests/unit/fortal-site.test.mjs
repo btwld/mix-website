@@ -88,32 +88,32 @@ test('a local path dependency cannot enter the Fortal fingerprint', async () => 
   } finally { await rm(root, { recursive: true }); }
 });
 
-test('the Fortal site is staged at /fortal/ only when built for that base href', async () => {
+test('the Fortal site is staged at its path only when built for that base href', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'fortal-site-'));
   const bundle = path.join(root, 'bundle');
   try {
     await writeTree(root, PACKAGE_FILES);
     await writeTree(bundle, {
-      'index.html': '<html><head><base href="/fortal/"></head></html>',
+      'index.html': '<html><head><base href="/remix/examples/fortal/"></head></html>',
       'main.dart.wasm': 'wasm',
       'licenses/Geist-OFL.txt': 'OFL',
       'build-inputs.json': JSON.stringify(await packageBuildInputs(root, FORTAL_SITE)),
     });
     await stageFortalSite(root, bundle);
-    assert.equal(await readFile(path.join(root, 'public/fortal/main.dart.wasm'), 'utf8'), 'wasm');
-    assert.ok(existsSync(path.join(root, 'public/fortal/licenses/Geist-OFL.txt')));
+    assert.equal(await readFile(path.join(root, 'public/remix/examples/fortal/main.dart.wasm'), 'utf8'), 'wasm');
+    assert.ok(existsSync(path.join(root, 'public/remix/examples/fortal/licenses/Geist-OFL.txt')));
 
     await writeTree(bundle, { 'index.html': '<html><head><base href="/"></head></html>' });
-    await assert.rejects(stageFortalSite(root, bundle), /does not use base href \/fortal\//);
-    await writeTree(bundle, { 'index.html': '<html><head><base href="/fortal/"></head></html>' });
+    await assert.rejects(stageFortalSite(root, bundle), /does not use base href \/remix\/examples\/fortal\//);
+    await writeTree(bundle, { 'index.html': '<html><head><base href="/remix/examples/fortal/"></head></html>' });
     await writeTree(root, { 'packages/fortal_site/lib/main.dart': 'edited after the build' });
     await assert.rejects(stageFortalSite(root, bundle), /Stale Flutter build inputs/);
   } finally { await rm(root, { recursive: true }); }
 });
 
 test('Fortal assets revalidate on both Hosting deployment paths', () => {
-  const cli = hostingConfig('out').headers.find(row => row.source === '/fortal/**');
+  const cli = hostingConfig('out').headers.find(row => row.source === '/remix/examples/fortal/**');
   assert.deepEqual(cli.headers, [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }]);
-  const rest = hostingVersionConfig().headers.find(row => row.glob === '/fortal/**');
+  const rest = hostingVersionConfig().headers.find(row => row.glob === '/remix/examples/fortal/**');
   assert.equal(rest.headers['Cache-Control'], 'public, max-age=0, must-revalidate');
 });

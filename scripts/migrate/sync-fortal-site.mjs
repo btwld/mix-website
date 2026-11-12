@@ -23,7 +23,7 @@ const EXCLUDED = /^(?:\.context|\.dart_tool|\.fvm|build|captures?|screenshots?|s
 
 const readme = licences => `# Fortal site
 
-The Fortal showcase served at \`/fortal/\`: a browsable, slide-by-slide site for
+The Fortal showcase served at \`/remix/examples/fortal/\`: a browsable, slide-by-slide site for
 Fortal, the design system built with Remix, made from real Fortal components.
 
 This package is copied from its source repository; \`SOURCES.json\` records the

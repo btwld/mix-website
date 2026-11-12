@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 
-const FORTAL = '/fortal/';
+const FORTAL = '/remix/examples/fortal/';
 // Every font the app declares, icons included. A dropped font request leaves
 // icons as empty boxes, so each one must be fetched and answered.
-const fonts: string[] = JSON.parse(readFileSync('public/fortal/assets/FontManifest.json', 'utf8'))
+const fonts: string[] = JSON.parse(readFileSync(`public${FORTAL}assets/FontManifest.json`, 'utf8'))
   .flatMap((family: { fonts: { asset: string }[] }) => family.fonts.map(font => `${FORTAL}assets/${font.asset}`));
 
 /**

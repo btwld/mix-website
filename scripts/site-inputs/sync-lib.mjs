@@ -363,9 +363,6 @@ export async function syncSiteInputs({ root, offline = false, fetchImpl, log = c
     await cp(bundle, path.join(root, 'public/v2-flutter'), { recursive: true });
   }
 
-  if (lock.inputs['fortal-site']) await stageFortalSite(root, path.join(p.extracted, 'fortal-site/bundle'));
-  else await rm(path.join(root, 'public', PROJECTS.remix.fortalPath), { recursive: true, force: true });
-
   // Docs snapshots: only the scoped pages and their navigation.
   const projects = [];
   for (const projectId of IN_REPO_PROJECTS) {
@@ -387,6 +384,11 @@ export async function syncSiteInputs({ root, offline = false, fetchImpl, log = c
     throw new Error(`remix-docs: catalog/index.html does not use base href ${PROJECTS.remix.catalogPath}`);
   }
   await cp(path.join(remixDir, 'catalog'), path.join(p.publicRemix, 'catalog'), { recursive: true });
+
+  // The Fortal site lives under /remix/, so it is staged after public/remix is
+  // rebuilt above.
+  if (lock.inputs['fortal-site']) await stageFortalSite(root, path.join(p.extracted, 'fortal-site/bundle'));
+  else await rm(path.join(root, 'public', PROJECTS.remix.fortalPath), { recursive: true, force: true });
 
   const { redirects, assets } = await collectPendingRedirects(projects);
   // Retain the published Remix favicon URL alongside the wordmarks and

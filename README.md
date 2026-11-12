@@ -62,7 +62,7 @@ Local evidence belongs in `.context/`, never in commits.
 The `/v2/` page runs its live examples from a separate Flutter app. See
 [`packages/mix_showcase`](packages/mix_showcase/README.md) for its local build.
 
-`/fortal/` serves the Fortal design system's own site, a Flutter web app in
+`/remix/examples/fortal/` serves the Fortal design system's own site, a Flutter web app in
 [`packages/fortal_site`](packages/fortal_site/README.md). The package is a copy
 of the committed source recorded in its `SOURCES.json`; refresh it with
 `node scripts/migrate/sync-fortal-site.mjs <source checkout> [<commit>]`, commit,
@@ -89,7 +89,7 @@ has a full source commit, archive size/SHA-256, and toolchain in
 | `mix-previews` | This repository | Flutter bundle, manifest, matching Dart snippets |
 | `remix-docs` | `btwld/remix` | Validated/prepared docs, expanded tutorial includes, real catalog source panels and Flutter catalog |
 | `naked-ui-docs` | `btwld/remix` | Prepared docs; every Dart fence compiled or explicitly source-checked as an API reference |
-| `fortal-site` | This repository | Fortal site Flutter bundle built for `/fortal/`, its font and shader licences |
+| `fortal-site` | This repository | Fortal site Flutter bundle built for `/remix/examples/fortal/`, its font and shader licences |
 
 Run **Publish site input** with an input and full source SHA. It builds with the
 pinned SDK, refuses to replace an existing release and verifies the published
