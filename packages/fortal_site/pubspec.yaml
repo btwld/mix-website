@@ -28,6 +28,8 @@ flutter:
   assets:
     - assets/photos/fortaleza-beira-mar.jpg
     - assets/photos/fortaleza-beira-mar-sea.png
+    # The narrow layout's backdrops, rendered by tool/render_stills_test.dart.
+    - assets/stills/
   shaders:
     - shaders/shore.frag
     - shaders/horizon.frag

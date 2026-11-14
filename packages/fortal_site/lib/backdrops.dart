@@ -51,7 +51,9 @@ const _duneTint = Color(0xFF468C80);
 const _sand = Color(0xFFE9DAC0);
 const _stillAt = 2.2;
 
-/// Preloaded fragment shader programs shared with slide backdrops.
+/// The fragment shader programs the wide layout's dunes and horizon draw with,
+/// once [BackdropPrograms] has loaded them. The narrow layout shows pictures
+/// of those backdrops instead (see [BackdropStill]) and never loads them.
 class BackdropShaders extends InheritedWidget {
   const BackdropShaders({
     super.key,
@@ -60,8 +62,8 @@ class BackdropShaders extends InheritedWidget {
     required super.child,
   });
 
-  final ui.FragmentProgram horizon;
-  final ui.FragmentProgram dunes;
+  final ui.FragmentProgram? horizon;
+  final ui.FragmentProgram? dunes;
 
   static BackdropShaders? maybeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<BackdropShaders>();
@@ -71,18 +73,132 @@ class BackdropShaders extends InheritedWidget {
       old.horizon != horizon || old.dunes != dunes;
 }
 
+/// Loads the dunes and horizon shaders, once, for the wide layout.
+abstract final class BackdropPrograms {
+  /// The loaded programs, or null until [load] completes.
+  static final loaded =
+      ValueNotifier<({ui.FragmentProgram horizon, ui.FragmentProgram dunes})?>(
+        null,
+      );
+
+  static Future<void>? _loading;
+
+  static Future<void> load() => _loading ??= () async {
+    final (horizon, dunes) = await (
+      ui.FragmentProgram.fromAsset('shaders/horizon.frag'),
+      ui.FragmentProgram.fromAsset('shaders/dunes.frag'),
+    ).wait;
+    loaded.value = (horizon: horizon, dunes: dunes);
+  }();
+}
+
+/// A pre-rendered backdrop, from `tool/render_stills_test.dart`: what the
+/// narrow layout shows in place of a shader, so a phone draws no shader but
+/// the shore's. A new picture, after a change of theme, fades over the last.
+class BackdropStill extends StatelessWidget {
+  const BackdropStill(
+    this.asset, {
+    super.key,
+    this.alignment = Alignment.center,
+  });
+
+  /// The dune lagoons behind the narrow page, in [accent]'s water.
+  BackdropStill.dunes(UiAccentColor accent, {Key? key})
+    : this('assets/stills/dunes-${accent.name}.webp', key: key);
+
+  /// The Themes section's horizon, in [accent]'s colours.
+  BackdropStill.horizon(UiAccentColor accent, {Key? key})
+    : this('assets/stills/horizon-${accent.name}.webp', key: key);
+
+  /// The Beira-Mar photo with its sea, cropped as the shader crops it.
+  const BackdropStill.city({Key? key})
+    : this(
+        'assets/stills/city.webp',
+        key: key,
+        alignment: const Alignment(2 * _cityAlignX - 1, 2 * _cityAlignY - 1),
+      );
+
+  final String asset;
+  final Alignment alignment;
+
+  @override
+  Widget build(BuildContext context) {
+    final fade = MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 500);
+    return AnimatedSwitcher(
+      duration: fade,
+      layoutBuilder: (current, previous) =>
+          Stack(fit: StackFit.expand, children: [...previous, ?current]),
+      child: Image.asset(
+        asset,
+        key: ValueKey(asset),
+        fit: BoxFit.cover,
+        alignment: alignment,
+        filterQuality: FilterQuality.medium,
+        gaplessPlayback: true,
+        // Nothing until it has loaded, then it fades in.
+        frameBuilder: (context, child, frame, synchronous) => AnimatedOpacity(
+          opacity: synchronous || frame != null ? 1 : 0,
+          duration: fade,
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
 /// Keeps one lagoon canvas fixed while its foreground sections move.
 class SharedSandBackdrop extends StatelessWidget {
-  const SharedSandBackdrop({super.key, required this.child});
+  const SharedSandBackdrop({
+    super.key,
+    this.still = false,
+    required this.child,
+  });
+
+  /// Shows the pre-rendered lagoons ([BackdropStill.dunes]) instead of
+  /// drawing them with their shader: the narrow layout's choice.
+  final bool still;
 
   final Widget child;
 
   @override
   Widget build(BuildContext context) => Stack(
     children: [
-      Positioned.fill(child: SandBackdrop(scene: 2)),
+      Positioned.fill(
+        child: still
+            ? ValueListenableBuilder(
+                valueListenable: siteAccent,
+                builder: (context, accent, _) => Stack(
+                  fit: StackFit.expand,
+                  children: [BackdropStill.dunes(accent), const _DuneWash()],
+                ),
+              )
+            : SandBackdrop(scene: 2),
+      ),
       _SharedSandScope(child: child),
     ],
+  );
+}
+
+/// The dark green wash over the dunes, strongest behind the headings' white
+/// text, then clear by the foot so the dunes show.
+class _DuneWash extends StatelessWidget {
+  const _DuneWash();
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          for (final a in const [0.80, 0.62, 0.10, 0.0])
+            _wash.withValues(alpha: a),
+        ],
+        stops: const [0, 0.25, 0.38, 0.62],
+      ),
+    ),
   );
 }
 
@@ -131,21 +247,7 @@ class SandBackdrop extends StatelessWidget {
             deepWater: colors.$2,
           ),
         ),
-        // The dark green wash of the photo slides, strongest behind the
-        // headings' white text, then clear by the foot so the dunes show.
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                for (final a in const [0.80, 0.62, 0.10, 0.0])
-                  _wash.withValues(alpha: a),
-              ],
-              stops: const [0, 0.25, 0.38, 0.62],
-            ),
-          ),
-        ),
+        const _DuneWash(),
       ],
     );
   }
@@ -287,25 +389,23 @@ class _DunesShaderPainter extends CustomPainter {
   final Color water;
   final Color deepWater;
 
-  static void _setRgb(ui.FragmentShader shader, String name, Color color) {
-    shader.getUniformFloat(name, 0).set(color.r);
-    shader.getUniformFloat(name, 1).set(color.g);
-    shader.getUniformFloat(name, 2).set(color.b);
-  }
-
   @override
   void paint(Canvas canvas, Size size) {
     final t = time.value;
-    still.paint(canvas, size, (t, scene, water, deepWater), (canvas) {
-      shader.getUniformFloat('uSize', 0).set(size.width);
-      shader.getUniformFloat('uSize', 1).set(size.height);
-      shader.getUniformFloat('uTime').set(t);
-      shader.getUniformFloat('uScene').set(scene);
-      _setRgb(shader, 'uWater', water);
-      _setRgb(shader, 'uDeepWater', deepWater);
-      _setRgb(shader, 'uTint', _duneTint);
-      canvas.drawRect(Offset.zero & size, Paint()..shader = shader);
-    });
+    still.paint(
+      canvas,
+      size,
+      (t, scene, water, deepWater),
+      (canvas) => drawDunes(
+        canvas,
+        size,
+        shader,
+        time: t,
+        scene: scene,
+        water: water,
+        deepWater: deepWater,
+      ),
+    );
   }
 
   @override
@@ -326,6 +426,7 @@ class HorizonBackdrop extends StatelessWidget {
     required this.sea,
     required this.deep,
     this.program,
+    this.still,
   });
 
   final Color sky;
@@ -334,8 +435,22 @@ class HorizonBackdrop extends StatelessWidget {
   final Color deep;
   final ui.FragmentProgram? program;
 
+  /// Shows the pre-rendered horizon of this accent ([BackdropStill.horizon])
+  /// over a plain gradient of the colours, instead of drawing the shader.
+  final UiAccentColor? still;
+
   @override
   Widget build(BuildContext context) {
+    final still = this.still;
+    if (still != null) {
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          CustomPaint(painter: _HorizonPainter((sky, haze, sea, deep))),
+          BackdropStill.horizon(still),
+        ],
+      );
+    }
     final horizonProgram = program ?? BackdropShaders.maybeOf(context)?.horizon;
     return TweenAnimationBuilder(
       // A change of theme washes across the view.
@@ -480,26 +595,25 @@ class _HorizonShaderPainter extends CustomPainter {
   final _Horizon colors;
   final double mode;
 
-  static void _setRgb(ui.FragmentShader shader, String name, Color color) {
-    shader.getUniformFloat(name, 0).set(color.r);
-    shader.getUniformFloat(name, 1).set(color.g);
-    shader.getUniformFloat(name, 2).set(color.b);
-  }
-
   @override
   void paint(Canvas canvas, Size size) {
     final t = time.value;
-    still.paint(canvas, size, (t, mode, colors), (canvas) {
-      shader.getUniformFloat('uSize', 0).set(size.width);
-      shader.getUniformFloat('uSize', 1).set(size.height);
-      shader.getUniformFloat('uTime').set(t);
-      shader.getUniformFloat('uMode').set(mode);
-      _setRgb(shader, 'uSky', colors.$1);
-      _setRgb(shader, 'uHaze', colors.$2);
-      _setRgb(shader, 'uSea', colors.$3);
-      _setRgb(shader, 'uDeep', colors.$4);
-      canvas.drawRect(Offset.zero & size, Paint()..shader = shader);
-    });
+    still.paint(
+      canvas,
+      size,
+      (t, mode, colors),
+      (canvas) => drawHorizon(
+        canvas,
+        size,
+        shader,
+        time: t,
+        mode: mode,
+        sky: colors.$1,
+        haze: colors.$2,
+        sea: colors.$3,
+        deep: colors.$4,
+      ),
+    );
   }
 
   @override
@@ -632,8 +746,8 @@ class CityCredit extends StatelessWidget {
 class CityBackdrop extends StatelessWidget {
   const CityBackdrop({super.key, this.compact = false, this.photo});
 
-  /// The narrow layout's taller, stacked section: a fuller wash, since its
-  /// text sits over more of the photo.
+  /// The narrow layout's taller, stacked section: the pre-rendered photo
+  /// under a fuller wash, since its text sits over more of it.
   final bool compact;
 
   /// Supplied by tests; otherwise [CityPhoto.load] provides it.
@@ -645,8 +759,38 @@ class CityBackdrop extends StatelessWidget {
         null) {
       return const SizedBox.expand();
     }
+    // The narrow layout shows a picture of it, and loads no shader.
+    if (compact) return const _CityStill();
     return _CityField(compact: compact, photo: photo);
   }
+}
+
+/// The narrow layout's Beira-Mar: the pre-rendered photo
+/// ([BackdropStill.city]) under the same washes as [_CityField]'s.
+class _CityStill extends StatelessWidget {
+  const _CityStill();
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    fit: StackFit.expand,
+    children: [
+      const ColoredBox(color: _wash),
+      const BackdropStill.city(),
+      DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              for (final a in const [0.80, 0.62, 0.55])
+                _wash.withValues(alpha: a),
+            ],
+            stops: const [0, 0.2, 1],
+          ),
+        ),
+      ),
+    ],
+  );
 }
 
 class _CityField extends StatefulWidget {
@@ -732,8 +876,7 @@ class _CityFieldState extends State<_CityField> {
                   still: _still,
                   photo: photo,
                   time: _time,
-                  // Keep the bay in view when a tall screen crops the sides.
-                  align: const Offset(0.3, 0.5),
+                  align: _cityAlign,
                 ),
                 size: Size.infinite,
               ),
@@ -802,30 +945,101 @@ class _CityShaderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final t = time.value;
-    still.paint(canvas, size, (t, photo, align), (canvas) {
-      shader.getUniformFloat('uSize', 0).set(size.width);
-      shader.getUniformFloat('uSize', 1).set(size.height);
-      shader.getUniformFloat('uTime').set(t);
-      shader.getUniformFloat('uImage', 0).set(photo.photo.width.toDouble());
-      shader.getUniformFloat('uImage', 1).set(photo.photo.height.toDouble());
-      shader.getUniformFloat('uAlign', 0).set(align.dx);
-      shader.getUniformFloat('uAlign', 1).set(align.dy);
-      shader.getUniformFloat('uTint', 0).set(_cityTint.r);
-      shader.getUniformFloat('uTint', 1).set(_cityTint.g);
-      shader.getUniformFloat('uTint', 2).set(_cityTint.b);
-      // Samplers in the shader's order. Smooth sampling: the default, nearest,
-      // would show the photo's pixels.
-      shader.setImageSampler(
-        0,
-        photo.photo,
-        filterQuality: FilterQuality.medium,
-      );
-      shader.setImageSampler(1, photo.sea, filterQuality: FilterQuality.low);
-      canvas.drawRect(Offset.zero & size, Paint()..shader = shader);
-    });
+    still.paint(
+      canvas,
+      size,
+      (t, photo, align),
+      (canvas) =>
+          drawCity(canvas, size, shader, time: t, photo: photo, align: align),
+    );
   }
 
   @override
   bool shouldRepaint(_CityShaderPainter old) =>
       old.shader != shader || old.photo != photo || old.align != align;
+}
+
+/// Where the Beira-Mar photo is cropped from when the frame is narrower than
+/// it: keeps the bay in view when a tall screen crops the sides.
+const _cityAlignX = 0.3, _cityAlignY = 0.5;
+const _cityAlign = Offset(_cityAlignX, _cityAlignY);
+
+/// The moment the still backdrops show; `?t=` changes it, for captures.
+const stillTime = _stillAt;
+
+void _setRgb(ui.FragmentShader shader, String name, Color color) {
+  shader.getUniformFloat(name, 0).set(color.r);
+  shader.getUniformFloat(name, 1).set(color.g);
+  shader.getUniformFloat(name, 2).set(color.b);
+}
+
+/// Draws the dune scene from `shaders/dunes.frag` over [size]. The live
+/// backdrop and the narrow layout's pictures of it both come from here.
+void drawDunes(
+  Canvas canvas,
+  Size size,
+  ui.FragmentShader shader, {
+  required double time,
+  required double scene,
+  required Color water,
+  required Color deepWater,
+}) {
+  shader.getUniformFloat('uSize', 0).set(size.width);
+  shader.getUniformFloat('uSize', 1).set(size.height);
+  shader.getUniformFloat('uTime').set(time);
+  shader.getUniformFloat('uScene').set(scene);
+  _setRgb(shader, 'uWater', water);
+  _setRgb(shader, 'uDeepWater', deepWater);
+  _setRgb(shader, 'uTint', _duneTint);
+  canvas.drawRect(Offset.zero & size, Paint()..shader = shader);
+}
+
+/// Draws the horizon from `shaders/horizon.frag` over [size].
+void drawHorizon(
+  Canvas canvas,
+  Size size,
+  ui.FragmentShader shader, {
+  required double time,
+  required double mode,
+  required Color sky,
+  required Color haze,
+  required Color sea,
+  required Color deep,
+}) {
+  shader.getUniformFloat('uSize', 0).set(size.width);
+  shader.getUniformFloat('uSize', 1).set(size.height);
+  shader.getUniformFloat('uTime').set(time);
+  shader.getUniformFloat('uMode').set(mode);
+  _setRgb(shader, 'uSky', sky);
+  _setRgb(shader, 'uHaze', haze);
+  _setRgb(shader, 'uSea', sea);
+  _setRgb(shader, 'uDeep', deep);
+  canvas.drawRect(Offset.zero & size, Paint()..shader = shader);
+}
+
+/// Draws the Beira-Mar photo through `shaders/city.frag` over [size]:
+/// cover-cropped at [align], tinted green, its sea moved to [time].
+void drawCity(
+  Canvas canvas,
+  Size size,
+  ui.FragmentShader shader, {
+  required double time,
+  required CityPhoto photo,
+  Offset align = _cityAlign,
+}) {
+  shader.getUniformFloat('uSize', 0).set(size.width);
+  shader.getUniformFloat('uSize', 1).set(size.height);
+  shader.getUniformFloat('uTime').set(time);
+  shader.getUniformFloat('uImage', 0).set(photo.photo.width.toDouble());
+  shader.getUniformFloat('uImage', 1).set(photo.photo.height.toDouble());
+  shader.getUniformFloat('uAlign', 0).set(align.dx);
+  shader.getUniformFloat('uAlign', 1).set(align.dy);
+  shader.getUniformFloat('uTint', 0).set(_cityTint.r);
+  shader.getUniformFloat('uTint', 1).set(_cityTint.g);
+  shader.getUniformFloat('uTint', 2).set(_cityTint.b);
+  // Samplers in the shader's order. Smooth sampling: the default, nearest,
+  // would show the photo's pixels.
+  shader.setImageSampler(0, photo.photo, filterQuality: FilterQuality.medium);
+  shader.setImageSampler(1, photo.sea, filterQuality: FilterQuality.low);
+  canvas.drawRect(Offset.zero & size, Paint()..shader = shader);
 }

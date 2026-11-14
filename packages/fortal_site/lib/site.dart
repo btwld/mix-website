@@ -59,10 +59,12 @@ const _turnCurve = Cubic(0.2, 0, 0, 1);
 const _wheelRest = Duration(milliseconds: 140);
 
 class Site extends StatefulWidget {
-  const Site({super.key, required this.program, required this.horizonProgram});
+  const Site({super.key, required this.program, this.horizonProgram});
 
   final ui.FragmentProgram program;
-  final ui.FragmentProgram horizonProgram;
+
+  /// The Themes slide's horizon shader; by default, [BackdropShaders]'.
+  final ui.FragmentProgram? horizonProgram;
 
   @override
   State<Site> createState() => _SiteState();
@@ -100,9 +102,13 @@ class _SiteState extends State<Site> with SingleTickerProviderStateMixin {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
+  // The wide layout warms its slides once, after its first frame. The narrow
+  // layout shows pictures of the backdrops, so it has nothing to warm.
+  var _warmed = false;
+
+  void _warmWide() {
+    if (_warmed) return;
+    _warmed = true;
     WidgetsBinding.instance.addPostFrameCallback((_) => _warmUp());
   }
 
@@ -217,6 +223,8 @@ class _SiteState extends State<Site> with SingleTickerProviderStateMixin {
     child: Stack(
       children: [
         SharedSandBackdrop(
+          // Pictures of the lagoons: a phone draws no shader but the shore's.
+          still: true,
           child: SingleChildScrollView(
             controller: _narrowScroll,
             child: Column(
@@ -230,6 +238,7 @@ class _SiteState extends State<Site> with SingleTickerProviderStateMixin {
                     key: _narrowHero,
                     program: widget.program,
                     compact: true,
+                    scroll: _narrowScroll,
                   ),
                 ),
                 KeyedSubtree(
@@ -251,10 +260,7 @@ class _SiteState extends State<Site> with SingleTickerProviderStateMixin {
                 ),
                 KeyedSubtree(
                   key: _sections['Themes'],
-                  child: ThemesSlide(
-                    horizonProgram: widget.horizonProgram,
-                    compact: true,
-                  ),
+                  child: ThemesSlide(compact: true),
                 ),
                 KeyedSubtree(
                   key: _sections['Foundations'],
@@ -333,7 +339,15 @@ class _SiteState extends State<Site> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget _wide() => Focus(
+  Widget _wide() {
+    // The dunes and horizon shaders, if the page opened narrow; until they
+    // load, the backdrops draw plain sand and sky.
+    BackdropPrograms.load();
+    _warmWide();
+    return _wideDeck();
+  }
+
+  Widget _wideDeck() => Focus(
     canRequestFocus: false,
     skipTraversal: true,
     onKeyEvent: _key,

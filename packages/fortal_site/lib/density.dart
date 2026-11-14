@@ -16,23 +16,35 @@ const shaderDensity = 1.0;
 /// texture pixels per logical pixel when the screen is denser than that,
 /// then draws the result scaled to fill [size].
 ///
+/// With a [region], only that part of [size] is drawn: what a scrolling page
+/// shows of a backdrop taller than the screen.
+///
 /// On a screen no denser than [density], [draw] paints straight to [canvas].
 void paintAtDensity(
   Canvas canvas,
   Size size,
   void Function(Canvas canvas) draw, {
   double density = shaderDensity,
+  Rect? region,
 }) {
+  final area = (region ?? Offset.zero & size).intersect(Offset.zero & size);
+  if (area.width <= 0 || area.height <= 0) return;
   final views = WidgetsBinding.instance.platformDispatcher.views;
   final deviceRatio = views.isEmpty ? 1.0 : views.first.devicePixelRatio;
-  final width = (size.width * density).ceil();
-  final height = (size.height * density).ceil();
-  if (deviceRatio <= density || width <= 0 || height <= 0) {
+  final width = (area.width * density).ceil();
+  final height = (area.height * density).ceil();
+  if (deviceRatio <= density) {
+    canvas
+      ..save()
+      ..clipRect(area);
     draw(canvas);
+    canvas.restore();
     return;
   }
   final recorder = ui.PictureRecorder();
-  final offscreen = Canvas(recorder)..scale(density);
+  final offscreen = Canvas(recorder)
+    ..scale(density)
+    ..translate(-area.left, -area.top);
   draw(offscreen);
   final picture = recorder.endRecording();
   final image = picture.toImageSync(width, height);
@@ -40,7 +52,7 @@ void paintAtDensity(
   canvas.drawImageRect(
     image,
     Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()),
-    Offset.zero & size,
+    Rect.fromLTWH(area.left, area.top, width / density, height / density),
     Paint()..filterQuality = FilterQuality.low,
   );
   image.dispose();

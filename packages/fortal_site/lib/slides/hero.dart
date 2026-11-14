@@ -39,10 +39,15 @@ class HeroSlide extends StatefulWidget {
     required this.program,
     this.compact = false,
     this.onGo,
+    this.scroll,
   });
 
   /// Opens another slide: 1 for the components, 5 for how to use it.
   final ValueChanged<int>? onGo;
+
+  /// The narrow page's scroll, when this slide is at its top: the shore then
+  /// draws only what is on the screen.
+  final ScrollController? scroll;
 
   /// The narrow layout: the tiles stacked two abreast under the name.
   final bool compact;
@@ -159,6 +164,7 @@ class _HeroSlideState extends State<HeroSlide>
         // tuned (10 for a corner of 8).
         radius: 1.25 * MixScope.tokenOf(UiTokens.radius5, context).x,
         over: over,
+        scroll: widget.scroll,
       );
       final slide = Stack(
         children: [
@@ -209,13 +215,15 @@ class _Page extends StatelessWidget {
 
   // A card, given a small shove as a wave reaches it. The collage measures
   // the card before the shove; the shader adds the same shove itself.
+  // Each card is its own layer, so a shove moves the layer and the card is
+  // not drawn again on every frame of the water.
   Widget _tile(int i, Widget child) => ValueListenableBuilder(
     valueListenable: time,
     builder: (context, t, child) => Transform.translate(
       offset: Offset(0, waveNudge(boxes[i], boxes, t)),
       child: child,
     ),
-    child: child,
+    child: RepaintBoundary(child: child),
   );
 
   // A soft shade under the words, so they hold over moving water.

@@ -25,6 +25,10 @@ const _waves = [(offset: 0.0, reach: 400.0), (offset: 0.52, reach: 122.0)];
 /// moves repeats over it.
 const shoreLoop = 3600.0;
 
+/// Texture pixels per logical pixel for the foam over the cards. Screens no
+/// denser than this draw it directly, at their own density.
+const foamDensity = 2.0;
+
 /// One of the shader's two layers. The layer behind the tiles fills the
 /// screen; the layer over them paints only the tiles' boxes, where it draws
 /// drifted sand and the wash of a wave and is clear everywhere else.
@@ -38,7 +42,12 @@ class Shore extends StatelessWidget {
     required this.cards,
     required this.radius,
     this.over = false,
+    this.scroll,
   });
+
+  /// The narrow page's scroll, when the shore is at the top of a page taller
+  /// than the screen: only the part on the screen is drawn.
+  final ScrollController? scroll;
 
   final ui.FragmentShader shader;
   final ValueNotifier<double> time;
@@ -59,6 +68,7 @@ class Shore extends StatelessWidget {
         cards: cards,
         radius: radius,
         over: over,
+        scroll: scroll,
       ),
       size: Size.infinite,
     ),
@@ -74,8 +84,9 @@ class _ShorePainter extends CustomPainter {
     required this.cards,
     required this.radius,
     required this.over,
+    this.scroll,
   }) : assert(cards.length == 8, 'shore.frag takes eight cards'),
-       super(repaint: time);
+       super(repaint: Listenable.merge([time, ?scroll]));
 
   final ui.FragmentShader shader;
   final ValueNotifier<double> time;
@@ -84,6 +95,22 @@ class _ShorePainter extends CustomPainter {
   final List<Rect> cards;
   final double radius;
   final bool over;
+  final ScrollController? scroll;
+
+  /// What the page shows of the shore, in its own coordinates; all of it when
+  /// it does not scroll.
+  Rect? _onScreen(Size size) {
+    final scroll = this.scroll;
+    if (scroll == null || !scroll.hasClients) return null;
+    final position = scroll.position;
+    if (!position.hasPixels || !position.hasViewportDimension) return null;
+    return Rect.fromLTWH(
+      0,
+      position.pixels,
+      size.width,
+      position.viewportDimension,
+    );
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -106,27 +133,46 @@ class _ShorePainter extends CustomPainter {
       }
     }
     final paint = Paint()..shader = shader;
+    final onScreen = _onScreen(size);
     if (!over) {
       // The water behind the cards is soft enough to draw at a lower density;
-      // the foam over them stays sharp.
+      // the foam over them stays sharp. On a page taller than the screen,
+      // only the part on the screen is drawn.
       paintAtDensity(
         canvas,
         size,
         (canvas) => canvas.drawRect(Offset.zero & size, paint),
+        region: onScreen,
       );
       return;
     }
-    for (final box in boxes) {
-      canvas.drawRect(
+    final drawn = [
+      for (final box in boxes)
         Rect.fromLTRB(
           origin.dx + box.left * scale,
           origin.dy + box.top * scale,
           origin.dx + box.right * scale,
           origin.dy + box.bottom * scale,
         ).inflate(1),
-        paint,
-      );
-    }
+    ].where((card) => onScreen == null || card.overlaps(onScreen)).toList();
+    if (drawn.isEmpty) return;
+    // The foam over the cards stays sharp, at up to [foamDensity] texture
+    // pixels per logical pixel: on a 3x phone, drawing it at the screen's
+    // density would shade every card pixel nine times a frame.
+    paintAtDensity(
+      canvas,
+      size,
+      (canvas) {
+        for (final card in drawn) {
+          canvas.drawRect(card, paint);
+        }
+      },
+      density: foamDensity,
+      region: switch (drawn.reduce((a, b) => a.expandToInclude(b))) {
+        final cards when onScreen != null => cards.intersect(onScreen),
+        final cards => cards,
+      },
+    );
   }
 
   @override
@@ -136,6 +182,7 @@ class _ShorePainter extends CustomPainter {
       old.scale != scale ||
       old.radius != radius ||
       old.over != over ||
+      old.scroll != scroll ||
       old.cards != cards;
 }
 
