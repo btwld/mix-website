@@ -31,6 +31,26 @@
 
   <title>Fortal</title>
   <link rel="manifest" href="manifest.json">
+
+  <!--
+    The engine waits for these fonts and main() for these shaders before the
+    first frame, and both builds (Wasm and JS) use them. Fetch them now,
+    alongside the engine, rather than after it. Keep this list in step with
+    pubspec.yaml and main.dart.
+  -->
+  <link rel="preload" href="assets/FontManifest.json" as="fetch" crossorigin>
+  <link rel="preload" href="assets/assets/fonts/Geist-Regular.ttf" as="fetch" crossorigin>
+  <link rel="preload" href="assets/assets/fonts/Geist-Medium.ttf" as="fetch" crossorigin>
+  <link rel="preload" href="assets/assets/fonts/Geist-SemiBold.ttf" as="fetch" crossorigin>
+  <link rel="preload" href="assets/assets/fonts/Geist-Bold.ttf" as="fetch" crossorigin>
+  <link rel="preload" href="assets/assets/fonts/RobotoMono.ttf" as="fetch" crossorigin>
+  <link rel="preload" href="assets/packages/remix_ui_icons/lib/src/generated/fonts/RemixIcons.otf" as="fetch" crossorigin>
+  <link rel="preload" href="assets/shaders/shore.frag" as="fetch" crossorigin>
+  <link rel="preload" href="assets/shaders/horizon.frag" as="fetch" crossorigin>
+  <link rel="preload" href="assets/shaders/dunes.frag" as="fetch" crossorigin>
+
+  <!-- The site's green, not white, while the app loads. -->
+  <style>html, body { background: #0D3D38; }</style>
 </head>
 <body>
   <!--

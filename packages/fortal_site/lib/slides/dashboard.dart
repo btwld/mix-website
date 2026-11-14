@@ -160,6 +160,11 @@ class _DashboardState extends State<_Dashboard> {
           child: Navigator(
             onGenerateRoute: (settings) => PageRouteBuilder<void>(
               settings: settings,
+              // The first page is built with the deck, off the screen. Taking
+              // focus would claim the site's route first, discard the deck's
+              // autofocus and leave the slide keys dead. Its dialogs still
+              // take focus when they open.
+              requestFocus: false,
               pageBuilder: (context, animation, secondaryAnimation) =>
                   const UiDashboardDemo(
                     chatStepDelay: Duration(milliseconds: 420),
