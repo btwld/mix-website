@@ -14,20 +14,23 @@ import 'ui/ui.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   exposeFrameTimings();
-  final shore = ui.FragmentProgram.fromAsset('shaders/shore.frag');
+  final shore = shadersOff
+      ? null
+      : ui.FragmentProgram.fromAsset('shaders/shore.frag');
   // The wide layout draws its dunes and horizon on its first frame. A page
   // that opens narrow (a phone) shows pictures of them instead and loads
   // only the shore's shader; it loads the others if it later turns wide.
   final view = ui.PlatformDispatcher.instance.views.first;
   final screen = view.physicalSize / view.devicePixelRatio;
   if (screen.isEmpty || !isNarrow(screen)) await BackdropPrograms.load();
-  runApp(FortalSite(program: await shore));
+  runApp(FortalSite(program: shore == null ? null : await shore));
 }
 
 class FortalSite extends StatelessWidget {
   const FortalSite({super.key, required this.program});
 
-  final ui.FragmentProgram program;
+  /// The hero's shore shader; null draws still water (`?shaders=off`).
+  final ui.FragmentProgram? program;
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(

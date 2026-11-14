@@ -61,7 +61,8 @@ const _wheelRest = Duration(milliseconds: 140);
 class Site extends StatefulWidget {
   const Site({super.key, required this.program, this.horizonProgram});
 
-  final ui.FragmentProgram program;
+  /// The hero's shore shader; null draws still water (`?shaders=off`).
+  final ui.FragmentProgram? program;
 
   /// The Themes slide's horizon shader; by default, [BackdropShaders]'.
   final ui.FragmentProgram? horizonProgram;
@@ -132,6 +133,8 @@ class _SiteState extends State<Site> with SingleTickerProviderStateMixin {
       }
     }
     _warming.value = null;
+    // Without shaders (`?shaders=off`) the photo slides show a picture.
+    if (shadersOff) return;
     await CityPhoto.load();
     if (!mounted) return;
     _warmingCity.value = true;
@@ -229,47 +232,53 @@ class _SiteState extends State<Site> with SingleTickerProviderStateMixin {
             controller: _narrowScroll,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
+              // Each section is its own layer. The page is many screens tall,
+              // so without them every scroll frame, and every tick of an
+              // animation anywhere on it, would draw the whole page again.
               children: [
-                ValueListenableBuilder(
-                  valueListenable: _narrowHeroShown,
-                  builder: (context, shown, hero) =>
-                      TickerMode(enabled: shown, child: hero!),
-                  child: HeroSlide(
-                    key: _narrowHero,
-                    program: widget.program,
-                    compact: true,
-                    scroll: _narrowScroll,
+                for (final section in <Widget>[
+                  ValueListenableBuilder(
+                    valueListenable: _narrowHeroShown,
+                    builder: (context, shown, hero) =>
+                        TickerMode(enabled: shown, child: hero!),
+                    child: HeroSlide(
+                      key: _narrowHero,
+                      program: widget.program,
+                      compact: true,
+                      scroll: _narrowScroll,
+                    ),
                   ),
-                ),
-                KeyedSubtree(
-                  key: _sections['Components'],
-                  child: ControlsSlide(onNext: () {}, compact: true),
-                ),
-                DetailsSlide(onNext: () {}, compact: true),
-                KeyedSubtree(
-                  key: _sections['Charts'],
-                  child: const ChartsSlide(compact: true),
-                ),
-                KeyedSubtree(
-                  key: _sections['Agents'],
-                  child: const AgentsSlide(compact: true),
-                ),
-                KeyedSubtree(
-                  key: _sections['Dashboard'],
-                  child: const DashboardSlide(compact: true),
-                ),
-                KeyedSubtree(
-                  key: _sections['Themes'],
-                  child: ThemesSlide(compact: true),
-                ),
-                KeyedSubtree(
-                  key: _sections['Foundations'],
-                  child: const FoundationsSlide(compact: true),
-                ),
-                KeyedSubtree(
-                  key: _sections['Use it'],
-                  child: const UseSlide(compact: true),
-                ),
+                  KeyedSubtree(
+                    key: _sections['Components'],
+                    child: ControlsSlide(onNext: () {}, compact: true),
+                  ),
+                  DetailsSlide(onNext: () {}, compact: true),
+                  KeyedSubtree(
+                    key: _sections['Charts'],
+                    child: const ChartsSlide(compact: true),
+                  ),
+                  KeyedSubtree(
+                    key: _sections['Agents'],
+                    child: const AgentsSlide(compact: true),
+                  ),
+                  KeyedSubtree(
+                    key: _sections['Dashboard'],
+                    child: const DashboardSlide(compact: true),
+                  ),
+                  KeyedSubtree(
+                    key: _sections['Themes'],
+                    child: ThemesSlide(compact: true),
+                  ),
+                  KeyedSubtree(
+                    key: _sections['Foundations'],
+                    child: const FoundationsSlide(compact: true),
+                  ),
+                  KeyedSubtree(
+                    key: _sections['Use it'],
+                    child: const UseSlide(compact: true),
+                  ),
+                ])
+                  RepaintBoundary(child: section),
               ],
             ),
           ),

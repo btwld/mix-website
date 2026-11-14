@@ -73,6 +73,11 @@ class BackdropShaders extends InheritedWidget {
       old.horizon != horizon || old.dunes != dunes;
 }
 
+/// `?shaders=off`: the site draws no shader at all, for comparing its speed
+/// with and without them. The shore is still water, the photo a picture,
+/// and the dunes and horizon plain gradients.
+final shadersOff = Uri.base.queryParameters['shaders'] == 'off';
+
 /// Loads the dunes and horizon shaders, once, for the wide layout.
 abstract final class BackdropPrograms {
   /// The loaded programs, or null until [load] completes.
@@ -83,13 +88,15 @@ abstract final class BackdropPrograms {
 
   static Future<void>? _loading;
 
-  static Future<void> load() => _loading ??= () async {
-    final (horizon, dunes) = await (
-      ui.FragmentProgram.fromAsset('shaders/horizon.frag'),
-      ui.FragmentProgram.fromAsset('shaders/dunes.frag'),
-    ).wait;
-    loaded.value = (horizon: horizon, dunes: dunes);
-  }();
+  static Future<void> load() => shadersOff
+      ? Future.value()
+      : _loading ??= () async {
+          final (horizon, dunes) = await (
+            ui.FragmentProgram.fromAsset('shaders/horizon.frag'),
+            ui.FragmentProgram.fromAsset('shaders/dunes.frag'),
+          ).wait;
+          loaded.value = (horizon: horizon, dunes: dunes);
+        }();
 }
 
 /// A pre-rendered backdrop, from `tool/render_stills_test.dart`: what the
@@ -698,7 +705,9 @@ class SharedCityBackdrop extends StatelessWidget {
             );
           },
           child: SlideFrame(
-            backdrop: _CityField(compact: false, photo: photo),
+            backdrop: shadersOff
+                ? const _CityStill()
+                : _CityField(compact: false, photo: photo),
             child: const Stack(
               children: [
                 Positioned(right: gutter, bottom: Gap.x4, child: CityCredit()),
@@ -760,7 +769,7 @@ class CityBackdrop extends StatelessWidget {
       return const SizedBox.expand();
     }
     // The narrow layout shows a picture of it, and loads no shader.
-    if (compact) return const _CityStill();
+    if (compact || shadersOff) return const _CityStill();
     return _CityField(compact: compact, photo: photo);
   }
 }

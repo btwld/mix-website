@@ -52,7 +52,8 @@ class HeroSlide extends StatefulWidget {
   /// The narrow layout: the tiles stacked two abreast under the name.
   final bool compact;
 
-  final ui.FragmentProgram program;
+  /// The shore's shader; null draws still water (`?shaders=off`).
+  final ui.FragmentProgram? program;
 
   @override
   State<HeroSlide> createState() => _HeroSlideState();
@@ -73,8 +74,8 @@ class _HeroSlideState extends State<HeroSlide>
     }
   });
   // One shader for each layer, made once and reused every frame.
-  late final _behind = widget.program.fragmentShader();
-  late final _over = widget.program.fragmentShader();
+  late final _behind = widget.program?.fragmentShader();
+  late final _over = widget.program?.fragmentShader();
   final _held = double.tryParse(Uri.base.queryParameters['t'] ?? '');
   void Function()? _unlisten;
 
@@ -115,6 +116,11 @@ class _HeroSlideState extends State<HeroSlide>
   }
 
   void _run() {
+    // Still water has nothing to move.
+    if (widget.program == null) {
+      _ticker.stop();
+      return;
+    }
     final still =
         _held ?? (MediaQuery.disableAnimationsOf(context) ? _stillAt : null);
     if (still != null) {
@@ -131,8 +137,8 @@ class _HeroSlideState extends State<HeroSlide>
     _unlisten?.call();
     _ticker.dispose();
     _time.dispose();
-    _behind.dispose();
-    _over.dispose();
+    _behind?.dispose();
+    _over?.dispose();
     super.dispose();
   }
 
@@ -154,7 +160,7 @@ class _HeroSlideState extends State<HeroSlide>
           ? _narrowFrame(constraints.maxWidth, board.width)
           : canvasFrame(constraints.biggest);
       Widget shore({required bool over}) => Shore(
-        shader: over ? _over : _behind,
+        shader: over ? _over! : _behind!,
         time: _time,
         origin: origin,
         scale: scale,
@@ -168,7 +174,9 @@ class _HeroSlideState extends State<HeroSlide>
       );
       final slide = Stack(
         children: [
-          Positioned.fill(child: shore(over: false)),
+          Positioned.fill(
+            child: _behind == null ? const _StillWater() : shore(over: false),
+          ),
           Positioned(
             left: origin.dx,
             top: origin.dy,
@@ -187,7 +195,8 @@ class _HeroSlideState extends State<HeroSlide>
               ),
             ),
           ),
-          Positioned.fill(child: IgnorePointer(child: shore(over: true))),
+          if (_over != null)
+            Positioned.fill(child: IgnorePointer(child: shore(over: true))),
         ],
       );
       return compact
@@ -420,4 +429,21 @@ class _RenderCollage extends RenderBox
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
       defaultHitTestChildren(result, position: position);
+}
+
+/// The shore's water without its shader (`?shaders=off`): a still gradient of
+/// its colours.
+class _StillWater extends StatelessWidget {
+  const _StillWater();
+
+  @override
+  Widget build(BuildContext context) => const DecoratedBox(
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [Color(0xFF0F5F58), Color(0xFF2A9D8F), Color(0xFF7FD3C4)],
+      ),
+    ),
+  );
 }
