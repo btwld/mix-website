@@ -70,7 +70,11 @@ then publish and pin a new `fortal-site` input. Its SDK pin is the package's
 `.fvmrc` and its fingerprint is `scripts/site-inputs/package-build-inputs.mjs`,
 so it never invalidates the other Flutter inputs. Its `remix` override follows
 Remix main, but `pubspec.lock` holds the exact commit and the producer builds
-with `--enforce-lockfile`. To build and pin it locally:
+with `--enforce-lockfile`. Staging writes a Brotli copy beside each of its Wasm,
+JavaScript, shader and font files, and the server sends that copy to browsers
+that accept Brotli ([`lib/brotli.mjs`](lib/brotli.mjs)); Next itself compresses
+with gzip only. The static preview's host compresses by itself. To build and
+pin it locally:
 
 ```bash
 FLUTTER_BIN=<Flutter from packages/fortal_site/.fvmrc> \

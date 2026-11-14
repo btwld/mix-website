@@ -2,11 +2,16 @@ import { readFileSync } from 'node:fs';
 import { createMDX } from 'fumadocs-mdx/next';
 import { legacyRedirects, dashboardRedirect, examplesRedirect } from './lib/legacy-routes.mjs';
 import { PROJECTS } from './lib/projects.mjs';
+import { ACCEPTS_BROTLI, BROTLI_TYPES } from './lib/brotli.mjs';
 
 const staticPreview = process.env.SITE_BUILD_TARGET === 'static-preview';
 const indexing = process.env.SITE_INDEXING === 'index';
 const catalog = PROJECTS.remix.catalogPath;
 const fortal = PROJECTS.remix.fortalPath;
+// The Fortal bundle is staged with a Brotli copy of each of these files
+// (lib/brotli.mjs). Browsers that accept Brotli get the copy: the engine and
+// app Wasm are about a fifth smaller than gzip, and shaders are compressed.
+const brotliFile = `:file(.+\\.(?:${Object.keys(BROTLI_TYPES).join('|')}))`;
 
 /** @type {import('next').NextConfig} */
 const config = {
@@ -35,6 +40,11 @@ const config = {
       // thread; without it scrolling drops to about 30 fps. Every file it
       // loads is same-origin.
       { source: `${fortal}:path*`, headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }, { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' }, { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' }] },
+      ...Object.entries(BROTLI_TYPES).map(([extension, type]) => ({
+        source: `${fortal}:file(.+\\.${extension})`,
+        has: ACCEPTS_BROTLI,
+        headers: [{ key: 'Content-Encoding', value: 'br' }, { key: 'Content-Type', value: type }, { key: 'Vary', value: 'Accept-Encoding' }],
+      })),
       { source: '/__site.json', headers: [{ key: 'Cache-Control', value: 'no-store' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
       { source: '/api/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
     ];
@@ -43,7 +53,10 @@ const config = {
     if (staticPreview) return [];
     return {
       // Public files have no directory indexes; serve each Flutter app's own page.
-      beforeFiles: [catalog, fortal].map(app => ({ source: app, destination: `${app}index.html` })),
+      beforeFiles: [
+        ...[catalog, fortal].map(app => ({ source: app, destination: `${app}index.html` })),
+        { source: `${fortal}${brotliFile}`, has: ACCEPTS_BROTLI, destination: `${fortal}:file.br` },
+      ],
     };
   },
   async redirects() {

@@ -8,13 +8,15 @@
 import { buildIdentity } from './build-identity.mjs';
 import { verifyMixBuildInputs } from './mix-build-inputs.mjs';
 import { FORTAL_SITE, verifyPackageBuildInputs } from './package-build-inputs.mjs';
-import { isDeepStrictEqual } from 'node:util';
+import { isDeepStrictEqual, promisify } from 'node:util';
+import { brotliCompress, brotliDecompressSync, constants as zlib } from 'node:zlib';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { cp, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { PROJECTS, PROJECT_IDS, docsSlugFor, legacyDocsUrl, rewriteUpstreamUrl } from '../../lib/projects.mjs';
 import { LANDING_PREVIEW_IDS } from '../../lib/landing-previews.mjs';
+import { BROTLI_TYPES } from '../../lib/brotli.mjs';
 import { validateLock, validateSiteInputMetadata } from './lock.mjs';
 import { readArchive, sha256, writeEntries } from './tar.mjs';
 
@@ -313,7 +315,7 @@ export async function collectPendingRedirects(projects) {
  * The Fortal site is served at its own base href, from the package source
  * it was built from. Its file names are fixed, like the catalog's.
  */
-export async function stageFortalSite(root, bundle) {
+export async function stageFortalSite(root, bundle, { brotliCache } = {}) {
   await verifyPackageBuildInputs(root, bundle, FORTAL_SITE);
   const index = await readFile(path.join(bundle, 'index.html'), 'utf8');
   if (!index.includes(`<base href="${PROJECTS.remix.fortalPath}">`)) {
@@ -322,9 +324,45 @@ export async function stageFortalSite(root, bundle) {
   const target = path.join(root, 'public', PROJECTS.remix.fortalPath);
   await rm(target, { recursive: true, force: true });
   await cp(bundle, target, { recursive: true });
+  if (brotliCache) await writeBrotliCopies(target, brotliCache);
 }
 
-export async function syncSiteInputs({ root, offline = false, fetchImpl, log = console.log }) {
+const BROTLI_FILE = new RegExp(`\\.(?:${Object.keys(BROTLI_TYPES).join('|')})$`);
+const compressBrotli = promisify(brotliCompress);
+
+/**
+ * Writes `<file>.br` beside every file of BROTLI_TYPES under `dir`. Next
+ * compresses with gzip only; Brotli makes the Flutter engine and app Wasm
+ * about a fifth smaller, and shaders are otherwise sent uncompressed.
+ * Compressed copies are cached by their source digest and checked on reuse,
+ * so only new bytes are compressed.
+ */
+export async function writeBrotliCopies(dir, cacheDir) {
+  const store = path.join(cacheDir, 'brotli');
+  await mkdir(store, { recursive: true });
+  const files = (await readdir(dir, { recursive: true, withFileTypes: true }))
+    .filter(entry => entry.isFile() && BROTLI_FILE.test(entry.name))
+    .map(entry => path.join(entry.parentPath, entry.name));
+  await Promise.all(files.map(async file => {
+    const data = await readFile(file);
+    const digest = sha256(data);
+    const cached = path.join(store, `${digest}.br`);
+    let copy = existsSync(cached) ? await readFile(cached) : null;
+    if (copy) {
+      try { if (sha256(brotliDecompressSync(copy)) !== digest) copy = null; } catch { copy = null; }
+    }
+    if (!copy) {
+      copy = await compressBrotli(data, { params: { [zlib.BROTLI_PARAM_QUALITY]: 11, [zlib.BROTLI_PARAM_SIZE_HINT]: data.length } });
+      const partial = `${cached}.${process.pid}.partial`;
+      await writeFile(partial, copy);
+      await rename(partial, cached);
+    }
+    await writeFile(`${file}.br`, copy);
+  }));
+  return files.length;
+}
+
+export async function syncSiteInputs({ root, offline = false, fetchImpl, log = console.log, brotli = process.env.SITE_BUILD_TARGET !== 'static-preview' }) {
   const p = paths(root);
   const lockText = await readFile(p.lock, 'utf8');
   const lock = validateLock(JSON.parse(lockText));
@@ -387,7 +425,9 @@ export async function syncSiteInputs({ root, offline = false, fetchImpl, log = c
 
   // The Fortal site lives under /remix/, so it is staged after public/remix is
   // rebuilt above.
-  if (lock.inputs['fortal-site']) await stageFortalSite(root, path.join(p.extracted, 'fortal-site/bundle'));
+  // The server serves its Brotli copies (next.config.mjs); Firebase Hosting,
+  // which serves the static preview, compresses by itself.
+  if (lock.inputs['fortal-site']) await stageFortalSite(root, path.join(p.extracted, 'fortal-site/bundle'), { brotliCache: brotli ? p.cache : undefined });
   else await rm(path.join(root, 'public', PROJECTS.remix.fortalPath), { recursive: true, force: true });
 
   const { redirects, assets } = await collectPendingRedirects(projects);
