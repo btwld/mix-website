@@ -141,6 +141,9 @@ test('the staged Fortal site carries a checked Brotli copy of each pre-compresse
       'assets/shaders/shore.frag': 'void main() {}',
       'assets/assets/fonts/Geist-Regular.ttf': 'font',
       'assets/packages/icons/fonts/Icons.otf': 'icons',
+      // Two files with the same bytes, compressed at once on an empty cache.
+      'canvaskit/a.js': 'same bytes',
+      'canvaskit/b.js': 'same bytes',
     };
     await writeTree(bundle, {
       ...compressible,
@@ -191,6 +194,6 @@ test('browsers that accept Brotli get the Fortal copy, with the original type', 
 
   // Next matches a `has` value against the whole header.
   const accepts = new RegExp(`^${ACCEPTS_BROTLI[0].value}$`);
-  for (const value of ['gzip, deflate, br, zstd', 'gzip, deflate, br', 'br', 'br;q=1.0, gzip;q=0.8']) assert.ok(accepts.test(value), value);
-  for (const value of ['gzip, deflate', 'identity', 'gzip, brx']) assert.ok(!accepts.test(value), value);
+  for (const value of ['gzip, deflate, br, zstd', 'gzip, deflate, br', 'br', 'br;q=1.0, gzip;q=0.8', 'gzip, br;q=0.5']) assert.ok(accepts.test(value), value);
+  for (const value of ['gzip, deflate', 'identity', 'gzip, brx', 'gzip, br;q=0', 'br;q=0.000, gzip', 'gzip, br ; Q=0']) assert.ok(!accepts.test(value), value);
 });

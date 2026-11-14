@@ -10,7 +10,7 @@ import { verifyMixBuildInputs } from './mix-build-inputs.mjs';
 import { FORTAL_SITE, verifyPackageBuildInputs } from './package-build-inputs.mjs';
 import { isDeepStrictEqual, promisify } from 'node:util';
 import { brotliCompress, brotliDecompressSync, constants as zlib } from 'node:zlib';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { cp, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -330,6 +330,20 @@ export async function stageFortalSite(root, bundle, { brotliCache } = {}) {
 const BROTLI_FILE = new RegExp(`\\.(?:${Object.keys(BROTLI_TYPES).join('|')})$`);
 const compressBrotli = promisify(brotliCompress);
 
+/** The cached Brotli copy of `data`, checked against its digest, or a new one. */
+async function brotliCopy(store, digest, data) {
+  const cached = path.join(store, `${digest}.br`);
+  if (existsSync(cached)) {
+    const copy = await readFile(cached);
+    try { if (sha256(brotliDecompressSync(copy)) === digest) return copy; } catch { /* rewritten below */ }
+  }
+  const copy = await compressBrotli(data, { params: { [zlib.BROTLI_PARAM_QUALITY]: 11, [zlib.BROTLI_PARAM_SIZE_HINT]: data.length } });
+  const partial = `${cached}.${randomUUID()}.partial`;
+  await writeFile(partial, copy);
+  await rename(partial, cached);
+  return copy;
+}
+
 /**
  * Writes `<file>.br` beside every file of BROTLI_TYPES under `dir`. Next
  * compresses with gzip only; Brotli makes the Flutter engine and app Wasm
@@ -343,21 +357,15 @@ export async function writeBrotliCopies(dir, cacheDir) {
   const files = (await readdir(dir, { recursive: true, withFileTypes: true }))
     .filter(entry => entry.isFile() && BROTLI_FILE.test(entry.name))
     .map(entry => path.join(entry.parentPath, entry.name));
+  // Files with the same bytes share one compression, and so one cache entry.
+  const copies = new Map();
+  const copyOf = (digest, data) => {
+    if (!copies.has(digest)) copies.set(digest, brotliCopy(store, digest, data));
+    return copies.get(digest);
+  };
   await Promise.all(files.map(async file => {
     const data = await readFile(file);
-    const digest = sha256(data);
-    const cached = path.join(store, `${digest}.br`);
-    let copy = existsSync(cached) ? await readFile(cached) : null;
-    if (copy) {
-      try { if (sha256(brotliDecompressSync(copy)) !== digest) copy = null; } catch { copy = null; }
-    }
-    if (!copy) {
-      copy = await compressBrotli(data, { params: { [zlib.BROTLI_PARAM_QUALITY]: 11, [zlib.BROTLI_PARAM_SIZE_HINT]: data.length } });
-      const partial = `${cached}.${process.pid}.partial`;
-      await writeFile(partial, copy);
-      await rename(partial, cached);
-    }
-    await writeFile(`${file}.br`, copy);
+    await writeFile(`${file}.br`, await copyOf(sha256(data), data));
   }));
   return files.length;
 }
