@@ -81,12 +81,20 @@ test.describe('links to the Fortal site', () => {
       await expect(link).toHaveAttribute('href', FORTAL);
       await link.scrollIntoViewIfNeeded();
       if (newTab) {
+        // The new tab's preloaded fonts can arrive before a listener on the
+        // tab itself is attached, so its asset responses are recorded from
+        // the context, which sees them from the start.
+        const loaded = new Map<string, number>();
+        context.on('response', response => {
+          const { pathname } = new URL(response.url());
+          if (pathname.startsWith(`${FORTAL}assets/`)) loaded.set(decodeURI(pathname), response.status());
+        });
         const opened = context.waitForEvent('page');
         await link.click();
         const tab = await opened;
-        const watched = watch(tab);
+        const { problems } = watch(tab);
         await expect(tab).toHaveURL(new RegExp(`${FORTAL}$`));
-        await expectRunning(tab, watched);
+        await expectRunning(tab, { problems, loaded });
         return;
       }
       const watched = watch(page);
