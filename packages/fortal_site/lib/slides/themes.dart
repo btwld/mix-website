@@ -33,6 +33,9 @@ class ThemesSlide extends StatelessWidget {
       sea: at(UiTokens.accent8),
       deep: at(UiTokens.accent10),
       program: horizonProgram,
+      // Narrow, a picture of the horizon: a phone draws no shader but the
+      // shore's.
+      still: compact ? accent : null,
     );
     final code = CodeCard(
       lines: [

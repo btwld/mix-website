@@ -12,3 +12,6 @@ Changes on the Foundations slide: cropped to the screen, tinted with the dark gr
 scene uses, and its sea set in motion by `shaders/city.frag`. The credit is shown on the slide.
 
 `fortaleza-beira-mar-sea.png` is a mask of the photo's water, made from it by `tool/make_sea_mask.py`.
+
+`../stills/city.webp`, shown on phones, is the photo through `shaders/city.frag` (tinted, its sea held still), drawn by
+`tool/render_stills_test.dart`. The credit is shown wherever it is.

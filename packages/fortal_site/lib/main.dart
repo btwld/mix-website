@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import 'backdrops.dart';
 import 'hold.dart';
+import 'kit.dart' show isNarrow;
 import 'site.dart';
 import 'theme.dart';
 import 'ui/ui.dart';
@@ -13,31 +14,23 @@ import 'ui/ui.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   exposeFrameTimings();
-  final (program, horizonProgram, dunesProgram) = await (
-    ui.FragmentProgram.fromAsset('shaders/shore.frag'),
-    ui.FragmentProgram.fromAsset('shaders/horizon.frag'),
-    ui.FragmentProgram.fromAsset('shaders/dunes.frag'),
-  ).wait;
-  runApp(
-    FortalSite(
-      program: program,
-      horizonProgram: horizonProgram,
-      dunesProgram: dunesProgram,
-    ),
-  );
+  final shore = shadersOff
+      ? null
+      : ui.FragmentProgram.fromAsset('shaders/shore.frag');
+  // The wide layout draws its dunes and horizon on its first frame. A page
+  // that opens narrow (a phone) shows pictures of them instead and loads
+  // only the shore's shader; it loads the others if it later turns wide.
+  final view = ui.PlatformDispatcher.instance.views.first;
+  final screen = view.physicalSize / view.devicePixelRatio;
+  if (screen.isEmpty || !isNarrow(screen)) await BackdropPrograms.load();
+  runApp(FortalSite(program: shore == null ? null : await shore));
 }
 
 class FortalSite extends StatelessWidget {
-  const FortalSite({
-    super.key,
-    required this.program,
-    required this.horizonProgram,
-    required this.dunesProgram,
-  });
+  const FortalSite({super.key, required this.program});
 
-  final ui.FragmentProgram program;
-  final ui.FragmentProgram horizonProgram;
-  final ui.FragmentProgram dunesProgram;
+  /// The hero's shore shader; null draws still water (`?shaders=off`).
+  final ui.FragmentProgram? program;
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -60,14 +53,18 @@ class FortalSite extends StatelessWidget {
         hasBackground: false,
         child: FortalTheme(
           accent: siteAccent.value,
-          child: BackdropShaders(
-            horizon: horizonProgram,
-            dunes: dunesProgram,
-            child: child!,
+          child: ValueListenableBuilder(
+            valueListenable: BackdropPrograms.loaded,
+            builder: (context, programs, child) => BackdropShaders(
+              horizon: programs?.horizon,
+              dunes: programs?.dunes,
+              child: child!,
+            ),
+            child: child,
           ),
         ),
       ),
-      home: Site(program: program, horizonProgram: horizonProgram),
+      home: Site(program: program),
     ),
   );
 }
