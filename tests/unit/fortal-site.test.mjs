@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -9,6 +9,9 @@ import { releaseCoordinates, validateLock, validateSiteInputMetadata } from '../
 import { mixBuildInputs } from '../../scripts/site-inputs/mix-build-inputs.mjs';
 import { FORTAL_SITE, packageBuildInputs, verifyPackageBuildInputs } from '../../scripts/site-inputs/package-build-inputs.mjs';
 import { stageFortalSite } from '../../scripts/site-inputs/sync-lib.mjs';
+import { ACCEPTS_BROTLI, BROTLI_TYPES } from '../../lib/brotli.mjs';
+import { brotliDecompressSync } from 'node:zlib';
+import { randomBytes } from 'node:crypto';
 
 const COMMIT = 'a'.repeat(40);
 
@@ -122,4 +125,75 @@ test('Fortal assets revalidate on both Hosting deployment paths', () => {
   assert.equal(rest.headers['Cache-Control'], 'public, max-age=0, must-revalidate');
   assert.equal(rest.headers['Cross-Origin-Opener-Policy'], 'same-origin');
   assert.equal(rest.headers['Cross-Origin-Embedder-Policy'], 'require-corp');
+});
+
+test('the staged Fortal site carries a checked Brotli copy of each pre-compressed file', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'fortal-site-'));
+  const bundle = path.join(root, 'bundle');
+  const cache = path.join(root, 'cache');
+  const target = path.join(root, 'public/remix/examples/fortal');
+  try {
+    await writeTree(root, PACKAGE_FILES);
+    const compressible = {
+      'main.dart.wasm': randomBytes(4096).toString('hex'),
+      'main.dart.mjs': 'export {}',
+      'canvaskit/skwasm.js': 'var skwasm;',
+      'assets/shaders/shore.frag': 'void main() {}',
+      'assets/assets/fonts/Geist-Regular.ttf': 'font',
+      'assets/packages/icons/fonts/Icons.otf': 'icons',
+      // Two files with the same bytes, compressed at once on an empty cache.
+      'canvaskit/a.js': 'same bytes',
+      'canvaskit/b.js': 'same bytes',
+    };
+    await writeTree(bundle, {
+      ...compressible,
+      'index.html': '<html><head><base href="/remix/examples/fortal/"></head></html>',
+      'licenses/Geist-OFL.txt': 'OFL',
+      'build-inputs.json': JSON.stringify(await packageBuildInputs(root, FORTAL_SITE)),
+    });
+    const copies = async () => (await readdir(target, { recursive: true })).filter(file => file.endsWith('.br')).sort();
+    const expectCopies = async () => {
+      assert.deepEqual(await copies(), Object.keys(compressible).map(file => `${file}.br`).sort());
+      for (const [file, content] of Object.entries(compressible)) {
+        assert.equal(brotliDecompressSync(await readFile(path.join(target, `${file}.br`))).toString(), content, file);
+      }
+    };
+
+    await stageFortalSite(root, bundle, { brotliCache: cache });
+    await expectCopies();
+
+    // A damaged cache entry is noticed and replaced, never served.
+    const store = path.join(cache, 'brotli');
+    for (const entry of await readdir(store)) await writeFile(path.join(store, entry), 'not brotli');
+    await stageFortalSite(root, bundle, { brotliCache: cache });
+    await expectCopies();
+
+    // The static preview's host compresses by itself, so it gets no copies.
+    await stageFortalSite(root, bundle);
+    assert.deepEqual(await copies(), []);
+  } finally { await rm(root, { recursive: true }); }
+});
+
+test('browsers that accept Brotli get the Fortal copy, with the original type', async () => {
+  const { default: config } = await import('../../next.config.mjs?brotli-policy');
+  const headers = await config.headers();
+  for (const [extension, type] of Object.entries(BROTLI_TYPES)) {
+    const row = headers.find(row => row.source === `/remix/examples/fortal/:file(.+\\.${extension})`);
+    assert.ok(row, extension);
+    assert.deepEqual(row.has, ACCEPTS_BROTLI);
+    assert.deepEqual(row.headers, [
+      { key: 'Content-Encoding', value: 'br' },
+      { key: 'Content-Type', value: type },
+      { key: 'Vary', value: 'Accept-Encoding' },
+    ]);
+  }
+  const { beforeFiles } = await config.rewrites();
+  const rewrite = beforeFiles.find(row => row.destination === '/remix/examples/fortal/:file.br');
+  assert.deepEqual(rewrite.has, ACCEPTS_BROTLI);
+  assert.equal(rewrite.source, `/remix/examples/fortal/:file(.+\\.(?:${Object.keys(BROTLI_TYPES).join('|')}))`);
+
+  // Next matches a `has` value against the whole header.
+  const accepts = new RegExp(`^${ACCEPTS_BROTLI[0].value}$`);
+  for (const value of ['gzip, deflate, br, zstd', 'gzip, deflate, br', 'br', 'br;q=1.0, gzip;q=0.8', 'gzip, br;q=0.5']) assert.ok(accepts.test(value), value);
+  for (const value of ['gzip, deflate', 'identity', 'gzip, brx', 'gzip, br;q=0', 'br;q=0.000, gzip', 'gzip, br ; Q=0']) assert.ok(!accepts.test(value), value);
 });
