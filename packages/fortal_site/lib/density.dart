@@ -7,7 +7,18 @@
 //   only that image is drawn ([StillPicture]).
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart' show kIsWasm;
 import 'package:flutter/widgets.dart';
+
+/// Whether drawing a picture into an image, to draw a shader at a lower
+/// density, is cheap. In the WebAssembly build the renderer draws on its own
+/// thread and it is. In the JavaScript build (CanvasKit, what every iPhone
+/// browser gets) it blocks the page's only thread: measured in WebKit, a frame
+/// of the hero's water took about 8 ms that way against 1 ms drawn directly.
+/// There, shaders are drawn straight to the screen. `?offscreen=on` draws
+/// through an image in both builds, for comparing on a phone.
+final offscreenIsCheap =
+    kIsWasm || Uri.base.queryParameters['offscreen'] == 'on';
 
 /// Texture pixels per logical pixel for full-screen shader backdrops.
 const shaderDensity = 1.0;
@@ -19,7 +30,8 @@ const shaderDensity = 1.0;
 /// With a [region], only that part of [size] is drawn: what a scrolling page
 /// shows of a backdrop taller than the screen.
 ///
-/// On a screen no denser than [density], [draw] paints straight to [canvas].
+/// On a screen no denser than [density], or where [offscreenIsCheap] is false,
+/// [draw] paints straight to [canvas].
 void paintAtDensity(
   Canvas canvas,
   Size size,
@@ -33,7 +45,7 @@ void paintAtDensity(
   final deviceRatio = views.isEmpty ? 1.0 : views.first.devicePixelRatio;
   final width = (area.width * density).ceil();
   final height = (area.height * density).ceil();
-  if (deviceRatio <= density) {
+  if (deviceRatio <= density || !offscreenIsCheap) {
     canvas
       ..save()
       ..clipRect(area);
@@ -57,6 +69,103 @@ void paintAtDensity(
   );
   image.dispose();
 }
+
+/// What [paintAtDensity] drew last for one layer, kept so that while its
+/// inputs stay the same (still water, scrolled), it can be drawn again
+/// without drawing the shader again.
+class HeldPaint {
+  ui.Image? _image;
+  Rect? _area;
+  Object? _inputs;
+
+  /// Releases the kept image.
+  void dispose() {
+    _image?.dispose();
+    _image = null;
+    _area = null;
+    _inputs = null;
+  }
+}
+
+bool _covers(Rect outer, Rect inner) =>
+    outer.left <= inner.left &&
+    outer.top <= inner.top &&
+    outer.right >= inner.right &&
+    outer.bottom >= inner.bottom;
+
+/// Like [paintAtDensity], keeping what it draws in [hold].
+///
+/// While [inputs] (everything [draw] depends on) stay the same, a [region]
+/// inside the kept area is drawn from the kept image. When the same inputs
+/// need a new area, as a scroll over still water does, [margin] more is drawn
+/// above and below it, so the frames that follow can reuse it.
+void paintAtDensityHeld(
+  Canvas canvas,
+  Size size,
+  void Function(Canvas canvas) draw, {
+  required HeldPaint hold,
+  required Object inputs,
+  double density = shaderDensity,
+  Rect? region,
+  double margin = 0,
+}) {
+  final bounds = Offset.zero & size;
+  final area = (region ?? bounds).intersect(bounds);
+  if (area.width <= 0 || area.height <= 0) return;
+  final views = WidgetsBinding.instance.platformDispatcher.views;
+  final deviceRatio = views.isEmpty ? 1.0 : views.first.devicePixelRatio;
+  if (deviceRatio <= density || !offscreenIsCheap) {
+    hold.dispose();
+    paintAtDensity(canvas, size, draw, density: density, region: region);
+    return;
+  }
+  final same = hold._inputs == inputs;
+  final kept = hold._image;
+  final keptArea = hold._area;
+  if (same && kept != null && keptArea != null && _covers(keptArea, area)) {
+    _drawHeld(canvas, kept, keptArea, density);
+    return;
+  }
+  final drawn =
+      (same
+              ? Rect.fromLTRB(
+                  area.left,
+                  area.top - margin,
+                  area.right,
+                  area.bottom + margin,
+                )
+              : area)
+          .intersect(bounds);
+  final width = (drawn.width * density).ceil();
+  final height = (drawn.height * density).ceil();
+  final recorder = ui.PictureRecorder();
+  final offscreen = Canvas(recorder)
+    ..scale(density)
+    ..translate(-drawn.left, -drawn.top);
+  draw(offscreen);
+  final picture = recorder.endRecording();
+  final image = picture.toImageSync(width, height);
+  picture.dispose();
+  hold
+    ..dispose()
+    .._image = image
+    .._area = drawn
+    .._inputs = inputs;
+  _drawHeld(canvas, image, drawn, density);
+}
+
+void _drawHeld(Canvas canvas, ui.Image image, Rect area, double density) =>
+    canvas.drawImageRect(
+      image,
+      Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+      Rect.fromLTWH(
+        area.left,
+        area.top,
+        image.width / density,
+        image.height / density,
+      ),
+      Paint()..filterQuality = FilterQuality.low,
+    );
 
 /// The most texture pixels per logical pixel a [StillPicture] keeps.
 const stillDensity = 2.0;

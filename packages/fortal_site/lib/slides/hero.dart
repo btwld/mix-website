@@ -16,6 +16,7 @@ import 'package:flutter/widgets.dart';
 import 'package:remix/remix.dart';
 
 import '../bento.dart';
+import '../density.dart' show HeldPaint;
 import '../hold.dart';
 import '../kit.dart';
 import '../shore.dart';
@@ -76,6 +77,9 @@ class _HeroSlideState extends State<HeroSlide>
   // One shader for each layer, made once and reused every frame.
   late final _behind = widget.program?.fragmentShader();
   late final _over = widget.program?.fragmentShader();
+  // What each layer last drew, reused while the page scrolls over still water.
+  final _heldBehind = HeldPaint();
+  final _heldOver = HeldPaint();
   final _held = double.tryParse(Uri.base.queryParameters['t'] ?? '');
   void Function()? _unlisten;
 
@@ -139,6 +143,8 @@ class _HeroSlideState extends State<HeroSlide>
     _time.dispose();
     _behind?.dispose();
     _over?.dispose();
+    _heldBehind.dispose();
+    _heldOver.dispose();
     super.dispose();
   }
 
@@ -171,6 +177,7 @@ class _HeroSlideState extends State<HeroSlide>
         radius: 1.25 * MixScope.tokenOf(UiTokens.radius5, context).x,
         over: over,
         scroll: widget.scroll,
+        hold: widget.scroll == null ? null : (over ? _heldOver : _heldBehind),
       );
       final slide = Stack(
         children: [
