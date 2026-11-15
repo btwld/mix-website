@@ -2,6 +2,7 @@
 // the beira-mar and Ceará coast: wind-sculpted sand dunes and interdune
 // lagoons in the site's dark green, the seafront horizon, and a photograph of
 // the Beira-Mar with its sea in motion.
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -50,6 +51,88 @@ const _cityTint = Color(0xFF6EAFA0);
 const _duneTint = Color(0xFF468C80);
 const _sand = Color(0xFFE9DAC0);
 const _stillAt = 2.2;
+
+/// How often a moving backdrop updates: thirty times a second. A slow sea
+/// needs no more, and the frames in between draw nothing new.
+const _backdropFrame = Duration(microseconds: 1000000 ~/ 30);
+
+/// The clock of a wide-layout backdrop: the dunes' wavelets, the horizon's sea
+/// and the city's sea.
+///
+/// A backdrop moves only where drawing it on each update is cheap, the
+/// WebAssembly build ([offscreenIsCheap]), which draws it through a texture
+/// at one texture pixel per logical pixel on the renderer's own thread, and
+/// only while its tickers are enabled: the site rests them while it is off
+/// the screen. Elsewhere, under reduced motion and with `?t=` (captures), it
+/// is a still picture, drawn once and kept.
+mixin _BackdropMotion<T extends StatefulWidget> on State<T> {
+  /// The backdrop's seconds per real second.
+  double get motionRate => 1;
+
+  final _held = double.tryParse(Uri.base.queryParameters['t'] ?? '');
+  late final time = ValueNotifier<double>(_held ?? _stillAt);
+
+  /// Whether the backdrop is drawn live, rather than kept as a still picture.
+  var live = false;
+  Timer? _timer;
+  void Function()? _unlisten;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_held != null) {
+      _unlisten = exposeShoreClock((t) => time.value = t % shoreLoop);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    live =
+        _held == null &&
+        offscreenIsCheap &&
+        !MediaQuery.disableAnimationsOf(context);
+    final run = live && TickerMode.valuesOf(context).enabled;
+    if (run && _timer == null) {
+      final watch = Stopwatch()..start();
+      var last = Duration.zero;
+      _timer = Timer.periodic(_backdropFrame, (_) {
+        final now = watch.elapsed;
+        final step = now - last;
+        last = now;
+        // A longer gap is a rest (a hidden tab): carry on from there.
+        if (step < const Duration(milliseconds: 250)) {
+          time.value =
+              (time.value + step.inMicroseconds / 1e6 * motionRate) % shoreLoop;
+        }
+      });
+    } else if (!run) {
+      _timer?.cancel();
+      _timer = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _unlisten?.call();
+    time.dispose();
+    super.dispose();
+  }
+}
+
+/// Draws a backdrop: when [live], through a texture at one texture pixel per
+/// logical pixel, again on each update; otherwise as [still]'s kept picture.
+void _paintBackdrop(
+  bool live,
+  StillPicture still,
+  Canvas canvas,
+  Size size,
+  Object inputs,
+  void Function(Canvas canvas) draw,
+) => live
+    ? paintAtDensity(canvas, size, draw, throughTexture: true)
+    : still.paint(canvas, size, inputs, draw);
 
 /// The fragment shader programs the wide layout's dunes and horizon draw with,
 /// once [BackdropPrograms] has loaded them. The narrow layout shows pictures
@@ -160,8 +243,13 @@ class SharedSandBackdrop extends StatelessWidget {
   const SharedSandBackdrop({
     super.key,
     this.still = false,
+    this.shown,
     required this.child,
   });
+
+  /// Whether a dune slide is on the screen; the dunes move only then. Null
+  /// is always.
+  final ValueListenable<bool>? shown;
 
   /// Shows the pre-rendered lagoons ([BackdropStill.dunes]) instead of
   /// drawing them with their shader: the narrow layout's choice.
@@ -181,7 +269,15 @@ class SharedSandBackdrop extends StatelessWidget {
                   children: [BackdropStill.dunes(accent), const _DuneWash()],
                 ),
               )
-            : SandBackdrop(scene: 2),
+            : switch (shown) {
+                final shown? => ValueListenableBuilder(
+                  valueListenable: shown,
+                  builder: (context, on, dunes) =>
+                      TickerMode(enabled: on, child: dunes!),
+                  child: SandBackdrop(scene: 2),
+                ),
+                null => SandBackdrop(scene: 2),
+              },
       ),
       _SharedSandScope(child: child),
     ],
@@ -336,28 +432,17 @@ class _DuneField extends StatefulWidget {
   State<_DuneField> createState() => _DuneFieldState();
 }
 
-class _DuneFieldState extends State<_DuneField> {
-  // The dunes are a still picture: drawn once and kept as an image, then
-  // redrawn only when their size or the water's colour changes. `?t=` moves
-  // the picture's moment, for captures.
-  final _held = double.tryParse(Uri.base.queryParameters['t'] ?? '');
-  late final _time = ValueNotifier<double>(_held ?? _stillAt);
+class _DuneFieldState extends State<_DuneField>
+    with _BackdropMotion<_DuneField> {
+  // Slow the shader's wind ripples and lagoon wavelets together; the camera,
+  // banks and large dune shapes stay anchored.
+  @override
+  double get motionRate => 0.8;
   late final _shader = widget.program.fragmentShader();
   final _still = StillPicture();
-  void Function()? _unlisten;
-
-  @override
-  void initState() {
-    super.initState();
-    if (_held != null) {
-      _unlisten = exposeShoreClock((t) => _time.value = t % shoreLoop);
-    }
-  }
 
   @override
   void dispose() {
-    _unlisten?.call();
-    _time.dispose();
     _still.dispose();
     _shader.dispose();
     super.dispose();
@@ -369,7 +454,8 @@ class _DuneFieldState extends State<_DuneField> {
       painter: _DunesShaderPainter(
         shader: _shader,
         still: _still,
-        time: _time,
+        live: live,
+        time: time,
         scene: widget.scene,
         water: widget.water,
         deepWater: widget.deepWater,
@@ -383,6 +469,7 @@ class _DunesShaderPainter extends CustomPainter {
   _DunesShaderPainter({
     required this.shader,
     required this.still,
+    required this.live,
     required this.time,
     required this.scene,
     required this.water,
@@ -391,6 +478,7 @@ class _DunesShaderPainter extends CustomPainter {
 
   final ui.FragmentShader shader;
   final StillPicture still;
+  final bool live;
   final ValueNotifier<double> time;
   final double scene;
   final Color water;
@@ -399,7 +487,9 @@ class _DunesShaderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final t = time.value;
-    still.paint(
+    _paintBackdrop(
+      live,
+      still,
       canvas,
       size,
       (t, scene, water, deepWater),
@@ -418,6 +508,7 @@ class _DunesShaderPainter extends CustomPainter {
   @override
   bool shouldRepaint(_DunesShaderPainter old) =>
       old.shader != shader ||
+      old.live != live ||
       old.scene != scene ||
       old.water != water ||
       old.deepWater != deepWater;
@@ -547,26 +638,13 @@ class _HorizonSea extends StatefulWidget {
   State<_HorizonSea> createState() => _HorizonSeaState();
 }
 
-class _HorizonSeaState extends State<_HorizonSea> {
-  // A still picture, like the dunes: drawn once per size and theme.
-  final _held = double.tryParse(Uri.base.queryParameters['t'] ?? '');
-  late final _time = ValueNotifier<double>(_held ?? _stillAt);
+class _HorizonSeaState extends State<_HorizonSea>
+    with _BackdropMotion<_HorizonSea> {
   late final _shader = widget.program.fragmentShader();
   final _still = StillPicture();
-  void Function()? _unlisten;
-
-  @override
-  void initState() {
-    super.initState();
-    if (_held != null) {
-      _unlisten = exposeShoreClock((t) => _time.value = t % shoreLoop);
-    }
-  }
 
   @override
   void dispose() {
-    _unlisten?.call();
-    _time.dispose();
     _still.dispose();
     _shader.dispose();
     super.dispose();
@@ -578,7 +656,8 @@ class _HorizonSeaState extends State<_HorizonSea> {
       painter: _HorizonShaderPainter(
         shader: _shader,
         still: _still,
-        time: _time,
+        live: live,
+        time: time,
         colors: widget.colors,
         mode: widget.mode,
       ),
@@ -591,6 +670,7 @@ class _HorizonShaderPainter extends CustomPainter {
   _HorizonShaderPainter({
     required this.shader,
     required this.still,
+    required this.live,
     required this.time,
     required this.colors,
     required this.mode,
@@ -598,6 +678,7 @@ class _HorizonShaderPainter extends CustomPainter {
 
   final ui.FragmentShader shader;
   final StillPicture still;
+  final bool live;
   final ValueNotifier<double> time;
   final _Horizon colors;
   final double mode;
@@ -605,7 +686,9 @@ class _HorizonShaderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final t = time.value;
-    still.paint(
+    _paintBackdrop(
+      live,
+      still,
       canvas,
       size,
       (t, mode, colors),
@@ -625,7 +708,10 @@ class _HorizonShaderPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_HorizonShaderPainter old) =>
-      old.shader != shader || old.colors != colors || old.mode != mode;
+      old.shader != shader ||
+      old.live != live ||
+      old.colors != colors ||
+      old.mode != mode;
 }
 
 /// The Beira-Mar photograph, a mask of its water, and the shader that moves
@@ -701,7 +787,11 @@ class SharedCityBackdrop extends StatelessWidget {
             final unseen = !visible && (warming?.value ?? false);
             return Offstage(
               offstage: !visible && !unseen,
-              child: Opacity(opacity: unseen ? 1 / 255 : 1, child: layer),
+              // Its sea moves only while the photo slides are on the screen.
+              child: TickerMode(
+                enabled: visible,
+                child: Opacity(opacity: unseen ? 1 / 255 : 1, child: layer),
+              ),
             );
           },
           child: SlideFrame(
@@ -812,21 +902,17 @@ class _CityField extends StatefulWidget {
   State<_CityField> createState() => _CityFieldState();
 }
 
-class _CityFieldState extends State<_CityField> {
-  // A still picture, like the dunes: the photo, tinted and cropped once.
+class _CityFieldState extends State<_CityField>
+    with _BackdropMotion<_CityField> {
+  // A still picture, like the dunes: the photo, tinted and cropped once; on
+  // the WebAssembly build its sea moves.
   CityPhoto? _photo;
   ui.FragmentShader? _shader;
-  final _held = double.tryParse(Uri.base.queryParameters['t'] ?? '');
-  late final _time = ValueNotifier<double>(_held ?? _stillAt);
   final _still = StillPicture();
-  void Function()? _unlisten;
 
   @override
   void initState() {
     super.initState();
-    if (_held != null) {
-      _unlisten = exposeShoreClock((t) => _time.value = t % shoreLoop);
-    }
     final given = widget.photo;
     if (given != null) {
       _adopt(given);
@@ -855,8 +941,6 @@ class _CityFieldState extends State<_CityField> {
 
   @override
   void dispose() {
-    _unlisten?.call();
-    _time.dispose();
     _still.dispose();
     _shader?.dispose();
     super.dispose();
@@ -883,8 +967,9 @@ class _CityFieldState extends State<_CityField> {
                 painter: _CityShaderPainter(
                   shader: shader,
                   still: _still,
+                  live: live,
                   photo: photo,
-                  time: _time,
+                  time: time,
                   align: _cityAlign,
                 ),
                 size: Size.infinite,
@@ -940,6 +1025,7 @@ class _CityShaderPainter extends CustomPainter {
   _CityShaderPainter({
     required this.shader,
     required this.still,
+    required this.live,
     required this.photo,
     required this.time,
     required this.align,
@@ -947,6 +1033,7 @@ class _CityShaderPainter extends CustomPainter {
 
   final ui.FragmentShader shader;
   final StillPicture still;
+  final bool live;
   final CityPhoto photo;
   final ValueNotifier<double> time;
   final Offset align;
@@ -954,7 +1041,9 @@ class _CityShaderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final t = time.value;
-    still.paint(
+    _paintBackdrop(
+      live,
+      still,
       canvas,
       size,
       (t, photo, align),
@@ -965,7 +1054,10 @@ class _CityShaderPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_CityShaderPainter old) =>
-      old.shader != shader || old.photo != photo || old.align != align;
+      old.shader != shader ||
+      old.live != live ||
+      old.photo != photo ||
+      old.align != align;
 }
 
 /// Where the Beira-Mar photo is cropped from when the frame is narrower than

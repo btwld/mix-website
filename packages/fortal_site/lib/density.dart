@@ -30,6 +30,10 @@ const shaderDensity = 1.0;
 /// With a [region], only that part of [size] is drawn: what a scrolling page
 /// shows of a backdrop taller than the screen.
 ///
+/// With [throughTexture], it draws through an image even on a screen no denser
+/// than [density]: a backdrop that changes less often than the screen's frames
+/// then costs its shader once per change, not once per frame.
+///
 /// On a screen no denser than [density], or where [offscreenIsCheap] is false,
 /// [draw] paints straight to [canvas].
 void paintAtDensity(
@@ -38,6 +42,7 @@ void paintAtDensity(
   void Function(Canvas canvas) draw, {
   double density = shaderDensity,
   Rect? region,
+  bool throughTexture = false,
 }) {
   final area = (region ?? Offset.zero & size).intersect(Offset.zero & size);
   if (area.width <= 0 || area.height <= 0) return;
@@ -45,7 +50,7 @@ void paintAtDensity(
   final deviceRatio = views.isEmpty ? 1.0 : views.first.devicePixelRatio;
   final width = (area.width * density).ceil();
   final height = (area.height * density).ceil();
-  if (deviceRatio <= density || !offscreenIsCheap) {
+  if ((deviceRatio <= density && !throughTexture) || !offscreenIsCheap) {
     canvas
       ..save()
       ..clipRect(area);
