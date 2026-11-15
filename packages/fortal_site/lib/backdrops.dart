@@ -72,8 +72,15 @@ mixin _BackdropMotion<T extends StatefulWidget> on State<T> {
   final _held = double.tryParse(Uri.base.queryParameters['t'] ?? '');
   late final time = ValueNotifier<double>(_held ?? _stillAt);
 
+  /// Whether the backdrop is on the screen. Only its clock waits for it: the
+  /// rest of the backdrop (a fade-in, a change of colours, the site's warm-up
+  /// drawing it unseen) carries on. Null is always.
+  ValueListenable<bool>? get shown => null;
+
   /// Whether the backdrop is drawn live, rather than kept as a still picture.
   var live = false;
+  var _ticking = true;
+  ValueListenable<bool>? _shown;
   Timer? _timer;
   void Function()? _unlisten;
 
@@ -88,11 +95,28 @@ mixin _BackdropMotion<T extends StatefulWidget> on State<T> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _ticking = TickerMode.valuesOf(context).enabled;
     live =
         _held == null &&
         offscreenIsCheap &&
         !MediaQuery.disableAnimationsOf(context);
-    final run = live && TickerMode.valuesOf(context).enabled;
+    _syncMotion();
+  }
+
+  @override
+  void didUpdateWidget(T oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncMotion();
+  }
+
+  void _syncMotion() {
+    final shown = this.shown;
+    if (!identical(shown, _shown)) {
+      _shown?.removeListener(_syncMotion);
+      shown?.addListener(_syncMotion);
+      _shown = shown;
+    }
+    final run = live && _ticking && (shown?.value ?? true);
     if (run && _timer == null) {
       final watch = Stopwatch()..start();
       var last = Duration.zero;
@@ -114,6 +138,7 @@ mixin _BackdropMotion<T extends StatefulWidget> on State<T> {
 
   @override
   void dispose() {
+    _shown?.removeListener(_syncMotion);
     _timer?.cancel();
     _unlisten?.call();
     time.dispose();
@@ -269,15 +294,7 @@ class SharedSandBackdrop extends StatelessWidget {
                   children: [BackdropStill.dunes(accent), const _DuneWash()],
                 ),
               )
-            : switch (shown) {
-                final shown? => ValueListenableBuilder(
-                  valueListenable: shown,
-                  builder: (context, on, dunes) =>
-                      TickerMode(enabled: on, child: dunes!),
-                  child: SandBackdrop(scene: 2),
-                ),
-                null => SandBackdrop(scene: 2),
-              },
+            : SandBackdrop(scene: 2, shown: shown),
       ),
       _SharedSandScope(child: child),
     ],
@@ -315,10 +332,19 @@ class _SharedSandScope extends InheritedWidget {
 /// Wind-sculpted Ceará sand dunes (`scene` 0–1) and interdune emerald lagoons
 /// (`scene` 2–3, or `shore: true`).
 class SandBackdrop extends StatelessWidget {
-  const SandBackdrop({super.key, this.shore = false, this.scene, this.program});
+  const SandBackdrop({
+    super.key,
+    this.shore = false,
+    this.scene,
+    this.program,
+    this.shown,
+  });
 
   final bool shore;
   final double? scene;
+
+  /// Whether the dunes are on the screen; their water moves only then.
+  final ValueListenable<bool>? shown;
 
   final ui.FragmentProgram? program;
 
@@ -348,6 +374,7 @@ class SandBackdrop extends StatelessWidget {
             scene: scene ?? (shore ? 3.0 : 0.0),
             water: colors.$1,
             deepWater: colors.$2,
+            shown: shown,
           ),
         ),
         const _DuneWash(),
@@ -421,12 +448,14 @@ class _DuneField extends StatefulWidget {
     required this.scene,
     required this.water,
     required this.deepWater,
+    this.shown,
   });
 
   final ui.FragmentProgram program;
   final double scene;
   final Color water;
   final Color deepWater;
+  final ValueListenable<bool>? shown;
 
   @override
   State<_DuneField> createState() => _DuneFieldState();
@@ -438,6 +467,8 @@ class _DuneFieldState extends State<_DuneField>
   // banks and large dune shapes stay anchored.
   @override
   double get motionRate => 0.8;
+  @override
+  ValueListenable<bool>? get shown => widget.shown;
   late final _shader = widget.program.fragmentShader();
   final _still = StillPicture();
 
@@ -787,17 +818,14 @@ class SharedCityBackdrop extends StatelessWidget {
             final unseen = !visible && (warming?.value ?? false);
             return Offstage(
               offstage: !visible && !unseen,
-              // Its sea moves only while the photo slides are on the screen.
-              child: TickerMode(
-                enabled: visible,
-                child: Opacity(opacity: unseen ? 1 / 255 : 1, child: layer),
-              ),
+              child: Opacity(opacity: unseen ? 1 / 255 : 1, child: layer),
             );
           },
           child: SlideFrame(
             backdrop: shadersOff
                 ? const _CityStill()
-                : _CityField(compact: false, photo: photo),
+                // Its sea moves only while the photo slides are on the screen.
+                : _CityField(compact: false, photo: photo, shown: shown),
             child: const Stack(
               children: [
                 Positioned(right: gutter, bottom: Gap.x4, child: CityCredit()),
@@ -893,10 +921,11 @@ class _CityStill extends StatelessWidget {
 }
 
 class _CityField extends StatefulWidget {
-  const _CityField({required this.compact, required this.photo});
+  const _CityField({required this.compact, required this.photo, this.shown});
 
   final bool compact;
   final CityPhoto? photo;
+  final ValueListenable<bool>? shown;
 
   @override
   State<_CityField> createState() => _CityFieldState();
@@ -904,6 +933,9 @@ class _CityField extends StatefulWidget {
 
 class _CityFieldState extends State<_CityField>
     with _BackdropMotion<_CityField> {
+  @override
+  ValueListenable<bool>? get shown => widget.shown;
+
   // A still picture, like the dunes: the photo, tinted and cropped once; on
   // the WebAssembly build its sea moves.
   CityPhoto? _photo;
