@@ -4,12 +4,12 @@
     "fortal-site": {
       "source": {
         "repository": "btwld/mix-website",
-        "commit": "744534ac3a69192a429c328edcc944bdafd90b3d"
+        "commit": "086ad5b488a43eed50e7bdbef85e58f168bc1858"
       },
       "artifact": {
-        "url": "https://github.com/btwld/mix-website/releases/download/site-input-fortal-site-744534ac3a69/fortal-site-744534ac3a69.tar.gz",
-        "sha256": "5705663219e6724669baaf5e39bc6ff0f9759790ba0a093d2a5051af228df59b",
-        "size": 16938043
+        "url": "https://github.com/btwld/mix-website/releases/download/site-input-fortal-site-086ad5b488a4/fortal-site-086ad5b488a4.tar.gz",
+        "sha256": "41a5f280a6e72dec9ffa7ae324103858241a1c4a2e9eabd83d484b82ecbfecdf",
+        "size": 16940244
       },
       "toolchain": {
         "flutter": "3.50.0",
@@ -20,7 +20,7 @@
       "producer": {
         "repository": "btwld/mix-website",
         "script": "scripts/site-inputs/produce/fortal-site.sh",
-        "commit": "3017606b0f16fe218326298bd0b5b0c5899fcf26"
+        "commit": "c1ec76512a0a71188bcabb8f69caf1b4036719bc"
       }
     },
     "mix-previews": {

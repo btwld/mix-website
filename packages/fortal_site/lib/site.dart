@@ -38,6 +38,9 @@ const _slides = [
 // screen with them in a turn.
 const _firstCitySlide = 7;
 
+// The Themes slide, which draws its own horizon over the dunes.
+const _themesSlide = 6;
+
 // The links at the top, and the slide each opens.
 const _links = [
   (section: 'Components', slide: 1),
@@ -81,6 +84,8 @@ class _SiteState extends State<Site> with SingleTickerProviderStateMixin {
     value: _at.toDouble(),
   )..addListener(_showCity);
   late final _cityShown = ValueNotifier(_at >= _firstCitySlide);
+  // The dunes behind the components, charts, agents and dashboard slides.
+  late final _sandShown = ValueNotifier(_at > 0 && _at < _themesSlide);
   var _turning = false;
   // The slide a turn is leaving, which stays live until the turn ends.
   int? _leaving;
@@ -148,8 +153,12 @@ class _SiteState extends State<Site> with SingleTickerProviderStateMixin {
     if (mounted) _warmingCity.value = false;
   }
 
-  // The shared photo shows once the turn has left the slide before it.
-  void _showCity() => _cityShown.value = _page.value > _firstCitySlide - 1;
+  // The shared photo shows once the turn has left the slide before it; the
+  // dunes, while any of their slides is on the screen.
+  void _showCity() {
+    _cityShown.value = _page.value > _firstCitySlide - 1;
+    _sandShown.value = _page.value > 0 && _page.value < _themesSlide;
+  }
 
   Future<void> _go(int slide) async {
     final to = slide.clamp(0, _slides.length - 1);
@@ -196,6 +205,7 @@ class _SiteState extends State<Site> with SingleTickerProviderStateMixin {
   void dispose() {
     _page.dispose();
     _cityShown.dispose();
+    _sandShown.dispose();
     _warming.dispose();
     _warmingCity.dispose();
     _narrowScroll.dispose();
@@ -409,6 +419,7 @@ class _SiteState extends State<Site> with SingleTickerProviderStateMixin {
           child: Stack(
             children: [
               SharedSandBackdrop(
+                shown: _sandShown,
                 child: SharedCityBackdrop(
                   shown: _cityShown,
                   warming: _warmingCity,
