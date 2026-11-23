@@ -1,6 +1,11 @@
-include: package:flutter_lints/flutter.yaml
+include:
+  - package:bitwild_analysis/flutter.yaml
+  - package:bitwild_analysis/plugin.yaml
 
 analyzer:
   exclude:
     - build/**
     - web/**
+    # Installed by the Remix CLI (see remix.yaml). Lint it in btwld/remix,
+    # so local fixes don't drift from the registry.
+    - lib/ui/**

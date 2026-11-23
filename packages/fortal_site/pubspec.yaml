@@ -15,13 +15,17 @@ dependencies:
   remix_ui_icons: ^1.0.0-beta.1
 
 dev_dependencies:
+  analyzer: ">=14.7.0 <15.0.0"
+  bitwild_analysis:
+    git:
+      url: https://github.com/btwld/lints.git
+      path: packages/bitwild_analysis
+      ref: v0.3.0
+  build_runner: ">=2.10.1 <3.0.0"
   flutter_test:
     sdk: flutter
-  analyzer: ">=14.7.0 <15.0.0"
-  flutter_lints: ^6.0.0
-  remix_cli: ^1.0.0-beta.1
-  build_runner: ">=2.10.1 <3.0.0"
   mix_generator: ">=2.2.0-beta.3 <3.0.0"
+  remix_cli: ^1.0.0-beta.1
 
 flutter:
   uses-material-design: false

@@ -20,12 +20,16 @@ dependencies:
   remix_ui_fonts: ^0.1.0
 
 dev_dependencies:
+  bitwild_analysis:
+    git:
+      url: https://github.com/btwld/lints.git
+      path: packages/bitwild_analysis
+      ref: v0.3.0
+  build_runner: ^2.10.1
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
-  remix_cli: 1.0.0-rc.1
-  build_runner: ^2.10.1
   mix_generator: ^2.2.0-beta.3
+  remix_cli: 1.0.0-rc.1
 
 flutter:
   uses-material-design: true

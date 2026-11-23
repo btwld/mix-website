@@ -28,10 +28,13 @@ dependencies:
       ref: bc95c45d5e5ddd269c83c3ede2c30a900882bf0e
 
 dev_dependencies:
+  bitwild_analysis:
+    git:
+      url: https://github.com/btwld/lints.git
+      path: packages/bitwild_analysis
+      ref: v0.3.0
   flutter_test:
     sdk: flutter
-  dart_code_metrics_presets: ^2.24.0
-  flutter_lints: ^6.0.0
 
 # mix_winds uses Mix APIs (onFocusVisible, Pressable.semanticsLabel) that exist
 # in the monorepo but not in any published mix release, and remix pins mix from
