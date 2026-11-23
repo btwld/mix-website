@@ -149,13 +149,13 @@ mixin _BackdropMotion<T extends StatefulWidget> on State<T> {
 /// Draws a backdrop: when [live], through a texture at one texture pixel per
 /// logical pixel, again on each update; otherwise as [still]'s kept picture.
 void _paintBackdrop(
-  bool live,
   StillPicture still,
   Canvas canvas,
   Size size,
   Object inputs,
-  void Function(Canvas canvas) draw,
-) => live
+  void Function(Canvas canvas) draw, {
+  required bool live,
+}) => live
     ? paintAtDensity(canvas, size, draw, throughTexture: true)
     : still.paint(canvas, size, inputs, draw);
 
@@ -519,7 +519,7 @@ class _DunesShaderPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final t = time.value;
     _paintBackdrop(
-      live,
+      live: live,
       still,
       canvas,
       size,
@@ -718,7 +718,7 @@ class _HorizonShaderPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final t = time.value;
     _paintBackdrop(
-      live,
+      live: live,
       still,
       canvas,
       size,
@@ -1074,7 +1074,7 @@ class _CityShaderPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final t = time.value;
     _paintBackdrop(
-      live,
+      live: live,
       still,
       canvas,
       size,

@@ -31,8 +31,8 @@ void main() {
         BackdropShaders(
           horizon: horizon,
           dunes: dunes,
-          child: SharedSandBackdrop(
-            child: const Column(
+          child: const SharedSandBackdrop(
+            child: Column(
               children: [
                 Expanded(child: SandBackdrop()),
                 Expanded(child: SandBackdrop()),

@@ -26,7 +26,7 @@ class DashboardSlide extends StatelessWidget {
       onDark: true,
       compact: compact,
     );
-    final backdrop = SandBackdrop(scene: 2);
+    const backdrop = SandBackdrop(scene: 2);
     if (compact) {
       return NarrowSection(
         backdrop: backdrop,

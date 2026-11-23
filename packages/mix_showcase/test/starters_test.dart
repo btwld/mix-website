@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mix_showcase/remix_starter.dart'
+    as remix_starter;
 import 'package:mix_showcase/starters/mix.dart'
     as mix_starter;
 import 'package:mix_showcase/starters/naked_ui.dart'
     as naked_starter;
-import 'package:mix_showcase/remix_starter.dart'
-    as remix_starter;
 import 'package:remix/remix.dart';
 
 /// Runs [body] with debugPrint captured. The restore must happen before the

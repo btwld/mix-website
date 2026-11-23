@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
-import 'package:mix_docs_preview/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:mix/mix.dart';
+import 'package:mix_docs_preview/helpers.dart';
 
 void main() {
   runMixApp(Example());

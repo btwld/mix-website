@@ -63,15 +63,16 @@ class Host extends ChangeNotifier {
     final value = _values[demo]?[key];
     if (value is T) return value;
     // JSON has one number type; a whole number arrives as an int.
-    if (fallback is double && value is num)
+    if (fallback is double && value is num) {
       return value.toDouble() as T;
+    }
     return fallback;
   }
 
   List<String> list(String demo, String key) =>
-      (read<List<Object?>>(
+      read<List<Object?>>(
         demo,
         key,
         const [],
-      )).whereType<String>().toList();
+      ).whereType<String>().toList();
 }
