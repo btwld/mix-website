@@ -29,12 +29,12 @@ class ChartsSlide extends StatelessWidget {
     final cards = [_line(), _bars(), _pie()];
     if (compact) {
       return NarrowSection(
-        backdrop: SandBackdrop(scene: 2),
+        backdrop: const SandBackdrop(scene: 2),
         children: [heading, ...cards],
       );
     }
     return SlideFrame(
-      backdrop: SandBackdrop(scene: 2),
+      backdrop: const SandBackdrop(scene: 2),
       child: Stack(
         children: [
           Positioned(left: gutter, top: headingTop, width: 900, child: heading),

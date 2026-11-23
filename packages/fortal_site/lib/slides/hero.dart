@@ -14,6 +14,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:remix/remix.dart';
+import 'package:remix_ui_icons/remix_ui_icons.dart';
 
 import '../bento.dart';
 import '../density.dart' show HeldPaint;
@@ -22,8 +23,6 @@ import '../kit.dart';
 import '../shore.dart';
 import '../theme.dart';
 import '../ui/ui.dart';
-
-import 'package:remix_ui_icons/remix_ui_icons.dart';
 
 const _stillAt = 2.2; // a wave at its furthest reach
 
@@ -91,7 +90,7 @@ class _HeroSlideState extends State<HeroSlide>
 
   /// Takes the boxes the collage has just laid its cards out in; if they
   /// differ from the ones the shader has, it gets them on the next frame.
-  void _laidOut(bool compact, List<Rect> cards) {
+  void _laidOut(List<Rect> cards, {required bool compact}) {
     if (listEquals(compact ? _narrowCards : _wideCards, cards)) return;
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -197,7 +196,7 @@ class _HeroSlideState extends State<HeroSlide>
                   boxes: boxes,
                   compact: compact,
                   onGo: widget.onGo,
-                  onLaidOut: (cards) => _laidOut(compact, cards),
+                  onLaidOut: (cards) => _laidOut(cards, compact: compact),
                 ),
               ),
             ),

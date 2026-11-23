@@ -29,11 +29,11 @@ class UseSlide extends StatelessWidget {
     // The command-line tool is installed once, globally; `remix` is then on
     // the path. The version constraint is needed while 1.0 is in beta: the
     // newest stable release is the older 0.1.
-    final setUp = _Step(
+    const setUp = _Step(
       number: '1',
       title: 'Install the CLI',
       detail: '',
-      code: const CodeCard(
+      code: CodeCard(
         oneLine: true,
         lines: [
           CodeLine([
@@ -45,11 +45,11 @@ class UseSlide extends StatelessWidget {
         ],
       ),
     );
-    final add = _Step(
+    const add = _Step(
       number: '2',
       title: 'Add Fortal',
       detail: '',
-      code: const CodeCard(
+      code: CodeCard(
         oneLine: true,
         lines: [
           CodeLine([
@@ -148,7 +148,11 @@ class UseSlide extends StatelessWidget {
             ),
           ),
           // The closing line, over the bay below the steps.
-          Positioned(left: gutter, bottom: 900 - 785 + Gap.x12, child: closing),
+          const Positioned(
+            left: gutter,
+            bottom: 900 - 785 + Gap.x12,
+            child: closing,
+          ),
         ],
       ),
     );

@@ -619,7 +619,7 @@ class _DeskState extends State<_Desk> {
       onDark: true,
       compact: widget.compact,
     );
-    final backdrop = SandBackdrop(scene: 2);
+    const backdrop = SandBackdrop(scene: 2);
     // Fortal's small card, so the conversation fits the canvas at 110%.
     // On a wide screen both cards take the height they are given: the
     // conversation fills with its transcript, and the activity sits at the

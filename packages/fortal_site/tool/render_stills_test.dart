@@ -14,12 +14,12 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remix/remix.dart' show ColorToken;
 import 'package:fortal_landing/backdrops.dart';
 import 'package:fortal_landing/kit.dart';
 import 'package:fortal_landing/slides/themes.dart';
 import 'package:fortal_landing/theme.dart';
 import 'package:fortal_landing/ui/ui.dart';
+import 'package:remix/remix.dart' show ColorToken;
 
 /// Texture pixels per design pixel. The narrow column is designed 480 wide
 /// and scaled to the screen, so 2 is 960 pixels across: sharper than the

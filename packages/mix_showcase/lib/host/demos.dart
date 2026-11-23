@@ -10,15 +10,15 @@ import '../demos/bell/bell.dart';
 import '../demos/billing_select/billing_select.dart';
 import '../demos/checkout/checkout.dart';
 import '../demos/confirm_button/confirm_button.dart';
+import '../demos/plan_card/plan_card.dart';
+import '../demos/plan_list/plan_list.dart';
 import '../demos/plan_picker/plan_picker.dart';
 import '../demos/plan_picker/plan_row.dart';
 import '../demos/plan_picker/plan_segment.dart';
-import '../demos/plan_card/plan_card.dart';
-import '../demos/plan_list/plan_list.dart';
 import '../demos/plans.dart';
+import '../demos/themed_plan/themed_plan.dart';
 import '../demos/toggle/style.dart';
 import '../demos/toggle/toggle.dart';
-import '../demos/themed_plan/themed_plan.dart';
 import '../demos/upgrade_button/upgrade_button.dart';
 import 'bridge.dart';
 import 'host.dart';
@@ -213,8 +213,9 @@ class _StatesDemoState extends State<_StatesDemo> {
   void _hold() {
     final next = widget.host.list('states', 'hold').toSet();
     if (next.length == held.length &&
-        next.containsAll(held))
+        next.containsAll(held)) {
       return;
+    }
     for (final MapEntry(key: state, value: name)
         in names.entries) {
       if (next.contains(name) != held.contains(name)) {

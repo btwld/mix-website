@@ -303,7 +303,7 @@ class _SiteState extends State<Site> with SingleTickerProviderStateMixin {
                     ),
                     KeyedSubtree(
                       key: _sections['Themes'],
-                      child: ThemesSlide(compact: true),
+                      child: const ThemesSlide(compact: true),
                     ),
                     KeyedSubtree(
                       key: _sections['Foundations'],

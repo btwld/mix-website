@@ -138,7 +138,7 @@ void main() {
   group('layout is a Mix style, not a Flutter widget', () {
     final layout = RegExp(r'\b(Row|Column|Flex)\(');
     // Plain Flutter on purpose: it shows Naked UI without Mix.
-    final exempt = 'lib/starters/naked_ui.dart';
+    const exempt = 'lib/starters/naked_ui.dart';
     for (final file in readerFiles) {
       if (file.path == exempt) continue;
       test(file.path, () {
@@ -242,7 +242,7 @@ void main() {
     'theme_test checks every color token declared in theme.dart',
     () {
       final declared =
-          RegExp(r"const \$(\w+) = ColorToken\(")
+          RegExp(r'const \$(\w+) = ColorToken\(')
               .allMatches(
                 File('lib/theme.dart').readAsStringSync(),
               )
